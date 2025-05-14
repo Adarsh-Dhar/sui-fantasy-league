@@ -47,16 +47,14 @@ const Confetti = () => {
     let angle = 0;
     
     function draw() {
-      ctx.clearRect(0, 0, W, H);
+      ctx?.clearRect(0, 0, W, H);
       
       for (let i = 0; i < mp; i++) {
         const p = particles[i];
-        ctx.beginPath();
-        ctx.lineWidth = p.r;
-        ctx.strokeStyle = p.color;
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + p.tilt + p.speedX, p.y + p.r);
-        ctx.stroke();
+        ctx?.beginPath();
+        ctx?.moveTo(p.x, p.y);
+        ctx?.lineTo(p.x + p.tilt + p.speedX, p.y + p.r);
+        ctx?.stroke();
       }
       
       update();
