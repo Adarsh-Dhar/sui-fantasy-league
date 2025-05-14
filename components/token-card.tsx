@@ -23,36 +23,16 @@ export const TokenCard = ({ token, selected, onClick }: TokenCardProps) => {
     >
       <div className="flex items-center space-x-3">
         <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-          {token.logo ? (
-            <img
-              src={token.logo}
-              alt={token.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-lg font-bold">{token.symbol[0]}</span>
-          )}
+          <span className="text-lg font-bold">{token.symbol[0]}</span>
         </div>
         <div className="flex-1">
           <div className="flex justify-between items-center">
             <h3 className="font-medium">{token.name}</h3>
-            <span
-              className={cn(
-                "text-sm font-medium",
-                token.change24h >= 0
-                  ? "text-[hsl(var(--positive))]"
-                  : "text-[hsl(var(--negative))]"
-              )}
-            >
-              {token.change24h >= 0 ? "+" : ""}
-              {token.change24h.toFixed(2)}%
-            </span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span className="text-sm text-muted-foreground">
               {token.symbol}
             </span>
-            <span className="text-sm">${token.price.toLocaleString()}</span>
           </div>
         </div>
       </div>

@@ -5,81 +5,52 @@ export const tokens: TokenData[] = [
     id: 'sui',
     name: 'Sui',
     symbol: 'SUI',
-    logo: 'https://cryptologos.cc/logos/sui-sui-logo.png',
-    price: 1.25,
-    change24h: 5.2,
   },
   {
     id: 'bitcoin',
     name: 'Bitcoin',
     symbol: 'BTC',
-    logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
-    price: 68423.12,
-    change24h: 2.1,
   },
   {
     id: 'ethereum',
     name: 'Ethereum',
     symbol: 'ETH',
-    logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
-    price: 3451.67,
-    change24h: 1.5,
+ 
   },
   {
     id: 'solana',
     name: 'Solana',
     symbol: 'SOL',
-    logo: 'https://cryptologos.cc/logos/solana-sol-logo.png',
-    price: 143.78,
-    change24h: 4.2,
   },
   {
     id: 'cardano',
     name: 'Cardano',
     symbol: 'ADA',
-    logo: 'https://cryptologos.cc/logos/cardano-ada-logo.png',
-    price: 0.45,
-    change24h: -1.8,
   },
   {
     id: 'polkadot',
     name: 'Polkadot',
     symbol: 'DOT',
-    logo: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.png',
-    price: 6.78,
-    change24h: -0.5,
   },
   {
     id: 'ripple',
     name: 'Ripple',
     symbol: 'XRP',
-    logo: 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
-    price: 0.56,
-    change24h: 1.2,
   },
   {
     id: 'binancecoin',
     name: 'Binance Coin',
     symbol: 'BNB',
-    logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png',
-    price: 585.45,
-    change24h: 0.8,
   },
   {
     id: 'avalanche',
     name: 'Avalanche',
     symbol: 'AVAX',
-    logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png',
-    price: 34.21,
-    change24h: 3.5,
   },
   {
     id: 'dogecoin',
     name: 'Dogecoin',
     symbol: 'DOGE',
-    logo: 'https://cryptologos.cc/logos/dogecoin-doge-logo.png',
-    price: 0.12,
-    change24h: -2.1,
   },
 ];
 
@@ -353,6 +324,24 @@ export const generatePriceHistory = (
 
   return history;
 };
+
+// Fetch and log tokens from the API route
+export async function fetchAndLogTokens() {
+  try {
+    const response = await fetch('/api/tokens');
+    
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Tokens API response:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching tokens:', error);
+    return null;
+  }
+}
 
 // Generate match history data
 export const generateMatchHistory = (match: Match, dataPoints: number) => {

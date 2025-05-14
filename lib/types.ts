@@ -2,9 +2,6 @@ export interface TokenData {
   id: string;
   name: string;
   symbol: string;
-  logo: string;
-  price: number;
-  change24h: number;
 }
 
 export interface Team {
