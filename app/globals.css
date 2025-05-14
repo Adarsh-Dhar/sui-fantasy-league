@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 98%;
+    --card: 222 47% 13%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 47% 13%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 217 92% 56%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 223 47% 20%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 142 71% 20%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 223 47% 20%;
+    --input: 223 47% 20%;
+    --ring: 142 71% 45%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --positive: 142 71% 45%;
+    --negative: 0 84% 60%;
+    --radius: 0.5rem;
+  }
+  
+  .light {
+    --background: 210 40% 96%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 92% 56%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 90%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 71% 45%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --positive: 142 71% 45%;
+    --negative: 0 84% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.stadium-bg {
+  background-image: url('https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+}
+
+@layer components {
+  .match-card {
+    @apply relative overflow-hidden border rounded-lg p-6 bg-card/90 backdrop-blur-sm hover:shadow-lg transition-all duration-300;
+  }
+  
+  .match-card:before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-card/40 to-card/80 opacity-80 z-0;
+  }
+  
+  .team-card {
+    @apply relative overflow-hidden border rounded-lg p-6 bg-card/90 backdrop-blur-sm hover:shadow-lg transition-all duration-300;
+  }
+  
+  .team-card:before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-card/40 to-card/80 opacity-80 z-0;
+  }
+
+  .positive-value {
+    @apply text-[hsl(var(--positive))];
+  }
+  
+  .negative-value {
+    @apply text-[hsl(var(--negative))];
+  }
+  
+  .token-pill {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-2 mb-2;
+  }
+  
+  .arena-border {
+    @apply relative rounded-lg overflow-hidden;
+  }
+  
+  .arena-border:after {
+    content: '';
+    @apply absolute inset-0 border-2 border-secondary/40 rounded-lg pointer-events-none;
+    box-shadow: 0 0 15px rgba(var(--secondary), 0.3);
+  }
+  
+  .stats-card {
+    @apply bg-card/70 backdrop-blur-sm p-4 rounded-lg relative overflow-hidden border border-border/50;
+  }
+  
+  .stats-card:before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-transparent to-secondary/5 z-0;
+  }
+  
+  .glow-text {
+    text-shadow: 0 0 10px rgba(var(--primary), 0.7);
+  }
+}
