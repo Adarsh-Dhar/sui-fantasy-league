@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Trophy, Home, History, User, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ConnectButton } from '@mysten/dapp-kit';
 
 const Navigation = () => {
   const pathname = usePathname();
@@ -49,6 +50,10 @@ const Navigation = () => {
             </Link>
           ))}
         </nav>
+
+        <div className="hidden md:block ml-auto">
+          <ConnectButton onClick={() => console.log('Connected')} className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium shadow-md transition-all duration-200 hover:shadow-lg hover:translate-y-[-1px] flex items-center gap-2" />
+        </div>
 
         <button
           className="ml-auto md:hidden"
