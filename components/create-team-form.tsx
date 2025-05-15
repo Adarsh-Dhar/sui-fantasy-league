@@ -18,6 +18,7 @@ export const CreateTeamForm = () => {
   const account = useCurrentAccount();
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [step, setStep] = useState(1);
+  const [teamName, setTeamName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,8 +110,8 @@ export const CreateTeamForm = () => {
     setIsCreating(true);
     
     try {
-      // Create a team name from the wallet address if not provided
-      const teamName = `Team ${account.address.slice(0, 6)}`;
+      // Use the user-provided team name or generate a default one if empty
+      const finalTeamName = teamName.trim() || `Team ${account.address.slice(0, 6)}`;
       
       // Call the team API to create a team with the player address directly
       const response = await fetch('/api/game/team', {
@@ -119,7 +120,7 @@ export const CreateTeamForm = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: teamName,
+          name: finalTeamName,
           address: account.address,
           tokens: selectedTokens
         }),
@@ -145,17 +146,22 @@ export const CreateTeamForm = () => {
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold">Create Your Crypto Team</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {step === 1 ? "Sign in with your wallet" : "Select 1-5 tokens for your team"}
+          {step === 1 ? "Sign in with your wallet" : step === 2 ? "Select 1-5 tokens for your team" : "Name your team"}
         </p>
       </div>
 
       <div className="relative">
         {/* Progress indicator */}
         <div className="absolute top-0 left-0 w-full flex mb-6">
-          <div className="w-1/2 h-1 rounded-l-full bg-primary"></div>
+          <div className="w-1/3 h-1 rounded-l-full bg-primary"></div>
           <div
-            className={`w-1/2 h-1 rounded-r-full ${
+            className={`w-1/3 h-1 ${
               step > 1 ? "bg-primary" : "bg-muted"
+            }`}
+          ></div>
+          <div
+            className={`w-1/3 h-1 rounded-r-full ${
+              step > 2 ? "bg-primary" : "bg-muted"
             }`}
           ></div>
         </div>
@@ -627,21 +633,79 @@ export const CreateTeamForm = () => {
       </div>
 
       {step === 2 && (
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-between">
           <Button
-            onClick={handleCreateTeam}
-            disabled={isCreating || selectedTokens.length === 0}
+            onClick={() => setStep(1)}
+            variant="outline"
+            className="px-6 py-2"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={() => selectedTokens.length > 0 ? setStep(3) : null}
+            disabled={selectedTokens.length === 0}
             className="bg-primary hover:bg-primary/90 text-white rounded-lg px-6 py-2 font-medium shadow-md transition-all duration-200 hover:shadow-lg flex items-center gap-2"
           >
-            {isCreating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Team"
-            )}
+            Next
           </Button>
+        </div>
+      )}
+      
+      {step === 3 && (
+        <div className="mt-8">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium mb-2">Name Your Team</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Give your team a unique name to stand out in the leaderboard
+              </p>
+              <input
+                type="text"
+                placeholder="Enter your team name"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              />
+              
+              <div className="mt-6">
+                <h4 className="text-sm font-medium mb-2">Selected Tokens</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedTokens.map((tokenId) => {
+                    const token = tokens.find(t => t.id === tokenId);
+                    return token ? (
+                      <div key={token.id} className="bg-accent/50 rounded-full px-3 py-1 text-xs flex items-center">
+                        {token.symbol}
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-between mt-6">
+              <Button
+                onClick={() => setStep(2)}
+                variant="outline"
+                className="px-6 py-2"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleCreateTeam}
+                disabled={isCreating}
+                className="bg-primary hover:bg-primary/90 text-white rounded-lg px-6 py-2 font-medium shadow-md transition-all duration-200 hover:shadow-lg flex items-center gap-2"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Team"
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
