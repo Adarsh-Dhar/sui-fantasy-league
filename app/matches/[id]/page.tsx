@@ -52,15 +52,25 @@ export default function MatchDetailPage() {
 
   // Fetch match data
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchMatch = async () => {
       try {
         const matchId = params.id as string;
         const response = await fetch(`/api/game/match?id=${matchId}`);
         
-        if (response.ok) {
+        if (response.ok && isMounted) {
           const data = await response.json();
-          setMatch(data.match);
-          setMatchEnded(data.match.status === "COMPLETED");
+          const newMatch = data.match;
+          
+          // Only update state if there's a change in match status or players
+          if (!match || 
+              match.status !== newMatch.status || 
+              match.playerTwoId !== newMatch.playerTwoId) {
+            console.log("Match updated:", newMatch);
+            setMatch(newMatch);
+            setMatchEnded(newMatch.status === "COMPLETED");
+          }
         }
       } catch (error) {
         console.error("Error fetching match:", error);
@@ -68,6 +78,17 @@ export default function MatchDetailPage() {
     };
 
     fetchMatch();
+    
+    // Set up polling to refresh match data
+    // Use more frequent polling (3 seconds) for pending matches waiting for an opponent
+    // and less frequent polling (15 seconds) for matches in progress or completed
+    const pollingInterval = match && match.status === "PENDING" && !match.playerTwo ? 3000 : 15000;
+    const intervalId = setInterval(fetchMatch, pollingInterval);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, [params.id]);
 
   // Fetch user teams for joining a match
@@ -118,11 +139,17 @@ export default function MatchDetailPage() {
       });
 
       if (response.ok) {
-        // Refresh the match data
+        // Immediately refresh the match data to show the updated state
         const updatedMatchResponse = await fetch(`/api/game/match?id=${match.id}`);
         if (updatedMatchResponse.ok) {
           const data = await updatedMatchResponse.json();
           setMatch(data.match);
+          
+          // Force a refresh of the matches list in the background
+          // This helps ensure the matches list is updated when navigating back
+          fetch(`/api/game/match?address=${account.address}`, { cache: 'no-store' })
+            .then(() => console.log('Matches list refreshed in background'))
+            .catch(err => console.error('Error refreshing matches list:', err));
         }
       } else {
         const error = await response.json();
