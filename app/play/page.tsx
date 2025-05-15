@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Trophy, Users, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trophy, Users, Zap, Clock, Coins } from "lucide-react";
 import { Team } from "@/lib/types";
 
 export default function PlayPage() {
@@ -30,6 +31,8 @@ export default function PlayPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [matchType, setMatchType] = useState<"RANDOM" | "FRIEND">("RANDOM");
+  const [matchDuration, setMatchDuration] = useState<string>("1m");
+  const [matchPrice, setMatchPrice] = useState<string>("1");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -70,6 +73,8 @@ export default function PlayPage() {
           teamId: selectedTeamId,
           type: matchType,
           address: account?.address,
+          duration: matchDuration,
+          price: parseInt(matchPrice),
         }),
       });
 
@@ -196,6 +201,103 @@ export default function PlayPage() {
                 </div>
               </div>
             </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              Match Duration
+            </CardTitle>
+            <CardDescription>
+              Select how long the match will last
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={matchDuration}
+              onValueChange={(value) => setMatchDuration(value)}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
+              <div className={`border rounded-lg p-4 ${matchDuration === "1m" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-start space-x-3">
+                  <RadioGroupItem value="1m" id="1m" className="mt-1" />
+                  <div>
+                    <Label htmlFor="1m" className="text-base font-medium">
+                      1 Minute
+                    </Label>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={`border rounded-lg p-4 ${matchDuration === "5m" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-start space-x-3">
+                  <RadioGroupItem value="5m" id="5m" className="mt-1" />
+                  <div>
+                    <Label htmlFor="5m" className="text-base font-medium">
+                      5 Minutes
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`border rounded-lg p-4 ${matchDuration === "1h" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-start space-x-3">
+                  <RadioGroupItem value="1h" id="1h" className="mt-1" />
+                  <div>
+                    <Label htmlFor="1h" className="text-base font-medium">
+                      1 Hour
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`border rounded-lg p-4 ${matchDuration === "12h" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-start space-x-3">
+                  <RadioGroupItem value="12h" id="12h" className="mt-1" />
+                  <div>
+                    <Label htmlFor="12h" className="text-base font-medium">
+                      12 Hours
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-primary" />
+              Match Price
+            </CardTitle>
+            <CardDescription>
+              Set the price in SUI tokens (natural numbers only)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="number"
+                min="1"
+                step="1"
+                value={matchPrice}
+                onChange={(e) => {
+                  // Ensure only natural numbers (positive integers)
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value) && value > 0) {
+                    setMatchPrice(value.toString());
+                  } else if (e.target.value === "") {
+                    setMatchPrice("");
+                  }
+                }}
+                className="w-full max-w-xs"
+                placeholder="Enter SUI amount"
+              />
+              <span className="font-medium">SUI</span>
+            </div>
           </CardContent>
         </Card>
 

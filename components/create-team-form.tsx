@@ -7,11 +7,7 @@ import { Check, Plus, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 
-interface Token {
-  id: string;
-  symbol: string;
-  name: string;
-}
+import { TokenData } from "@/lib/types";
 
 export const CreateTeamForm = () => {
   const router = useRouter();
@@ -20,7 +16,7 @@ export const CreateTeamForm = () => {
   const [step, setStep] = useState(1);
   const [teamName, setTeamName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [tokens, setTokens] = useState<Token[]>([]);
+  const [tokens, setTokens] = useState<TokenData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,9 +35,22 @@ export const CreateTeamForm = () => {
         }
         
         const data = await response.json();
-        setTokens(data);
+        
+        // Ensure the data is in the correct format
+        if (Array.isArray(data)) {
+          // Make sure each token has the required fields
+          const validTokens = data.filter(token => 
+            token && typeof token === 'object' && 
+            'id' in token && 'name' in token && 'symbol' in token
+          );
+          setTokens(validTokens);
+        } else {
+          console.error('Invalid token data format:', data);
+          setTokens([]);
+        }
       } catch (error) {
         console.error('Error fetching tokens:', error);
+        setTokens([]);
       } finally {
         setIsLoading(false);
       }

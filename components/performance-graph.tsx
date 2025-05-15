@@ -48,12 +48,130 @@ interface PerformanceGraphProps {
   match: Match;
 }
 
+interface TokenInfo {
+  id: string;
+  symbol: string;
+  name: string;
+}
+
+interface TokenPrice {
+  usd: number;
+  usd_24h_change: number;
+}
+
+interface TokenPrices {
+  [key: string]: TokenPrice;
+}
+
 export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
   const [chartData, setChartData] = useState<any[]>([]);
+  const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
+  const [tokenInfoMap, setTokenInfoMap] = useState<Map<string, string>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch token info from the tokens API
   useEffect(() => {
-    // Only generate chart data if we have two teams
-    if (!match.teamTwo) {
+    const fetchTokenInfo = async () => {
+      try {
+        const response = await fetch('/api/tokens');
+        if (response.ok) {
+          const tokens: TokenInfo[] = await response.json();
+          
+          // Create a map of symbol -> id for quick lookup
+          const tokenMap = new Map<string, string>();
+          tokens.forEach(token => {
+            tokenMap.set(token.symbol.toLowerCase(), token.id);
+          });
+          
+          setTokenInfoMap(tokenMap);
+        }
+      } catch (error) {
+        console.error('Error fetching token info:', error);
+      }
+    };
+
+    fetchTokenInfo();
+  }, []);
+
+  // Fetch token prices for both teams
+  useEffect(() => {
+    const fetchTokenPrices = async () => {
+      if (!match.teamOne || tokenInfoMap.size === 0) {
+        return;
+      }
+
+      setIsLoading(true);
+      
+      try {
+        // Combine tokens from both teams (if team two exists)
+        const allTokens = [...match.teamOne.tokens];
+        if (match.teamTwo) {
+          allTokens.push(...match.teamTwo.tokens);
+        }
+        
+        // Remove duplicates
+        const uniqueTokens = Array.from(new Set(allTokens));
+        
+        // Get the token IDs from the token info map
+        const tokenIds: string[] = [];
+        const tokenToIdMap = new Map<string, string>();
+        
+        for (const token of uniqueTokens) {
+          const lowerToken = token.toLowerCase();
+          const tokenId = tokenInfoMap.get(lowerToken);
+          
+          if (tokenId) {
+            tokenIds.push(tokenId);
+            tokenToIdMap.set(token, tokenId);
+          } else {
+            console.warn(`No token ID found for ${token}`);
+            // Use the token symbol as fallback
+            tokenIds.push(lowerToken);
+            tokenToIdMap.set(token, lowerToken);
+          }
+        }
+        
+        // Fetch prices for all tokens at once
+        const prices: TokenPrices = {};
+        
+        if (tokenIds.length > 0) {
+          const response = await fetch(`/api/prices?id=${tokenIds.join(',')}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Map the data back to our token keys
+            uniqueTokens.forEach(token => {
+              const tokenId = tokenToIdMap.get(token);
+              if (tokenId && data[tokenId]) {
+                prices[token] = data[tokenId];
+              }
+            });
+          }
+        }
+        
+        setTokenPrices(prices);
+      } catch (error) {
+        console.error('Error fetching token prices:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (tokenInfoMap.size > 0) {
+      fetchTokenPrices();
+      
+      // Set up polling to refresh prices every minute
+      const intervalId = setInterval(() => fetchTokenPrices(), 60000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [match, tokenInfoMap]);
+
+  // Generate chart data based on token prices
+  useEffect(() => {
+    // Only generate chart data if we have two teams and token prices
+    if (!match.teamTwo || Object.keys(tokenPrices).length === 0) {
       setChartData([]);
       return;
     }
@@ -62,14 +180,48 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
     const now = new Date();
     const data = [];
     
+    // Calculate the initial investment (1$ per token)
+    const teamOneInitialInvestment = match.teamOne.tokens.length;
+    const teamTwoInitialInvestment = match.teamTwo.tokens.length;
+    
+    // Calculate the current value based on real token prices
+    const calculateTeamValue = (tokens: string[]) => {
+      return tokens.reduce((total, token) => {
+        // If we have price data for this token, use it, otherwise assume $1
+        const tokenPrice = tokenPrices[token]?.usd || 1;
+        return total + tokenPrice;
+      }, 0);
+    };
+    
     // Generate 20 data points, one for each minute going back in time
     for (let i = 19; i >= 0; i--) {
       const timestamp = subMinutes(now, i);
       
-      // Generate random percentage changes that trend in a direction
-      // This is just for visualization purposes
-      const teamOneChange = (Math.sin(i / 3) * 5) + (Math.random() * 2 - 1);
-      const teamTwoChange = (Math.cos(i / 3) * 5) + (Math.random() * 2 - 1);
+      // For historical points, simulate based on the 24h change
+      // The closer to now, the closer to the actual current price
+      const timeRatio = i / 19; // 0 for current time, 1 for oldest time
+      
+      const calculateHistoricalValue = (tokens: string[]) => {
+        return tokens.reduce((total, token) => {
+          if (!tokenPrices[token]) return total + 1; // Default to $1 if no price data
+          
+          const currentPrice = tokenPrices[token].usd;
+          const change24h = tokenPrices[token].usd_24h_change || 0;
+          
+          // Calculate a simulated historical price based on the 24h change
+          // The further back in time, the more we apply the inverse of the 24h change
+          const historicalPrice = currentPrice - (currentPrice * (change24h / 100) * timeRatio);
+          
+          return total + historicalPrice;
+        }, 0);
+      };
+      
+      const teamOneValue = calculateHistoricalValue(match.teamOne.tokens);
+      const teamTwoValue = calculateHistoricalValue(match.teamTwo.tokens);
+      
+      // Calculate percentage change from initial investment
+      const teamOneChange = ((teamOneValue / teamOneInitialInvestment) * 100) - 100;
+      const teamTwoChange = ((teamTwoValue / teamTwoInitialInvestment) * 100) - 100;
       
       data.push({
         time: format(timestamp, "HH:mm"),
@@ -80,7 +232,7 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
     }
     
     setChartData(data);
-  }, [match]);
+  }, [match, tokenPrices]);
 
   const chartColors = useMemo(() => {
     return {
@@ -133,6 +285,18 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
         <h3 className="text-lg font-medium mb-4">Match Performance</h3>
         <div className="h-[300px] flex items-center justify-center">
           <p className="text-muted-foreground">Waiting for opponent to join...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show loading state while fetching token prices
+  if (isLoading && chartData.length === 0) {
+    return (
+      <div className="w-full rounded-lg border border-border p-4 bg-card/80 backdrop-blur-sm">
+        <h3 className="text-lg font-medium mb-4">Match Performance</h3>
+        <div className="h-[300px] flex items-center justify-center">
+          <p className="text-muted-foreground">Loading token performance data...</p>
         </div>
       </div>
     );
