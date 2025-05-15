@@ -1,42 +1,139 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { liveMatches, completedMatches } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import Link from "next/link";
+import { Clock, TrendingUp, ArrowLeft, Users, Zap, Trophy } from "lucide-react";
 import { PerformanceGraph } from "@/components/performance-graph";
 import { WinnerCelebration } from "@/components/winner-celebration";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Clock, TrendingUp, ArrowLeft } from "lucide-react";
-import { Match } from "@/lib/types";
+import { Team } from "@/lib/types";
+
+interface MatchPlayer {
+  id: string;
+  address: string;
+}
+
+interface MatchTeam {
+  id: string;
+  name: string;
+  tokens: string[];
+  playerId: string;
+}
+
+interface Match {
+  id: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  type: 'RANDOM' | 'FRIEND';
+  createdAt: string;
+  updatedAt: string;
+  playerOneId: string;
+  playerOne: MatchPlayer;
+  playerTwoId?: string;
+  playerTwo?: MatchPlayer;
+  teamOneId: string;
+  teamOne: MatchTeam;
+  teamTwoId?: string;
+  teamTwo?: MatchTeam;
+  winnerId?: string;
+  result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
+}
 
 export default function MatchDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const account = useCurrentAccount();
   const [match, setMatch] = useState<Match | null>(null);
   const [matchEnded, setMatchEnded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
 
+  // Fetch match data
   useEffect(() => {
-    const matchId = params.id as string;
-    const foundMatch = [...liveMatches, ...completedMatches].find(
-      (m) => m.id === matchId
-    );
+    const fetchMatch = async () => {
+      try {
+        const matchId = params.id as string;
+        const response = await fetch(`/api/game/match?id=${matchId}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setMatch(data.match);
+          setMatchEnded(data.match.status === "COMPLETED");
+        }
+      } catch (error) {
+        console.error("Error fetching match:", error);
+      }
+    };
 
-    if (foundMatch) {
-      setMatch(foundMatch);
-      setMatchEnded(foundMatch.status === "completed");
-    }
+    fetchMatch();
   }, [params.id]);
 
-  // For demo purposes, we'll simulate a live match ending after 20 seconds
+  // Fetch user teams for joining a match
   useEffect(() => {
-    if (match && match.status === "live") {
-      const timer = setTimeout(() => {
-        setMatchEnded(true);
-      }, 20000);
+    const fetchTeams = async () => {
+      if (!account?.address) return;
+      
+      try {
+        const response = await fetch(`/api/game/teams?address=${account.address}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeams(data.teams);
+          
+          // Auto-select the first team if available
+          if (data.teams.length > 0 && !selectedTeamId) {
+            setSelectedTeamId(data.teams[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching teams:", error);
+      }
+    };
 
-      return () => clearTimeout(timer);
+    // Only fetch teams if this is a pending friend match or the user is not already in the match
+    if (match && match.type === "FRIEND" && match.status === "PENDING" && 
+        match.playerOne.address !== account?.address && !match.playerTwo) {
+      fetchTeams();
     }
-  }, [match]);
+  }, [account?.address, match, selectedTeamId]);
+
+  // Handle joining a friend match
+  const handleJoinMatch = async () => {
+    if (!selectedTeamId || !account?.address || !match) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(`/api/game/match/join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          matchId: match.id,
+          teamId: selectedTeamId,
+          address: account.address,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh the match data
+        const updatedMatchResponse = await fetch(`/api/game/match?id=${match.id}`);
+        if (updatedMatchResponse.ok) {
+          const data = await updatedMatchResponse.json();
+          setMatch(data.match);
+        }
+      } else {
+        const error = await response.json();
+        console.error("Error joining match:", error);
+      }
+    } catch (error) {
+      console.error("Error joining match:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!match) {
     return (
@@ -55,12 +152,134 @@ export default function MatchDetailPage() {
     );
   }
 
-  if (matchEnded) {
-    return <WinnerCelebration match={match} />;
+  if (!match) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h2 className="text-2xl font-bold">Match not found</h2>
+        <p className="mt-2 text-muted-foreground">
+          The match you're looking for doesn't exist or has been removed.
+        </p>
+        <Link href="/matches" className="mt-4 inline-block">
+          <Button variant="outline" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Matches
+          </Button>
+        </Link>
+      </div>
+    );
   }
 
-  const timeRemaining = match.status === "live" ? match.duration : "Finished";
-  const timeElapsed = match.status === "live" ? "Live" : "Completed";
+  // Show the winner celebration if the match is completed
+  if (matchEnded && match.result) {
+    return <WinnerCelebration match={match as any} />;
+  }
+
+  // For pending friend matches where the current user is not the creator and no second player yet
+  if (match.type === "FRIEND" && match.status === "PENDING" && 
+      match.playerOne.address !== account?.address && !match.playerTwo) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-card/90 backdrop-blur-sm rounded-lg border p-6 mb-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">Join Friend Match</h1>
+            <p className="mb-6 text-muted-foreground">
+              You've been invited to join a match created by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
+            </p>
+            
+            <div className="mb-6">
+              <h2 className="text-lg font-medium mb-3">Opponent's Team</h2>
+              <div className="p-4 rounded-lg bg-muted/30">
+                <h3 className="font-bold">{match.teamOne.name}</h3>
+                <p className="text-sm text-muted-foreground">{match.teamOne.tokens.length} tokens</p>
+              </div>
+            </div>
+            
+            {teams.length > 0 ? (
+              <div className="mb-6">
+                <h2 className="text-lg font-medium mb-3">Select Your Team</h2>
+                <div className="grid gap-3">
+                  {teams.map((team) => (
+                    <div 
+                      key={team.id}
+                      className={`p-4 rounded-lg cursor-pointer transition-all ${selectedTeamId === team.id ? 'bg-primary/20 border border-primary' : 'bg-muted/30 hover:bg-muted/50'}`}
+                      onClick={() => setSelectedTeamId(team.id)}
+                    >
+                      <h3 className="font-bold">{team.name}</h3>
+                      <p className="text-sm text-muted-foreground">{team.tokens.length} tokens</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6 text-center">
+                <p className="text-muted-foreground mb-4">
+                  You don't have any teams yet. Create a team to join this match.
+                </p>
+                <Button
+                  onClick={() => router.push("/teams/create")}
+                  className="gap-2"
+                >
+                  <Trophy className="h-4 w-4" />
+                  Create Team
+                </Button>
+              </div>
+            )}
+            
+            <Button
+              onClick={handleJoinMatch}
+              disabled={!selectedTeamId || isLoading}
+              size="lg"
+              className="gap-2 w-full md:w-auto"
+            >
+              <Zap className="h-5 w-5" />
+              {isLoading ? "Joining Match..." : "Join Match"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // For pending matches waiting for an opponent
+  if (match.status === "PENDING" && !match.playerTwo) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-card/90 backdrop-blur-sm rounded-lg border p-6 mb-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">Waiting for Opponent</h1>
+            <p className="mb-6 text-muted-foreground">
+              {match.type === "RANDOM" ? 
+                "Waiting for a random player to join the match..." : 
+                "Waiting for your friend to join the match. Share the link below:"}
+            </p>
+            
+            {match.type === "FRIEND" && (
+              <div className="mb-6">
+                <div className="bg-muted/30 p-4 rounded-lg flex items-center justify-between">
+                  <code className="text-sm">{window.location.href}</code>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigator.clipboard.writeText(window.location.href)}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="animate-pulse flex justify-center items-center gap-2 text-primary">
+              <Users className="h-5 w-5" />
+              <span>Waiting for opponent to join...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  const timeRemaining = match.status === "IN_PROGRESS" ? "In Progress" : "Finished";
+  const timeElapsed = match.status === "IN_PROGRESS" ? "Live" : "Completed";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -79,12 +298,12 @@ export default function MatchDetailPage() {
             <div>
               <div
                 className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full mb-2 ${
-                  match.status === "live"
+                  match.status === "IN_PROGRESS"
                     ? "bg-green-500/20 text-green-500"
                     : "bg-blue-500/20 text-blue-500"
                 }`}
               >
-                {match.status === "live" ? (
+                {match.status === "IN_PROGRESS" ? (
                   <>
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -97,7 +316,7 @@ export default function MatchDetailPage() {
                 )}
               </div>
               <h1 className="text-2xl font-bold">
-                {match.teamA.name} vs {match.teamB.name}
+                {match.teamOne.name} vs {match.teamTwo?.name || "Waiting for opponent"}
               </h1>
             </div>
 
@@ -113,29 +332,18 @@ export default function MatchDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
             <div className="flex flex-col items-center text-center">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted mb-3">
-                <img
-                  src={match.teamA.owner.avatar}
-                  alt={match.teamA.owner.username}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted mb-3 flex items-center justify-center">
+                <Trophy className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-bold">{match.teamA.name}</h3>
+              <h3 className="text-lg font-bold">{match.teamOne.name}</h3>
               <p className="text-sm text-muted-foreground mb-1">
-                by {match.teamA.owner.username}
+                by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
               </p>
-              <div
-                className={`text-xl font-bold ${
-                  match.teamA.percentageChange >= 0
-                    ? "positive-value"
-                    : "negative-value"
-                }`}
-              >
-                {match.teamA.percentageChange >= 0 ? "+" : ""}
-                {match.teamA.percentageChange.toFixed(2)}%
+              <div className="text-xl font-bold positive-value">
+                +0.00%
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                ${match.teamA.currentValue.toLocaleString()}
+                $0
               </p>
             </div>
 
@@ -147,32 +355,33 @@ export default function MatchDetailPage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center text-center">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted mb-3">
-                <img
-                  src={match.teamB.owner.avatar}
-                  alt={match.teamB.owner.username}
-                  className="w-full h-full object-cover"
-                />
+            {match.teamTwo ? (
+              <div className="flex flex-col items-center text-center">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted mb-3 flex items-center justify-center">
+                  <Trophy className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold">{match.teamTwo.name}</h3>
+                <p className="text-sm text-muted-foreground mb-1">
+                  by {match.playerTwo?.address.slice(0, 6)}...{match.playerTwo?.address.slice(-4)}
+                </p>
+                <div className="text-xl font-bold positive-value">
+                  +0.00%
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  $0
+                </p>
               </div>
-              <h3 className="text-lg font-bold">{match.teamB.name}</h3>
-              <p className="text-sm text-muted-foreground mb-1">
-                by {match.teamB.owner.username}
-              </p>
-              <div
-                className={`text-xl font-bold ${
-                  match.teamB.percentageChange >= 0
-                    ? "positive-value"
-                    : "negative-value"
-                }`}
-              >
-                {match.teamB.percentageChange >= 0 ? "+" : ""}
-                {match.teamB.percentageChange.toFixed(2)}%
+            ) : (
+              <div className="flex flex-col items-center text-center">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted mb-3 flex items-center justify-center opacity-50">
+                  <Users className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-bold text-muted-foreground">Waiting for opponent</h3>
+                <p className="text-sm text-muted-foreground mb-1">
+                  {match.type === "FRIEND" ? "Share the link with a friend" : "Finding a random opponent"}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                ${match.teamB.currentValue.toLocaleString()}
-              </p>
-            </div>
+            )}
           </div>
 
           <PerformanceGraph match={match} />
@@ -182,74 +391,50 @@ export default function MatchDetailPage() {
           <h2 className="text-xl font-bold mb-4">Team Tokens</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-medium mb-3">{match.teamA.name}</h3>
+              <h3 className="text-lg font-medium mb-3">{match.teamOne.name}</h3>
               <div className="grid grid-cols-2 gap-3">
-                {match.teamA.owner.teams
-                  .find((t) => t.id === match.teamA.id)
-                  ?.tokens.map((token) => (
-                    <div
-                      key={token.id}
-                      className="flex items-center p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background">
-                        <img
-                          src={token.logo}
-                          alt={token.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium">{token.symbol}</div>
-                        <div
-                          className={`text-xs ${
-                            token.change24h >= 0
-                              ? "positive-value"
-                              : "negative-value"
-                          }`}
-                        >
-                          {token.change24h >= 0 ? "+" : ""}
-                          {token.change24h.toFixed(2)}%
-                        </div>
+                {match.teamOne.tokens.map((tokenId, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background flex items-center justify-center">
+                      <span className="text-xs font-bold">{tokenId.slice(0, 2).toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <div className="font-medium">{tokenId.slice(0, 4).toUpperCase()}</div>
+                      <div className="text-xs positive-value">
+                        +0.00%
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-medium mb-3">{match.teamB.name}</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {match.teamB.owner.teams
-                  .find((t) => t.id === match.teamB.id)
-                  ?.tokens.map((token) => (
+            {match.teamTwo && (
+              <div>
+                <h3 className="text-lg font-medium mb-3">{match.teamTwo.name}</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {match.teamTwo.tokens.map((tokenId, index) => (
                     <div
-                      key={token.id}
+                      key={index}
                       className="flex items-center p-3 bg-muted/50 rounded-lg"
                     >
-                      <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background">
-                        <img
-                          src={token.logo}
-                          alt={token.name}
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background flex items-center justify-center">
+                        <span className="text-xs font-bold">{tokenId.slice(0, 2).toUpperCase()}</span>
                       </div>
                       <div>
-                        <div className="font-medium">{token.symbol}</div>
-                        <div
-                          className={`text-xs ${
-                            token.change24h >= 0
-                              ? "positive-value"
-                              : "negative-value"
-                          }`}
-                        >
-                          {token.change24h >= 0 ? "+" : ""}
-                          {token.change24h.toFixed(2)}%
+                        <div className="font-medium">{tokenId.slice(0, 4).toUpperCase()}</div>
+                        <div className="text-xs positive-value">
+                          +0.00%
                         </div>
                       </div>
                     </div>
                   ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

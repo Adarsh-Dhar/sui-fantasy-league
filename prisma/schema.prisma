@@ -20,6 +20,8 @@ model Player {
   wins Int @default(0)
   losses Int @default(0)
   teams Team[]
+  matchesAsPlayerOne Match[] @relation("PlayerOne")
+  matchesAsPlayerTwo Match[] @relation("PlayerTwo")
 }
 
 model Team {
@@ -28,4 +30,47 @@ model Team {
   tokens String[]
   player Player @relation(fields: [playerId], references: [id])
   playerId String
+  matchesAsTeamOne Match[] @relation("TeamOne")
+  matchesAsTeamTwo Match[] @relation("TeamTwo")
+}
+
+model Match {
+  id String @id @default(cuid())
+  status MatchStatus @default(PENDING)
+  type MatchType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  playerOneId String
+  playerOne Player @relation("PlayerOne", fields: [playerOneId], references: [id])
+  
+  playerTwoId String?
+  playerTwo Player? @relation("PlayerTwo", fields: [playerTwoId], references: [id])
+  
+  teamOneId String
+  teamOne Team @relation("TeamOne", fields: [teamOneId], references: [id])
+  
+  teamTwoId String?
+  teamTwo Team? @relation("TeamTwo", fields: [teamTwoId], references: [id])
+  
+  winnerId String?
+  result MatchResult?
+}
+
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchType {
+  RANDOM
+  FRIEND
+}
+
+enum MatchResult {
+  PLAYER_ONE_WIN
+  PLAYER_TWO_WIN
+  DRAW
 }

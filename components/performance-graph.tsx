@@ -11,9 +11,38 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { format, parseISO } from "date-fns";
-import { generateMatchHistory } from "@/lib/data";
-import { Match } from "@/lib/types";
+import { format, parseISO, subMinutes } from "date-fns";
+
+// Define our own Match interface to match the database schema
+interface MatchPlayer {
+  id: string;
+  address: string;
+}
+
+interface MatchTeam {
+  id: string;
+  name: string;
+  tokens: string[];
+  playerId: string;
+}
+
+interface Match {
+  id: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  type: 'RANDOM' | 'FRIEND';
+  createdAt: string;
+  updatedAt: string;
+  playerOneId: string;
+  playerOne: MatchPlayer;
+  playerTwoId?: string;
+  playerTwo?: MatchPlayer;
+  teamOneId: string;
+  teamOne: MatchTeam;
+  teamTwoId?: string;
+  teamTwo?: MatchTeam;
+  winnerId?: string;
+  result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
+}
 
 interface PerformanceGraphProps {
   match: Match;
@@ -23,31 +52,47 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    // Generate historical data for the match
-    const history = generateMatchHistory(match, 20);
+    // Only generate chart data if we have two teams
+    if (!match.teamTwo) {
+      setChartData([]);
+      return;
+    }
     
-    // Format data for the chart
-    const formattedData = history.map((point) => ({
-      time: format(parseISO(point.timestamp), "HH:mm"),
-      timestamp: point.timestamp,
-      teamA: point.teamA.percentageChange,
-      teamB: point.teamB.percentageChange,
-    }));
+    // Generate simulated historical data for the match
+    const now = new Date();
+    const data = [];
     
-    setChartData(formattedData);
+    // Generate 20 data points, one for each minute going back in time
+    for (let i = 19; i >= 0; i--) {
+      const timestamp = subMinutes(now, i);
+      
+      // Generate random percentage changes that trend in a direction
+      // This is just for visualization purposes
+      const teamOneChange = (Math.sin(i / 3) * 5) + (Math.random() * 2 - 1);
+      const teamTwoChange = (Math.cos(i / 3) * 5) + (Math.random() * 2 - 1);
+      
+      data.push({
+        time: format(timestamp, "HH:mm"),
+        timestamp: timestamp.toISOString(),
+        teamOne: teamOneChange,
+        teamTwo: teamTwoChange,
+      });
+    }
+    
+    setChartData(data);
   }, [match]);
 
   const chartColors = useMemo(() => {
     return {
-      teamA: "hsl(var(--positive))",
-      teamB: "hsl(var(--negative))",
+      teamOne: "hsl(var(--positive))",
+      teamTwo: "hsl(var(--negative))",
       grid: "hsl(var(--muted))",
       text: "hsl(var(--muted-foreground))",
     };
   }, []);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload.length && match.teamTwo) {
       return (
         <div className="bg-card/95 backdrop-blur-sm border border-border p-3 rounded-md shadow-md">
           <p className="text-sm font-medium">{label}</p>
@@ -55,10 +100,10 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
             <p className="text-xs flex items-center">
               <span
                 className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: chartColors.teamA }}
+                style={{ backgroundColor: chartColors.teamOne }}
               ></span>
-              <span className="mr-2">{match.teamA.name}:</span>
-              <span className="font-medium" style={{ color: chartColors.teamA }}>
+              <span className="mr-2">{match.teamOne.name}:</span>
+              <span className="font-medium" style={{ color: chartColors.teamOne }}>
                 {payload[0].value >= 0 ? "+" : ""}
                 {payload[0].value.toFixed(2)}%
               </span>
@@ -66,10 +111,10 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
             <p className="text-xs flex items-center">
               <span
                 className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: chartColors.teamB }}
+                style={{ backgroundColor: chartColors.teamTwo }}
               ></span>
-              <span className="mr-2">{match.teamB.name}:</span>
-              <span className="font-medium" style={{ color: chartColors.teamB }}>
+              <span className="mr-2">{match.teamTwo.name}:</span>
+              <span className="font-medium" style={{ color: chartColors.teamTwo }}>
                 {payload[1].value >= 0 ? "+" : ""}
                 {payload[1].value.toFixed(2)}%
               </span>
@@ -81,6 +126,18 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
     return null;
   };
 
+  // If there's no second team, show a placeholder
+  if (!match.teamTwo) {
+    return (
+      <div className="w-full rounded-lg border border-border p-4 bg-card/80 backdrop-blur-sm">
+        <h3 className="text-lg font-medium mb-4">Match Performance</h3>
+        <div className="h-[300px] flex items-center justify-center">
+          <p className="text-muted-foreground">Waiting for opponent to join...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="w-full rounded-lg border border-border p-4 bg-card/80 backdrop-blur-sm">
       <h3 className="text-lg font-medium mb-4">Match Performance</h3>
@@ -108,21 +165,21 @@ export const PerformanceGraph = ({ match }: PerformanceGraphProps) => {
             <Tooltip content={<CustomTooltip />} />
             <Legend
               formatter={(value) => {
-                return value === "teamA" ? match.teamA.name : match.teamB.name;
+                return value === "teamOne" ? match.teamOne.name : match.teamTwo?.name;
               }}
             />
             <Line
               type="monotone"
-              dataKey="teamA"
-              stroke={chartColors.teamA}
+              dataKey="teamOne"
+              stroke={chartColors.teamOne}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 6 }}
             />
             <Line
               type="monotone"
-              dataKey="teamB"
-              stroke={chartColors.teamB}
+              dataKey="teamTwo"
+              stroke={chartColors.teamTwo}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 6 }}
