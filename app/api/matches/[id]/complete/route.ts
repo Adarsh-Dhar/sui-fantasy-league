@@ -25,12 +25,15 @@ export async function POST(
     });
 
     // Update player stats (wins/losses)
+    // Scoring system: 2 points for win, -1 point for loss
     if (result === "PLAYER_ONE_WIN") {
+      // Winner gets 2 points and a win
       await prisma.player.update({
         where: { id: updatedMatch.playerOneId },
         data: { wins: { increment: 1 } },
       });
       
+      // Loser gets -1 point and a loss
       if (updatedMatch.playerTwoId) {
         await prisma.player.update({
           where: { id: updatedMatch.playerTwoId },
@@ -38,11 +41,13 @@ export async function POST(
         });
       }
     } else if (result === "PLAYER_TWO_WIN" && updatedMatch.playerTwoId) {
+      // Winner gets 2 points and a win
       await prisma.player.update({
         where: { id: updatedMatch.playerTwoId },
         data: { wins: { increment: 1 } },
       });
       
+      // Loser gets -1 point and a loss
       await prisma.player.update({
         where: { id: updatedMatch.playerOneId },
         data: { losses: { increment: 1 } },
