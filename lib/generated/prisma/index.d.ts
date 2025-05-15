@@ -1014,18 +1014,21 @@ export namespace Prisma {
 
   export type PlayerMinAggregateOutputType = {
     id: string | null
+    address: string | null
     wins: number | null
     losses: number | null
   }
 
   export type PlayerMaxAggregateOutputType = {
     id: string | null
+    address: string | null
     wins: number | null
     losses: number | null
   }
 
   export type PlayerCountAggregateOutputType = {
     id: number
+    address: number
     wins: number
     losses: number
     _all: number
@@ -1044,18 +1047,21 @@ export namespace Prisma {
 
   export type PlayerMinAggregateInputType = {
     id?: true
+    address?: true
     wins?: true
     losses?: true
   }
 
   export type PlayerMaxAggregateInputType = {
     id?: true
+    address?: true
     wins?: true
     losses?: true
   }
 
   export type PlayerCountAggregateInputType = {
     id?: true
+    address?: true
     wins?: true
     losses?: true
     _all?: true
@@ -1149,6 +1155,7 @@ export namespace Prisma {
 
   export type PlayerGroupByOutputType = {
     id: string
+    address: string
     wins: number
     losses: number
     _count: PlayerCountAggregateOutputType | null
@@ -1174,6 +1181,7 @@ export namespace Prisma {
 
   export type PlayerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    address?: boolean
     wins?: boolean
     losses?: boolean
     teams?: boolean | Player$teamsArgs<ExtArgs>
@@ -1182,23 +1190,26 @@ export namespace Prisma {
 
   export type PlayerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    address?: boolean
     wins?: boolean
     losses?: boolean
   }, ExtArgs["result"]["player"]>
 
   export type PlayerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    address?: boolean
     wins?: boolean
     losses?: boolean
   }, ExtArgs["result"]["player"]>
 
   export type PlayerSelectScalar = {
     id?: boolean
+    address?: boolean
     wins?: boolean
     losses?: boolean
   }
 
-  export type PlayerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "wins" | "losses", ExtArgs["result"]["player"]>
+  export type PlayerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "address" | "wins" | "losses", ExtArgs["result"]["player"]>
   export type PlayerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     teams?: boolean | Player$teamsArgs<ExtArgs>
     _count?: boolean | PlayerCountOutputTypeDefaultArgs<ExtArgs>
@@ -1213,6 +1224,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      address: string
       wins: number
       losses: number
     }, ExtArgs["result"]["player"]>
@@ -1640,6 +1652,7 @@ export namespace Prisma {
    */
   interface PlayerFieldRefs {
     readonly id: FieldRef<"Player", 'String'>
+    readonly address: FieldRef<"Player", 'String'>
     readonly wins: FieldRef<"Player", 'Int'>
     readonly losses: FieldRef<"Player", 'Int'>
   }
@@ -1860,7 +1873,7 @@ export namespace Prisma {
     /**
      * The data needed to create a Player.
      */
-    data?: XOR<PlayerCreateInput, PlayerUncheckedCreateInput>
+    data: XOR<PlayerCreateInput, PlayerUncheckedCreateInput>
   }
 
   /**
@@ -3129,6 +3142,7 @@ export namespace Prisma {
 
   export const PlayerScalarFieldEnum: {
     id: 'id',
+    address: 'address',
     wins: 'wins',
     losses: 'losses'
   };
@@ -3217,6 +3231,7 @@ export namespace Prisma {
     OR?: PlayerWhereInput[]
     NOT?: PlayerWhereInput | PlayerWhereInput[]
     id?: StringFilter<"Player"> | string
+    address?: StringFilter<"Player"> | string
     wins?: IntFilter<"Player"> | number
     losses?: IntFilter<"Player"> | number
     teams?: TeamListRelationFilter
@@ -3224,6 +3239,7 @@ export namespace Prisma {
 
   export type PlayerOrderByWithRelationInput = {
     id?: SortOrder
+    address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
     teams?: TeamOrderByRelationAggregateInput
@@ -3231,16 +3247,18 @@ export namespace Prisma {
 
   export type PlayerWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    address?: string
     AND?: PlayerWhereInput | PlayerWhereInput[]
     OR?: PlayerWhereInput[]
     NOT?: PlayerWhereInput | PlayerWhereInput[]
     wins?: IntFilter<"Player"> | number
     losses?: IntFilter<"Player"> | number
     teams?: TeamListRelationFilter
-  }, "id">
+  }, "id" | "address">
 
   export type PlayerOrderByWithAggregationInput = {
     id?: SortOrder
+    address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
     _count?: PlayerCountOrderByAggregateInput
@@ -3255,6 +3273,7 @@ export namespace Prisma {
     OR?: PlayerScalarWhereWithAggregatesInput[]
     NOT?: PlayerScalarWhereWithAggregatesInput | PlayerScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Player"> | string
+    address?: StringWithAggregatesFilter<"Player"> | string
     wins?: IntWithAggregatesFilter<"Player"> | number
     losses?: IntWithAggregatesFilter<"Player"> | number
   }
@@ -3311,6 +3330,7 @@ export namespace Prisma {
 
   export type PlayerCreateInput = {
     id?: string
+    address: string
     wins?: number
     losses?: number
     teams?: TeamCreateNestedManyWithoutPlayerInput
@@ -3318,6 +3338,7 @@ export namespace Prisma {
 
   export type PlayerUncheckedCreateInput = {
     id?: string
+    address: string
     wins?: number
     losses?: number
     teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
@@ -3325,6 +3346,7 @@ export namespace Prisma {
 
   export type PlayerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
     teams?: TeamUpdateManyWithoutPlayerNestedInput
@@ -3332,6 +3354,7 @@ export namespace Prisma {
 
   export type PlayerUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
     teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
@@ -3339,18 +3362,21 @@ export namespace Prisma {
 
   export type PlayerCreateManyInput = {
     id?: string
+    address: string
     wins?: number
     losses?: number
   }
 
   export type PlayerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
   }
 
   export type PlayerUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
   }
@@ -3441,6 +3467,7 @@ export namespace Prisma {
 
   export type PlayerCountOrderByAggregateInput = {
     id?: SortOrder
+    address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
   }
@@ -3452,12 +3479,14 @@ export namespace Prisma {
 
   export type PlayerMaxOrderByAggregateInput = {
     id?: SortOrder
+    address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
   }
 
   export type PlayerMinOrderByAggregateInput = {
     id?: SortOrder
+    address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
   }
@@ -3729,12 +3758,14 @@ export namespace Prisma {
 
   export type PlayerCreateWithoutTeamsInput = {
     id?: string
+    address: string
     wins?: number
     losses?: number
   }
 
   export type PlayerUncheckedCreateWithoutTeamsInput = {
     id?: string
+    address: string
     wins?: number
     losses?: number
   }
@@ -3757,12 +3788,14 @@ export namespace Prisma {
 
   export type PlayerUpdateWithoutTeamsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
   }
 
   export type PlayerUncheckedUpdateWithoutTeamsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
   }

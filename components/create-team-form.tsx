@@ -5,6 +5,7 @@ import { TokenCard } from "@/components/token-card";
 import { Button } from "@/components/ui/button";
 import { Check, Plus, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useWallet } from "@suiet/wallet-kit";
 
 interface Token {
   id: string;
@@ -14,7 +15,7 @@ interface Token {
 
 export const CreateTeamForm = () => {
   const router = useRouter();
-  const [teamName, setTeamName] = useState("");
+  const { address, connected } = useWallet();
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [step, setStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
@@ -22,6 +23,8 @@ export const CreateTeamForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const tokensPerPage = 20;
 
   useEffect(() => {
@@ -45,6 +48,44 @@ export const CreateTeamForm = () => {
     
     fetchTokens();
   }, []);
+  
+  // Check if wallet is connected and log the address
+  useEffect(() => {
+    console.log('Wallet connected:', connected);
+    console.log('Wallet address:', address);
+  }, [connected, address]);
+
+  // Function to handle sign-in with wallet address
+  const handleSignIn = async () => {
+    if (!address) return;
+    
+    setIsSigningUp(true);
+    try {
+      const response = await fetch('/api/game/player', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Player registered:', data);
+      
+      setIsSignedIn(true);
+      
+      // Move to next step if registration is successful
+      setStep(2);
+    } catch (error) {
+      console.error('Error registering player:', error);
+    } finally {
+      setIsSigningUp(false);
+    }
+  };
 
   const handleTokenSelect = (tokenId: string) => {
     setSelectedTokens((prev) => {
@@ -61,24 +102,34 @@ export const CreateTeamForm = () => {
     });
   };
 
-  const handleNextStep = () => {
-    if (step === 1 && teamName.trim()) {
-      setStep(2);
-    } else if (step === 2 && selectedTokens.length > 0) {
-      handleCreateTeam();
-    }
-  };
-
   const handleCreateTeam = async () => {
-    if (!teamName || selectedTokens.length === 0) return;
+    if (!address || selectedTokens.length === 0) return;
 
     setIsCreating(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsCreating(false);
+    try {
+      // Call the actual API to create a team
+      const response = await fetch('/api/game/team', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          playerAddress: address,
+          tokenIds: selectedTokens
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
       router.push("/teams");
-    }, 1500);
+    } catch (error) {
+      console.error('Error creating team:', error);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -86,9 +137,7 @@ export const CreateTeamForm = () => {
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold">Create Your Crypto Team</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {step === 1
-            ? "Give your team a catchy name"
-            : "Select 1-5 tokens for your team"}
+          {step === 1 ? "Sign in with your wallet" : "Select 1-5 tokens for your team"}
         </p>
       </div>
 
@@ -106,21 +155,40 @@ export const CreateTeamForm = () => {
         <div className="mt-8">
           {step === 1 ? (
             <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="teamName"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Team Name
-                </label>
-                <input
-                  type="text"
-                  id="teamName"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="Enter team name..."
-                  className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                />
+              <div className="flex flex-col items-center justify-center py-6">
+                {isSignedIn ? (
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-700 rounded-full mb-3">
+                      <Check className="h-6 w-6" />
+                    </div>
+                    <p className="font-medium mb-2">Signed In</p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {address?.slice(0, 8)}...{address?.slice(-6)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {connected ? 
+                        `Connected wallet: ${address?.slice(0, 8)}...${address?.slice(-6)}` : 
+                        "No wallet connected. Please connect your wallet in the navigation bar first."}
+                    </p>
+                    <Button 
+                      onClick={handleSignIn}
+                      disabled={!connected || !address || isSigningUp}
+                      className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-6 py-3 font-medium shadow-md transition-all duration-200 hover:shadow-lg"
+                    >
+                      {isSigningUp ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Signing In...
+                        </>
+                      ) : (
+                        "Sign In"
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -174,47 +242,6 @@ export const CreateTeamForm = () => {
                         return token.name.toLowerCase().includes(searchLower) || 
                                token.symbol.toLowerCase().includes(searchLower);
                       })
-                      .sort((a, b) => {
-                        if (!searchTerm) return 0;
-                        
-                        const searchLower = searchTerm.toLowerCase();
-                        const aNameLower = a.name.toLowerCase();
-                        const bNameLower = b.name.toLowerCase();
-                        const aSymbolLower = a.symbol.toLowerCase();
-                        const bSymbolLower = b.symbol.toLowerCase();
-                        
-                        // Exact matches first
-                        const aExactNameMatch = aNameLower === searchLower;
-                        const bExactNameMatch = bNameLower === searchLower;
-                        const aExactSymbolMatch = aSymbolLower === searchLower;
-                        const bExactSymbolMatch = bSymbolLower === searchLower;
-                        
-                        if (aExactNameMatch && !bExactNameMatch) return -1;
-                        if (!aExactNameMatch && bExactNameMatch) return 1;
-                        if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
-                        if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
-                        
-                        // Starts with matches second
-                        const aNameStartsWith = aNameLower.startsWith(searchLower);
-                        const bNameStartsWith = bNameLower.startsWith(searchLower);
-                        const aSymbolStartsWith = aSymbolLower.startsWith(searchLower);
-                        const bSymbolStartsWith = bSymbolLower.startsWith(searchLower);
-                        
-                        if (aNameStartsWith && !bNameStartsWith) return -1;
-                        if (!aNameStartsWith && bNameStartsWith) return 1;
-                        if (aSymbolStartsWith && !bSymbolStartsWith) return -1;
-                        if (!aSymbolStartsWith && bSymbolStartsWith) return 1;
-                        
-                        // Word boundary matches third (e.g., "Ethereum Classic" for "Ethereum")
-                        const aNameWordMatch = new RegExp(`\\b${searchLower}\\b`).test(aNameLower);
-                        const bNameWordMatch = new RegExp(`\\b${searchLower}\\b`).test(bNameLower);
-                        
-                        if (aNameWordMatch && !bNameWordMatch) return -1;
-                        if (!aNameWordMatch && bNameWordMatch) return 1;
-                        
-                        // Alphabetical order for equal relevance
-                        return aNameLower.localeCompare(bNameLower);
-                      })
                       .slice((currentPage - 1) * tokensPerPage, currentPage * tokensPerPage)
                       .map((token) => (
                         <TokenCard
@@ -226,77 +253,49 @@ export const CreateTeamForm = () => {
                       ))}
                   </div>
                   
-                  {/* Pagination Controls */}
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="text-sm text-muted-foreground">
-                      Showing page {currentPage} of tokens
+                  {/* Pagination */}
+                  {tokens.length > tokensPerPage && (
+                    <div className="flex justify-center mt-4 space-x-2">
+                      {Array.from({ length: Math.ceil(tokens.length / tokensPerPage) }).map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentPage(idx + 1)}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                            currentPage === idx + 1
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-card hover:bg-accent"
+                          }`}
+                        >
+                          {idx + 1}
+                        </button>
+                      ))}
                     </div>
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          const searchLower = searchTerm.toLowerCase();
-                          const filteredTokens = tokens.filter(token => 
-                            token.name.toLowerCase().includes(searchLower) || 
-                            token.symbol.toLowerCase().includes(searchLower)
-                          );
-                          const maxPage = Math.ceil(filteredTokens.length / tokensPerPage);
-                          setCurrentPage(prev => Math.min(prev + 1, maxPage));
-                        }}
-                        disabled={tokens.filter(token => {
-                          const searchLower = searchTerm.toLowerCase();
-                          return token.name.toLowerCase().includes(searchLower) || 
-                                 token.symbol.toLowerCase().includes(searchLower);
-                        }).length <= currentPage * tokensPerPage}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
+                  )}
                 </>
               )}
             </div>
           )}
-
-          <div className="mt-6 flex space-x-3 justify-end">
-            {step > 1 && (
-              <Button variant="outline" onClick={() => setStep(1)}>
-                Back
-              </Button>
-            )}
-            <Button
-              onClick={handleNextStep}
-              disabled={
-                (step === 1 && !teamName.trim()) ||
-                (step === 2 && selectedTokens.length === 0) ||
-                isCreating
-              }
-              className="gap-2"
-            >
-              {isCreating ? (
-                "Creating..."
-              ) : step === 1 ? (
-                <>
-                  Next <Plus className="h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Create Team <Check className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </div>
+
+      {step === 2 && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={handleCreateTeam}
+            disabled={isCreating || selectedTokens.length === 0}
+            className="bg-primary hover:bg-primary/90 text-white rounded-lg px-6 py-2 font-medium shadow-md transition-all duration-200 hover:shadow-lg flex items-center gap-2"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Team"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

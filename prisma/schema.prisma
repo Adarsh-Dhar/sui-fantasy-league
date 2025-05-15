@@ -16,6 +16,7 @@ datasource db {
 
 model Player {
   id String @id @default(cuid())
+  address String @unique
   wins Int @default(0)
   losses Int @default(0)
   teams Team[]
