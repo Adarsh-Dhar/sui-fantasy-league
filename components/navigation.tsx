@@ -5,13 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Trophy, Home, History, User, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ConnectButton } from '@mysten/dapp-kit';
-import { useWallet } from "@suiet/wallet-kit";
+import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
 
 const Navigation = () => {
-  const { connected, address } = useWallet();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const account = useCurrentAccount();
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
@@ -57,11 +56,10 @@ const Navigation = () => {
           <ConnectButton 
             className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium shadow-md transition-all duration-200 hover:shadow-lg hover:translate-y-[-1px] flex items-center gap-2" 
           />
-          {connected && (
+          
             <div className="mt-2 text-xs text-green-500">
-              Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+              Connected: {account?.address?.slice(0, 6)}...{account?.address?.slice(-4)}
             </div>
-          )}
         </div>
 
         <button
@@ -97,9 +95,9 @@ const Navigation = () => {
             ))}
             <div className="px-4 py-2">
               <ConnectButton className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 font-medium shadow-md" />
-              {connected && (
-                <div className="mt-2 text-xs text-green-500">
-                  Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                {account && (
+                  <div className="mt-2 text-xs text-green-500">
+                  Connected: {account?.address?.slice(0, 6)}...{account?.address?.slice(-4)}
                 </div>
               )}
             </div>

@@ -5,10 +5,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import Navigation from '@/components/navigation';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import '@mysten/dapp-kit/dist/index.css';
+
 import { SuiClientProvider, WalletProvider } from '@mysten/dapp-kit';
 import { getFullnodeUrl } from '@mysten/sui/client';
-import '@mysten/dapp-kit/dist/index.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const inter = Inter({ subsets: ['latin'] });
 

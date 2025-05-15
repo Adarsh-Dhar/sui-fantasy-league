@@ -5,7 +5,7 @@ import { TokenCard } from "@/components/token-card";
 import { Button } from "@/components/ui/button";
 import { Check, Plus, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useWallet } from "@suiet/wallet-kit";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 interface Token {
   id: string;
@@ -15,7 +15,7 @@ interface Token {
 
 export const CreateTeamForm = () => {
   const router = useRouter();
-  const { address, connected } = useWallet();
+  const account = useCurrentAccount();
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [step, setStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
@@ -51,15 +51,16 @@ export const CreateTeamForm = () => {
   
   // Check if wallet is connected and log the address
   useEffect(() => {
-    console.log('Wallet connected:', connected);
-    console.log('Wallet address:', address);
-  }, [connected, address]);
+    console.log('Wallet connected:', account);
+    console.log('Wallet address:', account?.address);
+  }, [account]);
 
   // Function to handle sign-in with wallet address
   const handleSignIn = async () => {
-    if (!address) return;
+    if (!account?.address) return;
     
     setIsSigningUp(true);
+    const address = account?.address;
     try {
       const response = await fetch('/api/game/player', {
         method: 'POST',
@@ -103,7 +104,7 @@ export const CreateTeamForm = () => {
   };
 
   const handleCreateTeam = async () => {
-    if (!address || selectedTokens.length === 0) return;
+    if (!account?.address || selectedTokens.length === 0) return;
 
     setIsCreating(true);
     
@@ -115,7 +116,7 @@ export const CreateTeamForm = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          playerAddress: address,
+          playerAddress: account?.address,
           tokenIds: selectedTokens
         }),
       });
@@ -163,19 +164,19 @@ export const CreateTeamForm = () => {
                     </div>
                     <p className="font-medium mb-2">Signed In</p>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {address?.slice(0, 8)}...{address?.slice(-6)}
+                      {account?.address?.slice(0, 8)}...{account?.address?.slice(-6)}
                     </p>
                   </div>
                 ) : (
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-4">
-                      {connected ? 
-                        `Connected wallet: ${address?.slice(0, 8)}...${address?.slice(-6)}` : 
+                      { account ? 
+                        `Connected wallet: ${account?.address?.slice(0, 8)}...${account?.address?.slice(-6)}` : 
                         "No wallet connected. Please connect your wallet in the navigation bar first."}
                     </p>
                     <Button 
                       onClick={handleSignIn}
-                      disabled={!connected || !address || isSigningUp}
+                      disabled={! account || isSigningUp}
                       className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-6 py-3 font-medium shadow-md transition-all duration-200 hover:shadow-lg"
                     >
                       {isSigningUp ? (
