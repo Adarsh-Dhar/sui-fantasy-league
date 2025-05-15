@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { format, parseISO, subMinutes } from "date-fns";
 import { usePriceWebSocket } from "@/hooks/use-price-websocket";
+import { getBinanceWebSocketClient, MatchInfo } from "@/lib/websocket-client";
 import { MatchResultAnnouncement } from "@/components/match-result-announcement";
 import { useRouter } from "next/navigation";
 
@@ -176,30 +177,21 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       return;
     }
     
-    // Generate initial data points with simulated historical data
+    // Generate initial data points with empty values
+    // This will create a baseline for the real-time data
     const now = new Date();
     const data = [];
     
-    // Calculate the initial investment (1$ per token)
-    const teamOneInitialInvestment = match.teamOne.tokens.length;
-    const teamTwoInitialInvestment = match.teamTwo.tokens.length;
-    
-    // Generate 20 data points for the chart, one for each minute
-    // with simulated historical values
+    // Generate 20 empty data points for the chart
+    // These will be filled with real data as it comes in
     for (let i = 19; i >= 0; i--) {
       const timestamp = subMinutes(now, i);
-      
-      // Generate random but consistent values for historical data
-      // Use the timestamp as seed for consistency
-      const seed = timestamp.getTime();
-      const randomA = Math.sin(seed * 0.001) * 5; // ±5% range
-      const randomB = Math.cos(seed * 0.001) * 5; // ±5% range
       
       data.push({
         time: format(timestamp, "HH:mm:ss"),
         timestamp: timestamp.toISOString(),
-        teamOne: randomA,
-        teamTwo: randomB,
+        teamOne: 0, // Start at 0% change
+        teamTwo: 0, // Start at 0% change
       });
     }
     
@@ -211,6 +203,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   useEffect(() => {
     // Check if match is in progress
     const isInProgress = match.status === 'IN_PROGRESS';
+    const wsClient = getBinanceWebSocketClient();
     
     if (isInProgress && !isMatchActive) {
       // Match just started
@@ -241,15 +234,73 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       }
       
       setInitialPrices(initialTokenPrices);
+      
+      // Enable WebSocket logging for this match
+      const matchInfo: MatchInfo = {
+        id: match.id,
+        teamOne: {
+          id: match.teamOne.id,
+          name: match.teamOne.name,
+          tokens: match.teamOne.tokens
+        },
+        teamTwo: match.teamTwo ? {
+          id: match.teamTwo.id,
+          name: match.teamTwo.name,
+          tokens: match.teamTwo.tokens
+        } : undefined,
+        isActive: true
+      };
+      
+      wsClient.setActiveMatch(matchInfo);
+      console.log(`Match ${match.id} started - WebSocket logging enabled`);
+      
     } else if (!isInProgress && isMatchActive) {
       // Match just ended
       setIsMatchActive(false);
+      
+      // Disable WebSocket logging
+      if (match.teamTwo) {
+        const matchInfo: MatchInfo = {
+          id: match.id,
+          teamOne: {
+            id: match.teamOne.id,
+            name: match.teamOne.name,
+            tokens: match.teamOne.tokens
+          },
+          teamTwo: {
+            id: match.teamTwo.id,
+            name: match.teamTwo.name,
+            tokens: match.teamTwo.tokens
+          },
+          isActive: false
+        };
+        
+        wsClient.setActiveMatch(matchInfo);
+        
+        // Log the final data
+        const priceLog = wsClient.getMatchPriceLog(match.id);
+        console.log(`Match ${match.id} completed - WebSocket log data:`, {
+          entries: priceLog.length,
+          firstEntry: priceLog[0],
+          lastEntry: priceLog[priceLog.length - 1]
+        });
+      }
     }
-  }, [match.status, isMatchActive, tokenPrices, match.teamOne, match.teamTwo]);
+    
+    // Cleanup when component unmounts
+    return () => {
+      if (isMatchActive) {
+        wsClient.setActiveMatch(null);
+      }
+    };
+  }, [match.status, isMatchActive, tokenPrices, match.teamOne, match.teamTwo, match.id]);
   
   // Function to save match results to the database
   const saveMatchResults = async (teamOneScore: number, teamTwoScore: number) => {
     try {
+      // Get WebSocket client for logging
+      const wsClient = getBinanceWebSocketClient();
+      
       // Determine the winner
       let result: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW' = 'DRAW';
       let winnerId = null;
@@ -261,6 +312,16 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
         result = 'PLAYER_TWO_WIN';
         winnerId = match.playerTwoId || null;
       }
+      
+      // Log the final match data
+      const priceLog = wsClient.getMatchPriceLog(match.id);
+      console.log(`Match ${match.id} completed with result: ${result}`, {
+        teamOneScore: teamOneScore.toFixed(4) + '%',
+        teamTwoScore: teamTwoScore.toFixed(4) + '%',
+        winner: result,
+        priceDataPoints: priceLog.length,
+        finalPriceData: priceLog[priceLog.length - 1]
+      });
       
       // Update the match in the database
       const response = await fetch(`/api/matches/${match.id}/complete`, {
@@ -330,6 +391,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     }
     
     const now = new Date();
+    const wsClient = getBinanceWebSocketClient();
     
     // Calculate percentage change from initial price for each team
     const calculateTeamPercentageChange = (tokens: string[]) => {
@@ -362,18 +424,22 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     const teamOneValue = teamOnePercentageChange;
     const teamTwoValue = teamTwoPercentageChange;
     
-    // Check if it's time to add a new data point (every 10 seconds)
+    // Log performance data to WebSocket client
+    wsClient.logMatchPerformance(teamOneValue, teamTwoValue);
+    
+    // Update chart data with continuous movement
+    // We'll add a new data point every 2 seconds to make the graph move smoothly
     const timeDiff = now.getTime() - lastUpdateTime.getTime();
     
-    if (timeDiff >= 10000) { // 10 seconds in milliseconds
-      // Add a new data point and remove the oldest one
+    if (timeDiff >= 2000) { // 2 seconds in milliseconds for smoother movement
       setChartData(prevData => {
+        // Create a new array with all previous data points shifted left
         const newData = [...prevData];
         
         // Remove the oldest data point
         newData.shift();
         
-        // Add the new data point
+        // Add the new data point with current time and values
         newData.push({
           time: format(now, "HH:mm:ss"),
           timestamp: now.toISOString(),
@@ -386,25 +452,8 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       
       // Update the last update time
       setLastUpdateTime(now);
-    } else {
-      // Just update the latest data point with new values
-      setChartData(prevData => {
-        const newData = [...prevData];
-        
-        // Update the latest data point
-        if (newData.length > 0) {
-          const lastIndex = newData.length - 1;
-          newData[lastIndex] = {
-            ...newData[lastIndex],
-            teamOne: teamOneValue,
-            teamTwo: teamTwoValue,
-          };
-        }
-        
-        return newData;
-      });
     }
-  }, [match, tokenPrices, initialPrices, chartData, lastUpdateTime, isMatchActive]);
+  }, [match, tokenPrices, initialPrices, lastUpdateTime, isMatchActive]);
 
   const chartColors = useMemo(() => {
     return {
@@ -576,17 +625,15 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
             <YAxis
               stroke={chartColors.text}
               fontSize={12}
-              tickFormatter={(value) => `${value.toFixed(6)}%`}
+              tickFormatter={(value) => `${value.toFixed(4)}%`}
               tickLine={false}
               axisLine={false}
               // Auto-scale to make any change fill the entire chart height
-              domain={['auto', 'auto']}
+              domain={['dataMin - 0.1', 'dataMax + 0.1']}
               // Increase the number of ticks to show more detail
               allowDecimals={true}
               // Ensure we show enough decimal places
-              tickCount={20}
-              // Use a dynamic scale that automatically adjusts to the data range
-              scale="auto"
+              tickCount={5}
               // Ensure we can see very small changes
               interval={0}
               // Add padding to make the chart more readable

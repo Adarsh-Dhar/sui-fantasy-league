@@ -38,6 +38,9 @@ export const MatchResultAnnouncement = ({
   const isTeamOneWinner = teamOneScore > teamTwoScore;
   const isDraw = teamOneScore === teamTwoScore;
   
+  // Determine if the current user is team one (the player)
+  // In this application, teamOne is always the current user's team
+  
   // Format scores with sign and 4 decimal places
   const formatScore = (score: number) => {
     return `${score >= 0 ? '+' : ''}${score.toFixed(4)}%`;
@@ -172,7 +175,7 @@ export const MatchResultAnnouncement = ({
             ) : isTeamOneWinner ? (
               "Congratulations!"
             ) : (
-              "Sorry, You Lost"
+              "Better luck next time 😔"
             )}
           </h2>
           
@@ -182,7 +185,7 @@ export const MatchResultAnnouncement = ({
             ) : isTeamOneWinner ? (
               "Your team outperformed the opponent!"
             ) : (
-              `${match.teamTwo?.name || 'The opponent'} had better performance.`
+              `${match.teamTwo?.name || 'The opponent'} had better performance. Don't give up!`
             )}
           </p>
           

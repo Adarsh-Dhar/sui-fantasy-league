@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { MatchCard } from "@/components/match-card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Match } from "@/lib/types";
 
 export default function MatchesPage() {
@@ -79,6 +81,13 @@ export default function MatchesPage() {
           <p className="text-muted-foreground">
             Track live and completed crypto team battles
           </p>
+          <div className="mt-4">
+            <Link href="/matches/live">
+              <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                Try Live Token Battle
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <Tabs defaultValue="live" className="mb-8">

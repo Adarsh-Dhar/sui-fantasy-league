@@ -26,6 +26,7 @@ export function usePriceWebSocket(symbols: string[]) {
 
     // Subscribe to all symbols
     normalizedSymbols.forEach(symbol => {
+      console.log("symbol2", symbol);
       wsClient.subscribeToSymbol(symbol);
     });
 
