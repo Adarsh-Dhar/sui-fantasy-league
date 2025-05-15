@@ -204,11 +204,7 @@ export default function TeamDetailPage() {
               >
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden bg-background">
-                    <img
-                      src={token.logo}
-                      alt={token.name}
-                      className="w-full h-full object-cover"
-                    />
+                    
                   </div>
                   <div>
                     <h3 className="font-medium">{token.name}</h3>

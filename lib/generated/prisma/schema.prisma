@@ -53,8 +53,19 @@ model Match {
   teamTwoId String?
   teamTwo   Team?   @relation("TeamTwo", fields: [teamTwoId], references: [id])
 
+  // Store the final scores as percentage change
+  teamOneScore Float?
+  teamTwoScore Float?
+
   winnerId String?
   result   MatchResult?
+
+  // Match duration in seconds
+  duration Int @default(60)
+
+  // Match start and end times
+  startTime DateTime?
+  endTime   DateTime?
 }
 
 enum MatchStatus {
