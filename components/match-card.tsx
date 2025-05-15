@@ -24,45 +24,79 @@ export const MatchCard = ({ match }: MatchCardProps) => {
     return () => clearInterval(interval);
   }, [match.createdAt, match.startTime]);
   
-  // Handle both API and mock data formats
-  const isApiData = !!match.playerOne;
+  // Determine if this is history API data, game API data, or mock data
+  const isHistoryData = !!match.teamOne && !match.playerOne;
+  const isGameApiData = !!match.playerOne;
+  const isMockData = !isHistoryData && !isGameApiData;
   
   // Extract match status (API format uses uppercase, mock uses lowercase)
-  const status = isApiData 
-    ? match.status.toLowerCase() 
-    : match.status;
+  const status = isMockData 
+    ? match.status 
+    : match.status.toLowerCase();
   
   // Extract team data based on the format
-  const teamA = isApiData ? {
-    name: match.teamOne?.name || "Team One",
-    owner: {
-      username: match.playerOne?.address 
-        ? `${match.playerOne.address.slice(0, 6)}...${match.playerOne.address.slice(-4)}` 
-        : "Player One",
-      avatar: ""
-    },
-    percentageChange: 0 // We'll need to calculate this from token data in a real implementation
-  } : match.teamA;
+  let teamA, teamB;
   
-  const teamB = isApiData ? {
-    name: match.teamTwo?.name || "Waiting for opponent",
-    owner: {
-      username: match.playerTwo?.address 
-        ? `${match.playerTwo.address.slice(0, 6)}...${match.playerTwo.address.slice(-4)}` 
-        : "Waiting for opponent",
-      avatar: ""
-    },
-    percentageChange: 0 // We'll need to calculate this from token data in a real implementation
-  } : match.teamB;
+  if (isHistoryData) {
+    // History API format
+    teamA = {
+      name: match.teamOne?.name || "Team One",
+      owner: {
+        username: match.teamOne?.player?.address 
+          ? `${match.teamOne.player.address.slice(0, 6)}...${match.teamOne.player.address.slice(-4)}` 
+          : "Player One",
+        avatar: ""
+      },
+      percentageChange: match.teamOneScore || 0
+    };
+    
+    teamB = {
+      name: match.teamTwo?.name || "Waiting for opponent",
+      owner: {
+        username: match.teamTwo?.player?.address 
+          ? `${match.teamTwo.player.address.slice(0, 6)}...${match.teamTwo.player.address.slice(-4)}` 
+          : "Waiting for opponent",
+        avatar: ""
+      },
+      percentageChange: match.teamTwoScore || 0
+    };
+  } else if (isGameApiData) {
+    // Game API format
+    teamA = {
+      name: match.teamOne?.name || "Team One",
+      owner: {
+        username: match.playerOne?.address 
+          ? `${match.playerOne.address.slice(0, 6)}...${match.playerOne.address.slice(-4)}` 
+          : "Player One",
+        avatar: ""
+      },
+      percentageChange: match.teamOneScore || 0
+    };
+    
+    teamB = {
+      name: match.teamTwo?.name || "Waiting for opponent",
+      owner: {
+        username: match.playerTwo?.address 
+          ? `${match.playerTwo.address.slice(0, 6)}...${match.playerTwo.address.slice(-4)}` 
+          : "Waiting for opponent",
+        avatar: ""
+      },
+      percentageChange: match.teamTwoScore || 0
+    };
+  } else {
+    // Mock data format
+    teamA = match.teamA;
+    teamB = match.teamB;
+  }
   
   // Determine match duration
-  const duration = isApiData 
-    ? match.status === "COMPLETED" 
+  const duration = isMockData
+    ? match.duration
+    : match.status === "COMPLETED" || match.status === "completed"
       ? "Completed" 
-      : match.status === "IN_PROGRESS" 
+      : match.status === "IN_PROGRESS" || match.status === "in_progress"
         ? "In Progress" 
-        : "Pending"
-    : match.duration;
+        : "Pending";
 
   return (
     <Link href={`/matches/${match.id}`} className="block">
@@ -72,14 +106,14 @@ export const MatchCard = ({ match }: MatchCardProps) => {
             <div className="flex items-center">
               <span
                 className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
-                  status === "in_progress" || status === "pending" && isApiData
+                  status === "in_progress" || (status === "pending" && (isHistoryData || isGameApiData))
                     ? "bg-green-500/20 text-green-500"
                     : status === "completed"
                     ? "bg-blue-500/20 text-blue-500"
                     : "bg-yellow-500/20 text-yellow-500"
                 }`}
               >
-                {status === "in_progress" || (status === "pending" && isApiData && match.playerTwo) ? (
+                {status === "in_progress" || (status === "pending" && (isHistoryData || isGameApiData) && (match.playerTwo || match.teamTwo)) ? (
                   <>
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -95,7 +129,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
                 ) : (
                   <>
                     <Clock className="h-3 w-3" />
-                    {isApiData ? "Pending" : "Scheduled"}
+                    {isMockData ? "Scheduled" : "Pending"}
                   </>
                 )}
               </span>
@@ -138,7 +172,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
 
             <div className="flex flex-col items-center justify-center">
               <div className="text-lg sm:text-xl font-bold">VS</div>
-              {!isApiData && (
+              {isMockData && (
                 <div className="mt-2 flex space-x-3 justify-center">
                   <div
                     className={`text-sm sm:text-base font-medium ${
@@ -163,7 +197,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
                 </div>
               )}
               <div className="mt-2 text-xs text-muted-foreground">
-                {isApiData ? `Status: ${match.status}` : `Duration: ${duration}`}
+                {isMockData ? `Duration: ${duration}` : `Status: ${match.status}`}
               </div>
             </div>
 
@@ -192,7 +226,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
             </div>
           </div>
 
-          {!isApiData && match.status === "live" && (
+          {isMockData && match.status === "live" && (
             <div className="mt-4 flex justify-between items-center">
               <div
                 className={`text-xs px-2 py-1 rounded-full ${
@@ -235,7 +269,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
             </div>
           )}
 
-          {isApiData && match.result && (
+          {(isHistoryData || isGameApiData) && match.result && (
             <div className="mt-4 text-center">
               <div
                 className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-500`}
@@ -251,7 +285,7 @@ export const MatchCard = ({ match }: MatchCardProps) => {
             </div>
           )}
           
-          {!isApiData && match.status === "completed" && match.winner && (
+          {isMockData && match.status === "completed" && match.winner && (
             <div className="mt-4 text-center">
               <div
                 className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-500`}

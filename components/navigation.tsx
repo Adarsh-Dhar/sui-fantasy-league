@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Home, History, User, Menu, X, Zap } from "lucide-react";
+import { Trophy, Home, User, Menu, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
 
@@ -17,8 +17,7 @@ const Navigation = () => {
     { name: "Play", href: "/play", icon: Zap },
     { name: "Live Matches", href: "/matches", icon: Trophy },
     { name: "My Teams", href: "/teams", icon: User },
-    { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
-    { name: "History", href: "/history", icon: History },
+    { name: "Leaderboard", href: "/leaderboard", icon: Trophy }
   ];
 
   return (
