@@ -35,7 +35,7 @@ export default function TeamDetailPage() {
       // Generate price history for each token
       const enrichedTokens = foundTeam.tokens.map((token) => ({
         ...token,
-        priceHistory: generatePriceHistory(token.price, token.change24h, 20),
+        priceHistory: generatePriceHistory(20, 2, 0),
       }));
 
       setTokensWithHistory(enrichedTokens);
@@ -219,20 +219,11 @@ export default function TeamDetailPage() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="bg-background/50 p-2 rounded">
                     <p className="text-muted-foreground text-xs mb-1">Price</p>
-                    <p className="font-medium">${token.price.toLocaleString()}</p>
+                    
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <p className="text-muted-foreground text-xs mb-1">24h</p>
-                    <p
-                      className={`font-medium ${
-                        token.change24h >= 0
-                          ? "text-[hsl(var(--positive))]"
-                          : "text-[hsl(var(--negative))]"
-                      }`}
-                    >
-                      {token.change24h >= 0 ? "+" : ""}
-                      {token.change24h.toFixed(2)}%
-                    </p>
+                   
                   </div>
                 </div>
                 
@@ -251,22 +242,12 @@ export default function TeamDetailPage() {
                             x2="0"
                             y2="1"
                           >
-                            <stop
-                              offset="5%"
-                              stopColor={token.change24h >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"}
-                              stopOpacity={0.3}
-                            />
-                            <stop
-                              offset="95%"
-                              stopColor={token.change24h >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"}
-                              stopOpacity={0}
-                            />
+
                           </linearGradient>
                         </defs>
                         <Area
                           type="monotone"
                           dataKey="price"
-                          stroke={token.change24h >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"}
                           fillOpacity={1}
                           fill={`url(#gradient-${token.id})`}
                         />

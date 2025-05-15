@@ -109,22 +109,29 @@ export const CreateTeamForm = () => {
     setIsCreating(true);
     
     try {
-      // Call the actual API to create a team
+      // Create a team name from the wallet address if not provided
+      const teamName = `Team ${account.address.slice(0, 6)}`;
+      
+      // Call the team API to create a team with the player address directly
       const response = await fetch('/api/game/team', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          playerAddress: account?.address,
-          tokenIds: selectedTokens
+          name: teamName,
+          address: account.address,
+          tokens: selectedTokens
         }),
       });
       
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API request failed with status ${response.status}`);
       }
       
+      // Show success message and redirect
+      console.log('Team created successfully!');
       router.push("/teams");
     } catch (error) {
       console.error('Error creating team:', error);
@@ -243,6 +250,43 @@ export const CreateTeamForm = () => {
                         return token.name.toLowerCase().includes(searchLower) || 
                                token.symbol.toLowerCase().includes(searchLower);
                       })
+                      .sort((a, b) => {
+                        // If search term is empty, maintain original order
+                        if (!searchTerm) return 0;
+                        
+                        const searchLower = searchTerm.toLowerCase();
+                        const aNameLower = a.name.toLowerCase();
+                        const bNameLower = b.name.toLowerCase();
+                        const aSymbolLower = a.symbol.toLowerCase();
+                        const bSymbolLower = b.symbol.toLowerCase();
+                        
+                        // Check for exact matches in name or symbol (case insensitive)
+                        const aExactNameMatch = aNameLower === searchLower;
+                        const bExactNameMatch = bNameLower === searchLower;
+                        const aExactSymbolMatch = aSymbolLower === searchLower;
+                        const bExactSymbolMatch = bSymbolLower === searchLower;
+                        
+                        // Check for starts with matches
+                        const aStartsWithName = aNameLower.startsWith(searchLower);
+                        const bStartsWithName = bNameLower.startsWith(searchLower);
+                        const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                        const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                        
+                        // Prioritize exact matches, then starts with matches, then includes matches
+                        if (aExactNameMatch && !bExactNameMatch) return -1;
+                        if (!aExactNameMatch && bExactNameMatch) return 1;
+                        if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                        if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                        
+                        // Next priority: starts with matches
+                        if (aStartsWithName && !bStartsWithName) return -1;
+                        if (!aStartsWithName && bStartsWithName) return 1;
+                        if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                        if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                        
+                        // If both have the same match type, sort alphabetically
+                        return aNameLower.localeCompare(bNameLower);
+                      })
                       .slice((currentPage - 1) * tokensPerPage, currentPage * tokensPerPage)
                       .map((token) => (
                         <TokenCard
@@ -255,21 +299,324 @@ export const CreateTeamForm = () => {
                   </div>
                   
                   {/* Pagination */}
-                  {tokens.length > tokensPerPage && (
-                    <div className="flex justify-center mt-4 space-x-2">
-                      {Array.from({ length: Math.ceil(tokens.length / tokensPerPage) }).map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setCurrentPage(idx + 1)}
-                          className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                            currentPage === idx + 1
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-card hover:bg-accent"
-                          }`}
-                        >
-                          {idx + 1}
-                        </button>
-                      ))}
+                  {tokens.filter(token => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return token.name.toLowerCase().includes(searchLower) || 
+                           token.symbol.toLowerCase().includes(searchLower);
+                  }).sort((a, b) => {
+                    // If search term is empty, maintain original order
+                    if (!searchTerm) return 0;
+                    
+                    const searchLower = searchTerm.toLowerCase();
+                    const aNameLower = a.name.toLowerCase();
+                    const bNameLower = b.name.toLowerCase();
+                    const aSymbolLower = a.symbol.toLowerCase();
+                    const bSymbolLower = b.symbol.toLowerCase();
+                    
+                    // Check for exact matches in name or symbol (case insensitive)
+                    const aExactNameMatch = aNameLower === searchLower;
+                    const bExactNameMatch = bNameLower === searchLower;
+                    const aExactSymbolMatch = aSymbolLower === searchLower;
+                    const bExactSymbolMatch = bSymbolLower === searchLower;
+                    
+                    // Check for starts with matches
+                    const aStartsWithName = aNameLower.startsWith(searchLower);
+                    const bStartsWithName = bNameLower.startsWith(searchLower);
+                    const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                    const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                    
+                    // Prioritize exact matches, then starts with matches, then includes matches
+                    if (aExactNameMatch && !bExactNameMatch) return -1;
+                    if (!aExactNameMatch && bExactNameMatch) return 1;
+                    if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                    if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                    
+                    // Next priority: starts with matches
+                    if (aStartsWithName && !bStartsWithName) return -1;
+                    if (!aStartsWithName && bStartsWithName) return 1;
+                    if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                    if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                    
+                    // If both have the same match type, sort alphabetically
+                    return aNameLower.localeCompare(bNameLower);
+                  }).length > tokensPerPage && (
+                    <div className="flex justify-center mt-4 space-x-1 items-center">
+                      {/* Previous button */}
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`px-2 py-1 rounded-md flex items-center justify-center ${
+                          currentPage === 1
+                            ? "bg-muted text-muted-foreground cursor-not-allowed"
+                            : "bg-card hover:bg-accent"
+                        }`}
+                      >
+                        Prev
+                      </button>
+                      
+                      {/* Page numbers with ellipsis */}
+                      {(() => {
+                        const filteredTokens = tokens.filter(token => {
+                          const searchLower = searchTerm.toLowerCase();
+                          return token.name.toLowerCase().includes(searchLower) || 
+                                token.symbol.toLowerCase().includes(searchLower);
+                        }).sort((a, b) => {
+                          // If search term is empty, maintain original order
+                          if (!searchTerm) return 0;
+                          
+                          const searchLower = searchTerm.toLowerCase();
+                          const aNameLower = a.name.toLowerCase();
+                          const bNameLower = b.name.toLowerCase();
+                          const aSymbolLower = a.symbol.toLowerCase();
+                          const bSymbolLower = b.symbol.toLowerCase();
+                          
+                          // Check for exact matches in name or symbol (case insensitive)
+                          const aExactNameMatch = aNameLower === searchLower;
+                          const bExactNameMatch = bNameLower === searchLower;
+                          const aExactSymbolMatch = aSymbolLower === searchLower;
+                          const bExactSymbolMatch = bSymbolLower === searchLower;
+                          
+                          // Check for starts with matches
+                          const aStartsWithName = aNameLower.startsWith(searchLower);
+                          const bStartsWithName = bNameLower.startsWith(searchLower);
+                          const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                          const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                          
+                          // Prioritize exact matches, then starts with matches, then includes matches
+                          if (aExactNameMatch && !bExactNameMatch) return -1;
+                          if (!aExactNameMatch && bExactNameMatch) return 1;
+                          if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                          if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                          
+                          // Next priority: starts with matches
+                          if (aStartsWithName && !bStartsWithName) return -1;
+                          if (!aStartsWithName && bStartsWithName) return 1;
+                          if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                          if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                          
+                          // If both have the same match type, sort alphabetically
+                          return aNameLower.localeCompare(bNameLower);
+                        });
+                        
+                        const totalPages = Math.ceil(filteredTokens.length / tokensPerPage);
+                        const maxVisiblePages = 5; // Maximum number of page buttons to show
+                        
+                        let startPage = Math.max(currentPage - Math.floor(maxVisiblePages / 2), 1);
+                        let endPage = startPage + maxVisiblePages - 1;
+                        
+                        if (endPage > totalPages) {
+                          endPage = totalPages;
+                          startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+                        }
+                        
+                        const pages = [];
+                        
+                        // Always show first page
+                        if (startPage > 1) {
+                          pages.push(
+                            <button
+                              key={1}
+                              onClick={() => setCurrentPage(1)}
+                              className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                                currentPage === 1
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-card hover:bg-accent"
+                              }`}
+                            >
+                              1
+                            </button>
+                          );
+                          
+                          // Show ellipsis if there's a gap
+                          if (startPage > 2) {
+                            pages.push(
+                              <span key="ellipsis1" className="px-1">...</span>
+                            );
+                          }
+                        }
+                        
+                        // Show page numbers
+                        for (let i = startPage; i <= endPage; i++) {
+                          if (i !== 1 && i !== totalPages) { // Skip first and last page as they're handled separately
+                            pages.push(
+                              <button
+                                key={i}
+                                onClick={() => setCurrentPage(i)}
+                                className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                                  currentPage === i
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-card hover:bg-accent"
+                                }`}
+                              >
+                                {i}
+                              </button>
+                            );
+                          }
+                        }
+                        
+                        // Always show last page
+                        if (endPage < totalPages) {
+                          // Show ellipsis if there's a gap
+                          if (endPage < totalPages - 1) {
+                            pages.push(
+                              <span key="ellipsis2" className="px-1">...</span>
+                            );
+                          }
+                          
+                          pages.push(
+                            <button
+                              key={totalPages}
+                              onClick={() => setCurrentPage(totalPages)}
+                              className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                                currentPage === totalPages
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-card hover:bg-accent"
+                              }`}
+                            >
+                              {totalPages}
+                            </button>
+                          );
+                        }
+                        
+                        return pages;
+                      })()}
+                      
+                      {/* Next button */}
+                      <button
+                        onClick={() => {
+                          const filteredTokens = tokens.filter(token => {
+                            const searchLower = searchTerm.toLowerCase();
+                            return token.name.toLowerCase().includes(searchLower) || 
+                                  token.symbol.toLowerCase().includes(searchLower);
+                          }).sort((a, b) => {
+                            // If search term is empty, maintain original order
+                            if (!searchTerm) return 0;
+                            
+                            const searchLower = searchTerm.toLowerCase();
+                            const aNameLower = a.name.toLowerCase();
+                            const bNameLower = b.name.toLowerCase();
+                            const aSymbolLower = a.symbol.toLowerCase();
+                            const bSymbolLower = b.symbol.toLowerCase();
+                            
+                            // Check for exact matches in name or symbol (case insensitive)
+                            const aExactNameMatch = aNameLower === searchLower;
+                            const bExactNameMatch = bNameLower === searchLower;
+                            const aExactSymbolMatch = aSymbolLower === searchLower;
+                            const bExactSymbolMatch = bSymbolLower === searchLower;
+                            
+                            // Check for starts with matches
+                            const aStartsWithName = aNameLower.startsWith(searchLower);
+                            const bStartsWithName = bNameLower.startsWith(searchLower);
+                            const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                            const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                            
+                            // Prioritize exact matches, then starts with matches, then includes matches
+                            if (aExactNameMatch && !bExactNameMatch) return -1;
+                            if (!aExactNameMatch && bExactNameMatch) return 1;
+                            if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                            if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                            
+                            // Next priority: starts with matches
+                            if (aStartsWithName && !bStartsWithName) return -1;
+                            if (!aStartsWithName && bStartsWithName) return 1;
+                            if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                            if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                            
+                            // If both have the same match type, sort alphabetically
+                            return aNameLower.localeCompare(bNameLower);
+                          });
+                          const totalPages = Math.ceil(filteredTokens.length / tokensPerPage);
+                          setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                        }}
+                        disabled={currentPage === Math.ceil(tokens.filter(token => {
+                          const searchLower = searchTerm.toLowerCase();
+                          return token.name.toLowerCase().includes(searchLower) || 
+                                token.symbol.toLowerCase().includes(searchLower);
+                        }).sort((a, b) => {
+                          // If search term is empty, maintain original order
+                          if (!searchTerm) return 0;
+                          
+                          const searchLower = searchTerm.toLowerCase();
+                          const aNameLower = a.name.toLowerCase();
+                          const bNameLower = b.name.toLowerCase();
+                          const aSymbolLower = a.symbol.toLowerCase();
+                          const bSymbolLower = b.symbol.toLowerCase();
+                          
+                          // Check for exact matches in name or symbol (case insensitive)
+                          const aExactNameMatch = aNameLower === searchLower;
+                          const bExactNameMatch = bNameLower === searchLower;
+                          const aExactSymbolMatch = aSymbolLower === searchLower;
+                          const bExactSymbolMatch = bSymbolLower === searchLower;
+                          
+                          // Check for starts with matches
+                          const aStartsWithName = aNameLower.startsWith(searchLower);
+                          const bStartsWithName = bNameLower.startsWith(searchLower);
+                          const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                          const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                          
+                          // Prioritize exact matches, then starts with matches, then includes matches
+                          if (aExactNameMatch && !bExactNameMatch) return -1;
+                          if (!aExactNameMatch && bExactNameMatch) return 1;
+                          if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                          if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                          
+                          // Next priority: starts with matches
+                          if (aStartsWithName && !bStartsWithName) return -1;
+                          if (!aStartsWithName && bStartsWithName) return 1;
+                          if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                          if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                          
+                          // If both have the same match type, sort alphabetically
+                          return aNameLower.localeCompare(bNameLower);
+                        }).length / tokensPerPage)}
+                        className={`px-2 py-1 rounded-md flex items-center justify-center ${
+                          currentPage === Math.ceil(tokens.filter(token => {
+                            const searchLower = searchTerm.toLowerCase();
+                            return token.name.toLowerCase().includes(searchLower) || 
+                                  token.symbol.toLowerCase().includes(searchLower);
+                          }).sort((a, b) => {
+                            // If search term is empty, maintain original order
+                            if (!searchTerm) return 0;
+                            
+                            const searchLower = searchTerm.toLowerCase();
+                            const aNameLower = a.name.toLowerCase();
+                            const bNameLower = b.name.toLowerCase();
+                            const aSymbolLower = a.symbol.toLowerCase();
+                            const bSymbolLower = b.symbol.toLowerCase();
+                            
+                            // Check for exact matches in name or symbol (case insensitive)
+                            const aExactNameMatch = aNameLower === searchLower;
+                            const bExactNameMatch = bNameLower === searchLower;
+                            const aExactSymbolMatch = aSymbolLower === searchLower;
+                            const bExactSymbolMatch = bSymbolLower === searchLower;
+                            
+                            // Check for starts with matches
+                            const aStartsWithName = aNameLower.startsWith(searchLower);
+                            const bStartsWithName = bNameLower.startsWith(searchLower);
+                            const aStartsWithSymbol = aSymbolLower.startsWith(searchLower);
+                            const bStartsWithSymbol = bSymbolLower.startsWith(searchLower);
+                            
+                            // Prioritize exact matches, then starts with matches, then includes matches
+                            if (aExactNameMatch && !bExactNameMatch) return -1;
+                            if (!aExactNameMatch && bExactNameMatch) return 1;
+                            if (aExactSymbolMatch && !bExactSymbolMatch) return -1;
+                            if (!aExactSymbolMatch && bExactSymbolMatch) return 1;
+                            
+                            // Next priority: starts with matches
+                            if (aStartsWithName && !bStartsWithName) return -1;
+                            if (!aStartsWithName && bStartsWithName) return 1;
+                            if (aStartsWithSymbol && !bStartsWithSymbol) return -1;
+                            if (!aStartsWithSymbol && bStartsWithSymbol) return 1;
+                            
+                            // If both have the same match type, sort alphabetically
+                            return aNameLower.localeCompare(bNameLower);
+                          }).length / tokensPerPage)
+                            ? "bg-muted text-muted-foreground cursor-not-allowed"
+                            : "bg-card hover:bg-accent"
+                        }`}
+                      >
+                        Next
+                      </button>
                     </div>
                   )}
                 </>

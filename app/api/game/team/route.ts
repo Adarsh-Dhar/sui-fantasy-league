@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, tokens, playerId } = body;
+    const { name, tokens, address } = body;
 
     // Validate required fields
     if (!name) {
@@ -14,16 +14,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!playerId) {
+    if (!address) {
       return NextResponse.json(
-        { error: 'Player ID is required' },
+        { error: 'Player address is required' },
         { status: 400 }
       );
     }
 
     // Check if player exists
     const playerExists = await prisma.player.findUnique({
-      where: { id: playerId }
+      where: { address }
     });
 
     if (!playerExists) {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         name,
         tokens: tokens || [],
         player: {
-          connect: { id: playerId }
+          connect: { address }
         }
       },
       include: {
