@@ -46,6 +46,7 @@ interface Match {
   teamTwo?: MatchTeam;
   winnerId?: string;
   result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
+  endTime?: number; // Timestamp when match should end
 }
 
 interface PerformanceGraphProps {
@@ -61,6 +62,8 @@ interface TokenInfo {
 interface TokenPrice {
   price: number;
   timestamp: number;
+  initialPrice?: number;
+  percentChange?: number;
 }
 
 interface TokenPrices {
@@ -86,10 +89,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   
   // Match state
   const [initialPrices, setInitialPrices] = useState<{[token: string]: number}>({});
-  const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
-  const [matchDuration, setMatchDuration] = useState<number>(60); // 1 minute in seconds
+  const [matchStartTime, setMatchStartTime] = useState<number | null>(null);
+  const [matchEndTime, setMatchEndTime] = useState<number | null>(null);
+  const [matchDuration] = useState<number>(60 * 1000); // 1 minute in milliseconds
   const [isMatchActive, setIsMatchActive] = useState<boolean>(false);
-  const [remainingTime, setRemainingTime] = useState<number>(matchDuration);
+  const [remainingTime, setRemainingTime] = useState<number>(matchDuration / 1000); // in seconds
   
   // Result announcement
   const [showAnnouncement, setShowAnnouncement] = useState(false);
@@ -111,10 +115,35 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     // Remove duplicates
     const uniqueTokens = Array.from(new Set(allTokens));
     
-    // Format tokens for WebSocket subscription (lowercase and append usdt if needed)
+    // Map full token names to ticker symbols
+    const tokenToSymbol: Record<string, string> = {
+      'bitcoin': 'btc',
+      'ethereum': 'eth',
+      'optimism': 'op',
+      'solana': 'sol',
+      'avalanche': 'avax',
+      'cardano': 'ada',
+      'polkadot': 'dot',
+      'chainlink': 'link',
+      'polygon': 'matic',
+      'binance': 'bnb',
+      'ripple': 'xrp',
+      'dogecoin': 'doge',
+      'shiba': 'shib',
+      'litecoin': 'ltc',
+      'uniswap': 'uni',
+      'tron': 'trx',
+      'stellar': 'xlm',
+      'cosmos': 'atom',
+      'near': 'near',
+      'sui': 'sui'
+    };
+    
+    // Format tokens for WebSocket subscription (convert to ticker symbols, lowercase and append usdt if needed)
     const wsSymbols = uniqueTokens.map(token => {
-      const lowerToken = token.toLowerCase();
-      return lowerToken.endsWith('usdt') ? lowerToken : `${lowerToken}usdt`;
+      // Get ticker symbol or use original token if not in mapping
+      const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
+      return tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
     });
     
     setTokenSymbols(wsSymbols);
@@ -128,16 +157,60 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     // Create a new token prices object from WebSocket data
     const newPrices: TokenPrices = {};
     
+    // Map full token names to ticker symbols
+    const tokenToSymbol: Record<string, string> = {
+      'bitcoin': 'btc',
+      'ethereum': 'eth',
+      'optimism': 'op',
+      'solana': 'sol',
+      'avalanche': 'avax',
+      'cardano': 'ada',
+      'polkadot': 'dot',
+      'chainlink': 'link',
+      'polygon': 'matic',
+      'binance': 'bnb',
+      'ripple': 'xrp',
+      'dogecoin': 'doge',
+      'shiba': 'shib',
+      'litecoin': 'ltc',
+      'uniswap': 'uni',
+      'tron': 'trx',
+      'stellar': 'xlm',
+      'cosmos': 'atom',
+      'near': 'near',
+      'sui': 'sui'
+    };
+    
     // Map WebSocket symbols back to token symbols
     if (match.teamOne) {
       match.teamOne.tokens.forEach(token => {
-        const lowerToken = token.toLowerCase();
-        const symbolWithUsdt = lowerToken.endsWith('usdt') ? lowerToken : `${lowerToken}usdt`;
+        const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
+        const symbolWithUsdt = tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
         
         if (priceData[symbolWithUsdt]) {
+          // Get current price from WebSocket data
+          const currentPrice = parseFloat(priceData[symbolWithUsdt].price);
+          
+          // Get previous token data if it exists
+          const prevTokenData = tokenPrices[token];
+          
+          // Calculate initial price and percent change
+          let initialPrice = prevTokenData?.initialPrice;
+          let percentChange = 0;
+          
+          // If we don't have an initial price yet, set it
+          if (!initialPrice && isMatchActive) {
+            initialPrice = currentPrice;
+          } else if (initialPrice) {
+            // Calculate percent change from initial price
+            percentChange = ((currentPrice - initialPrice) / initialPrice) * 100;
+          }
+          
           newPrices[token] = {
-            price: parseFloat(priceData[symbolWithUsdt].price),
-            timestamp: priceData[symbolWithUsdt].timestamp
+            price: currentPrice,
+            timestamp: priceData[symbolWithUsdt].timestamp,
+            initialPrice: initialPrice,
+            percentChange: percentChange
           };
         }
       });
@@ -145,13 +218,33 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     
     if (match.teamTwo) {
       match.teamTwo.tokens.forEach(token => {
-        const lowerToken = token.toLowerCase();
-        const symbolWithUsdt = lowerToken.endsWith('usdt') ? lowerToken : `${lowerToken}usdt`;
+        const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
+        const symbolWithUsdt = tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
         
-        if (priceData[symbolWithUsdt] && !newPrices[token]) {
+        if (priceData[symbolWithUsdt]) {
+          // Get current price from WebSocket data
+          const currentPrice = parseFloat(priceData[symbolWithUsdt].price);
+          
+          // Get previous token data if it exists
+          const prevTokenData = tokenPrices[token];
+          
+          // Calculate initial price and percent change
+          let initialPrice = prevTokenData?.initialPrice;
+          let percentChange = 0;
+          
+          // If we don't have an initial price yet, set it
+          if (!initialPrice && isMatchActive) {
+            initialPrice = currentPrice;
+          } else if (initialPrice) {
+            // Calculate percent change from initial price
+            percentChange = ((currentPrice - initialPrice) / initialPrice) * 100;
+          }
+          
           newPrices[token] = {
-            price: parseFloat(priceData[symbolWithUsdt].price),
-            timestamp: priceData[symbolWithUsdt].timestamp
+            price: currentPrice,
+            timestamp: priceData[symbolWithUsdt].timestamp,
+            initialPrice: initialPrice,
+            percentChange: percentChange
           };
         }
       });
@@ -160,8 +253,9 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     // Only update if we have new prices
     if (Object.keys(newPrices).length > 0) {
       setTokenPrices(newPrices);
+      console.log('Updated token prices with percent changes:', newPrices);
     }
-  }, [priceData, match]);
+  }, [priceData, match, tokenPrices, isMatchActive]);
 
   // Generate initial chart data
   useEffect(() => {
@@ -208,32 +302,15 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     if (isInProgress && !isMatchActive) {
       // Match just started
       setIsMatchActive(true);
-      setMatchStartTime(new Date());
+      
+      // Don't set start time yet - we'll set it when we have all initial prices
+      // This prevents the timer from starting before we have price data
       
       // Reset chart data
       setChartData([]);
       
-      // Store initial prices
-      const initialTokenPrices: {[token: string]: number} = {};
-      
-      // Store initial prices for all tokens
-      if (match.teamOne) {
-        match.teamOne.tokens.forEach(token => {
-          if (tokenPrices[token]) {
-            initialTokenPrices[token] = tokenPrices[token].price;
-          }
-        });
-      }
-      
-      if (match.teamTwo) {
-        match.teamTwo.tokens.forEach(token => {
-          if (tokenPrices[token] && !initialTokenPrices[token]) {
-            initialTokenPrices[token] = tokenPrices[token].price;
-          }
-        });
-      }
-      
-      setInitialPrices(initialTokenPrices);
+      // Reset initial prices
+      setInitialPrices({});
       
       // Enable WebSocket logging for this match
       const matchInfo: MatchInfo = {
@@ -252,11 +329,13 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       };
       
       wsClient.setActiveMatch(matchInfo);
-      console.log(`Match ${match.id} started - WebSocket logging enabled`);
+      console.log(`Match ${match.id} started - WebSocket logging enabled, duration: ${matchDuration/1000} seconds`);
       
     } else if (!isInProgress && isMatchActive) {
       // Match just ended
       setIsMatchActive(false);
+      setMatchStartTime(null);
+      setMatchEndTime(null);
       
       // Disable WebSocket logging
       if (match.teamTwo) {
@@ -293,7 +372,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
         wsClient.setActiveMatch(null);
       }
     };
-  }, [match.status, isMatchActive, tokenPrices, match.teamOne, match.teamTwo, match.id]);
+  }, [match.status, isMatchActive, matchDuration, match.teamOne, match.teamTwo, match.id]);
   
   // Function to save match results to the database
   const saveMatchResults = async (teamOneScore: number, teamTwoScore: number) => {
@@ -319,6 +398,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
         teamOneScore: teamOneScore.toFixed(4) + '%',
         teamTwoScore: teamTwoScore.toFixed(4) + '%',
         winner: result,
+        winnerId: winnerId,
         priceDataPoints: priceLog.length,
         finalPriceData: priceLog[priceLog.length - 1]
       });
@@ -346,6 +426,12 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       setFinalScores({ teamOne: teamOneScore, teamTwo: teamTwoScore });
       setShowAnnouncement(true);
       
+      // Update local match state to show completion
+      match.status = 'COMPLETED';
+      match.result = result;
+      //@ts-ignore
+      match.winnerId = winnerId;
+      
       // Refresh the page data after a short delay
       setTimeout(() => {
         router.refresh();
@@ -356,104 +442,201 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     }
   };
   
-  // Update remaining time
+  // Update remaining time and handle match completion
   useEffect(() => {
-    if (!isMatchActive || !matchStartTime) return;
+    if (!isMatchActive || !matchStartTime || !matchEndTime) return;
+    
+    console.log(`Timer started at ${new Date(matchStartTime).toISOString()}, ending at ${new Date(matchEndTime).toISOString()}`);
+    console.log(`Match duration: ${matchDuration/1000} seconds`);
     
     const timer = setInterval(() => {
-      const now = new Date();
-      const elapsedSeconds = Math.floor((now.getTime() - matchStartTime.getTime()) / 1000);
-      const remaining = Math.max(0, matchDuration - elapsedSeconds);
+      const now = Date.now();
       
-      setRemainingTime(remaining);
-      
-      // Auto-end match after duration
-      if (remaining <= 0) {
+      // If we've passed the end time, end the match
+      if (now >= matchEndTime) {
+        console.log('Match time expired - ending match');
         setIsMatchActive(false);
         clearInterval(timer);
         
         // Get the final scores
         if (chartData.length > 0) {
           const lastDataPoint = chartData[chartData.length - 1];
+          console.log('Final scores:', {
+            teamOne: lastDataPoint.teamOne.toFixed(4) + '%',
+            teamTwo: lastDataPoint.teamTwo.toFixed(4) + '%'
+          });
+          
+          // Save match results and determine winner
           saveMatchResults(lastDataPoint.teamOne, lastDataPoint.teamTwo);
+        } else {
+          console.error('No chart data available to determine winner');
         }
+        return;
       }
-    }, 1000);
+      
+      // Calculate remaining time in seconds
+      const remainingMs = matchEndTime - now;
+      const remainingSec = Math.ceil(remainingMs / 1000);
+      
+      setRemainingTime(remainingSec);
+      console.log(`Time remaining: ${remainingSec} seconds (${remainingMs}ms)`);
+      
+    }, 500); // Check more frequently (every 500ms) for more accurate timing
     
-    return () => clearInterval(timer);
-  }, [isMatchActive, matchStartTime, matchDuration, chartData, match.id, match.playerOneId, match.playerTwoId, router]);
+    return () => {
+      console.log('Clearing timer');
+      clearInterval(timer);
+    };
+  }, [isMatchActive, matchStartTime, matchEndTime, matchDuration, chartData]);
 
   // Update chart data based on token prices
   useEffect(() => {
-    // Only update if we have token prices, initial prices, and match is active
-    if (Object.keys(tokenPrices).length === 0 || Object.keys(initialPrices).length === 0 || !match.teamTwo || !isMatchActive) {
+    // Only update if we have token prices and match.teamTwo exists
+    if (Object.keys(tokenPrices).length === 0 || !match.teamTwo) {
       return;
     }
     
-    const now = new Date();
-    const wsClient = getBinanceWebSocketClient();
+    // Set up a timer to update the chart regularly
+    let updateTimer: NodeJS.Timeout;
+    let mounted = true;
     
-    // Calculate percentage change from initial price for each team
-    const calculateTeamPercentageChange = (tokens: string[]) => {
-      if (tokens.length === 0) return 0;
+    const updateChartData = () => {
+      if (!mounted) return;
       
-      let totalInitialValue = 0;
-      let totalCurrentValue = 0;
+      const now = new Date();
+      const wsClient = getBinanceWebSocketClient();
       
-      tokens.forEach(token => {
-        const initialPrice = initialPrices[token];
-        const currentPrice = tokenPrices[token]?.price;
+      // Initialize prices if needed
+      if (Object.keys(initialPrices).length === 0 && isMatchActive) {
+        const newInitialPrices: {[token: string]: number} = {};
+        let allTokensHavePrices = true;
         
-        if (initialPrice && currentPrice) {
-          totalInitialValue += initialPrice;
-          totalCurrentValue += currentPrice;
+        // Store initial prices for all tokens
+        if (match.teamOne) {
+          match.teamOne.tokens.forEach(token => {
+            if (tokenPrices[token]) {
+              newInitialPrices[token] = tokenPrices[token].price;
+            } else {
+              allTokensHavePrices = false;
+            }
+          });
         }
-      });
-      
-      if (totalInitialValue === 0) return 0;
-      
-      // Calculate percentage change: (current - initial) / initial * 100
-      return ((totalCurrentValue - totalInitialValue) / totalInitialValue) * 100;
-    };
-    
-    // Calculate percentage change for each team
-    const teamOnePercentageChange = calculateTeamPercentageChange(match.teamOne.tokens);
-    const teamTwoPercentageChange = calculateTeamPercentageChange(match.teamTwo.tokens);
-    
-    // These are the actual percentage changes that will be used as scores
-    const teamOneValue = teamOnePercentageChange;
-    const teamTwoValue = teamTwoPercentageChange;
-    
-    // Log performance data to WebSocket client
-    wsClient.logMatchPerformance(teamOneValue, teamTwoValue);
-    
-    // Update chart data with continuous movement
-    // We'll add a new data point every 2 seconds to make the graph move smoothly
-    const timeDiff = now.getTime() - lastUpdateTime.getTime();
-    
-    if (timeDiff >= 2000) { // 2 seconds in milliseconds for smoother movement
-      setChartData(prevData => {
-        // Create a new array with all previous data points shifted left
-        const newData = [...prevData];
         
-        // Remove the oldest data point
-        newData.shift();
+        if (match.teamTwo) {
+          match.teamTwo.tokens.forEach(token => {
+            if (tokenPrices[token]) {
+              newInitialPrices[token] = tokenPrices[token].price;
+            } else {
+              allTokensHavePrices = false;
+            }
+          });
+        }
         
-        // Add the new data point with current time and values
-        newData.push({
-          time: format(now, "HH:mm:ss"),
-          timestamp: now.toISOString(),
-          teamOne: teamOneValue,
-          teamTwo: teamTwoValue,
+        // Only set initial prices if we have prices for all tokens
+        if (Object.keys(newInitialPrices).length > 0 && allTokensHavePrices) {
+          setInitialPrices(newInitialPrices);
+          
+          // Set precise timestamps for match start and end
+          const startTimestamp = Date.now();
+          const endTimestamp = startTimestamp + matchDuration;
+          
+          setMatchStartTime(startTimestamp);
+          setMatchEndTime(endTimestamp);
+          setRemainingTime(Math.ceil(matchDuration / 1000));
+          
+          // Store end time in match object for reference
+          match.endTime = endTimestamp;
+          
+          console.log('Match timing set:', {
+            startTime: new Date(startTimestamp).toISOString(),
+            endTime: new Date(endTimestamp).toISOString(),
+            duration: `${matchDuration/1000} seconds`
+          });
+          console.log('Set initial prices for all tokens:', newInitialPrices);
+        }
+      }
+      
+      // Calculate average percentage change for each team
+      const calculateTeamPercentageChange = (tokens: string[]) => {
+        if (tokens.length === 0) return 0;
+        
+        let totalPercentChange = 0;
+        let validTokenCount = 0;
+        
+        tokens.forEach(token => {
+          const tokenData = tokenPrices[token];
+          
+          if (tokenData?.percentChange !== undefined) {
+            totalPercentChange += tokenData.percentChange;
+            validTokenCount++;
+          }
         });
         
-        return newData;
-      });
+        if (validTokenCount === 0) return 0;
+        
+        // Return the average percentage change across all tokens
+        return totalPercentChange / validTokenCount;
+      };
+      
+      // Calculate percentage change for each team
+      const teamOnePercentageChange = calculateTeamPercentageChange(match.teamOne.tokens);
+      const teamTwoPercentageChange = calculateTeamPercentageChange(match.teamTwo?.tokens || []);
+      
+      // Log performance data to WebSocket client if match is active
+      if (isMatchActive) {
+        wsClient.logMatchPerformance(teamOnePercentageChange, teamTwoPercentageChange);
+      }
+      
+      // Initialize chart data if empty
+      if (chartData.length === 0) {
+        const newData: ChartDataPoint[] = [];
+        for (let i = 19; i >= 0; i--) {
+          const timestamp = subMinutes(now, i);
+          newData.push({
+            time: format(timestamp, "HH:mm:ss"),
+            timestamp: timestamp.toISOString(),
+            teamOne: 0,
+            teamTwo: 0,
+          });
+        }
+        setChartData(newData);
+      } else {
+        // Update chart data
+        setChartData(prevData => {
+          // Create a new array with all previous data points shifted left
+          const newData = [...prevData];
+          
+          // Remove the oldest data point
+          newData.shift();
+          
+          // Add the new data point with current time and values
+          newData.push({
+            time: format(now, "HH:mm:ss"),
+            timestamp: now.toISOString(),
+            teamOne: teamOnePercentageChange,
+            teamTwo: teamTwoPercentageChange,
+          });
+          
+          return newData;
+        });
+      }
       
       // Update the last update time
       setLastUpdateTime(now);
-    }
-  }, [match, tokenPrices, initialPrices, lastUpdateTime, isMatchActive]);
+      
+      // Schedule next update
+      updateTimer = setTimeout(updateChartData, 1000);
+    };
+    
+    // Start the update cycle
+    updateChartData();
+    
+    // Clean up
+    return () => {
+      mounted = false;
+      clearTimeout(updateTimer);
+    };
+  }, [match, tokenPrices, initialPrices, isMatchActive]);
 
   const chartColors = useMemo(() => {
     return {
@@ -481,6 +664,22 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
                 {payload[0].value.toFixed(2)}%
               </span>
             </p>
+            <div className="ml-5 mt-1 mb-2 space-y-1">
+              {match.teamOne.tokens.map(token => {
+                const tokenData = tokenPrices[token];
+                const percentChange = tokenData?.percentChange || 0;
+                const color = percentChange >= 0 ? 'text-green-500' : 'text-red-500';
+                
+                return (
+                  <div key={token} className="text-xs flex justify-between">
+                    <span className="text-muted-foreground mr-2">{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                    <span className={color}>
+                      {percentChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
             <p className="text-xs flex items-center">
               <span
                 className="w-3 h-3 rounded-full mr-2"
@@ -492,6 +691,22 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
                 {payload[1].value.toFixed(2)}%
               </span>
             </p>
+            <div className="ml-5 mt-1 space-y-1">
+              {match.teamTwo.tokens.map(token => {
+                const tokenData = tokenPrices[token];
+                const percentChange = tokenData?.percentChange || 0;
+                const color = percentChange >= 0 ? 'text-green-500' : 'text-red-500';
+                
+                return (
+                  <div key={token} className="text-xs flex justify-between">
+                    <span className="text-muted-foreground mr-2">{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                    <span className={color}>
+                      {percentChange >= 0 ? '+' : ''}{percentChange.toFixed(2)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       );
@@ -525,8 +740,10 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   
   // Format remaining time as MM:SS
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    // Ensure seconds is not negative
+    const positiveSeconds = Math.max(0, seconds);
+    const mins = Math.floor(positiveSeconds / 60);
+    const secs = positiveSeconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -534,17 +751,23 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   const matchStatus = isMatchActive ? (
     <div className="text-xs text-green-500 flex items-center mb-2">
       <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-      Match in progress - Time remaining: {formatTime(remainingTime)}
+      <span className="font-medium">Match in progress - Time remaining: {formatTime(remainingTime)}</span>
     </div>
   ) : match.status === 'COMPLETED' ? (
     <div className="text-xs text-blue-500 flex items-center mb-2">
       <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-      Match completed
+      <span className="font-medium">Match completed</span>
+      {match.result && (
+        <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
+          {match.result === 'PLAYER_ONE_WIN' ? `${match.teamOne.name} won` : 
+           match.result === 'PLAYER_TWO_WIN' ? `${match.teamTwo?.name} won` : 'Draw'}
+        </span>
+      )}
     </div>
   ) : (
     <div className="text-xs text-amber-500 flex items-center mb-2">
       <span className="w-2 h-2 bg-amber-500 rounded-full mr-1"></span>
-      Match pending
+      <span className="font-medium">Match pending - Will run for {formatTime(matchDuration)}</span>
     </div>
   );
   
@@ -597,6 +820,24 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
               `${chartData[chartData.length - 1].teamOne >= 0 ? '+' : ''}${chartData[chartData.length - 1].teamOne.toFixed(4)}%` : 
               '0.0000%'}
           </div>
+          
+          {/* Individual token performance for Team One */}
+          <div className="mt-2 space-y-1 text-xs">
+            {match.teamOne.tokens.map(token => {
+              const tokenData = tokenPrices[token];
+              const percentChange = tokenData?.percentChange || 0;
+              const color = percentChange >= 0 ? 'text-green-500' : 'text-red-500';
+              
+              return (
+                <div key={token} className="flex justify-between">
+                  <span className="text-muted-foreground">{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                  <span className={color}>
+                    {percentChange >= 0 ? '+' : ''}{percentChange.toFixed(4)}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div className="p-3 rounded-lg bg-card/50 border border-border">
           <div className="text-sm font-medium mb-1">{match.teamTwo.name}</div>
@@ -604,6 +845,70 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
             {chartData.length > 0 ? 
               `${chartData[chartData.length - 1].teamTwo >= 0 ? '+' : ''}${chartData[chartData.length - 1].teamTwo.toFixed(4)}%` : 
               '0.0000%'}
+          </div>
+          
+          {/* Individual token performance for Team Two */}
+          <div className="mt-2 space-y-1 text-xs">
+            {match.teamTwo.tokens.map(token => {
+              const tokenData = tokenPrices[token];
+              const percentChange = tokenData?.percentChange || 0;
+              const color = percentChange >= 0 ? 'text-green-500' : 'text-red-500';
+              
+              return (
+                <div key={token} className="flex justify-between">
+                  <span className="text-muted-foreground">{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                  <span className={color}>
+                    {percentChange >= 0 ? '+' : ''}{percentChange.toFixed(4)}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      
+      {/* Current token prices */}
+      <div className="mb-4 p-3 rounded-lg bg-black/10 border border-border">
+        <div className="text-sm font-medium mb-2">Current Token Prices:</div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground mb-1">{match.teamOne.name}</div>
+            {match.teamOne.tokens.map(token => {
+              const tokenData = tokenPrices[token];
+              const currentPrice = tokenData?.price || 0;
+              const initialPrice = tokenData?.initialPrice || 0;
+              
+              return (
+                <div key={token} className="flex justify-between text-xs">
+                  <span>{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                  <span className="font-medium">
+                    ${currentPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground mb-1">{match.teamTwo.name}</div>
+            {match.teamTwo.tokens.map(token => {
+              const tokenData = tokenPrices[token];
+              const currentPrice = tokenData?.price || 0;
+              
+              return (
+                <div key={token} className="flex justify-between text-xs">
+                  <span>{token.charAt(0).toUpperCase() + token.slice(1)}:</span>
+                  <span className="font-medium">
+                    ${currentPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
