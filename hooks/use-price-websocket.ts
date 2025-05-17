@@ -83,7 +83,7 @@ export function usePriceWebSocket(
       }
 
       // Connect to the WebSocket server
-      const socket = new WebSocket('ws://sfl-wss.railway.internal');
+      const socket = new WebSocket('wss://sfl-wss.adarsh.software/');
       socketRef.current = socket;
 
       // Handle connection opening
