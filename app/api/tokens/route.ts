@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { TokenData } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 class Logger {
   log(message: string) {
     console.log(message);
