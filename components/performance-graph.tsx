@@ -13,7 +13,6 @@ import {
 } from "recharts";
 import { format, parseISO, subMinutes } from "date-fns";
 import { usePriceWebSocket } from "@/hooks/use-price-websocket";
-import { getBinanceWebSocketClient, MatchInfo } from "@/lib/websocket-client";
 import { MatchResultAnnouncement } from "@/components/match-result-announcement";
 import { useRouter } from "next/navigation";
 
@@ -100,7 +99,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   const [finalScores, setFinalScores] = useState<{teamOne: number, teamTwo: number}>({teamOne: 0, teamTwo: 0});
   
   // Get real-time price updates via WebSocket
-  const { priceData, isConnected } = usePriceWebSocket(tokenSymbols);
+  const { priceData, isConnected, error: wsError } = usePriceWebSocket(tokenSymbols);
 
   // Initialize token symbols for WebSocket subscription
   useEffect(() => {
@@ -181,78 +180,54 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       'sui': 'sui'
     };
     
-    // Map WebSocket symbols back to token symbols
-    if (match.teamOne) {
-      match.teamOne.tokens.forEach(token => {
-        const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
-        const symbolWithUsdt = tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
+    // Process all tokens from both teams
+    const processToken = (token: string) => {
+      const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
+      const symbolWithUsdt = tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
+      
+      if (priceData[symbolWithUsdt]) {
+        // Get current price from WebSocket data
+        const currentPrice = parseFloat(priceData[symbolWithUsdt].price);
         
-        if (priceData[symbolWithUsdt]) {
-          // Get current price from WebSocket data
-          const currentPrice = parseFloat(priceData[symbolWithUsdt].price);
-          
-          // Get previous token data if it exists
-          const prevTokenData = tokenPrices[token];
-          
-          // Calculate initial price and percent change
-          let initialPrice = prevTokenData?.initialPrice;
-          let percentChange = 0;
-          
-          // If we don't have an initial price yet, set it
-          if (!initialPrice && isMatchActive) {
-            initialPrice = currentPrice;
-          } else if (initialPrice) {
-            // Calculate percent change from initial price
-            percentChange = ((currentPrice - initialPrice) / initialPrice) * 100;
-          }
-          
-          newPrices[token] = {
-            price: currentPrice,
-            timestamp: priceData[symbolWithUsdt].timestamp,
-            initialPrice: initialPrice,
-            percentChange: percentChange
-          };
+        // Get previous token data if it exists
+        const prevTokenData = tokenPrices[token];
+        
+        // Calculate initial price and percent change
+        let initialPrice = prevTokenData?.initialPrice;
+        let percentChange = 0;
+        
+        // If we don't have an initial price yet, set it
+        if (!initialPrice && isMatchActive) {
+          initialPrice = currentPrice;
+        } else if (initialPrice) {
+          // Calculate percent change from initial price
+          percentChange = ((currentPrice - initialPrice) / initialPrice) * 100;
         }
-      });
+        
+        newPrices[token] = {
+          price: currentPrice,
+          timestamp: priceData[symbolWithUsdt].timestamp,
+          initialPrice: initialPrice,
+          percentChange: percentChange
+        };
+      }
+    };
+    
+    // Process tokens from both teams
+    if (match.teamOne) {
+      match.teamOne.tokens.forEach(processToken);
     }
     
     if (match.teamTwo) {
-      match.teamTwo.tokens.forEach(token => {
-        const tickerSymbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
-        const symbolWithUsdt = tickerSymbol.endsWith('usdt') ? tickerSymbol : `${tickerSymbol}usdt`;
-        
-        if (priceData[symbolWithUsdt]) {
-          // Get current price from WebSocket data
-          const currentPrice = parseFloat(priceData[symbolWithUsdt].price);
-          
-          // Get previous token data if it exists
-          const prevTokenData = tokenPrices[token];
-          
-          // Calculate initial price and percent change
-          let initialPrice = prevTokenData?.initialPrice;
-          let percentChange = 0;
-          
-          // If we don't have an initial price yet, set it
-          if (!initialPrice && isMatchActive) {
-            initialPrice = currentPrice;
-          } else if (initialPrice) {
-            // Calculate percent change from initial price
-            percentChange = ((currentPrice - initialPrice) / initialPrice) * 100;
-          }
-          
-          newPrices[token] = {
-            price: currentPrice,
-            timestamp: priceData[symbolWithUsdt].timestamp,
-            initialPrice: initialPrice,
-            percentChange: percentChange
-          };
-        }
-      });
+      match.teamTwo.tokens.forEach(processToken);
     }
     
     // Only update if we have new prices
     if (Object.keys(newPrices).length > 0) {
-      setTokenPrices(newPrices);
+      setTokenPrices(prevPrices => {
+        // Merge previous prices with new prices
+        return { ...prevPrices, ...newPrices };
+      });
       console.log('Updated token prices with percent changes:', newPrices);
     }
   }, [priceData, match, tokenPrices, isMatchActive]);
@@ -297,7 +272,6 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   useEffect(() => {
     // Check if match is in progress
     const isInProgress = match.status === 'IN_PROGRESS';
-    const wsClient = getBinanceWebSocketClient();
     
     if (isInProgress && !isMatchActive) {
       // Match just started
@@ -312,23 +286,6 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       // Reset initial prices
       setInitialPrices({});
       
-      // Enable WebSocket logging for this match
-      const matchInfo: MatchInfo = {
-        id: match.id,
-        teamOne: {
-          id: match.teamOne.id,
-          name: match.teamOne.name,
-          tokens: match.teamOne.tokens
-        },
-        teamTwo: match.teamTwo ? {
-          id: match.teamTwo.id,
-          name: match.teamTwo.name,
-          tokens: match.teamTwo.tokens
-        } : undefined,
-        isActive: true
-      };
-      
-      wsClient.setActiveMatch(matchInfo);
       console.log(`Match ${match.id} started - WebSocket logging enabled, duration: ${matchDuration/1000} seconds`);
       
     } else if (!isInProgress && isMatchActive) {
@@ -337,49 +294,13 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       setMatchStartTime(null);
       setMatchEndTime(null);
       
-      // Disable WebSocket logging
-      if (match.teamTwo) {
-        const matchInfo: MatchInfo = {
-          id: match.id,
-          teamOne: {
-            id: match.teamOne.id,
-            name: match.teamOne.name,
-            tokens: match.teamOne.tokens
-          },
-          teamTwo: {
-            id: match.teamTwo.id,
-            name: match.teamTwo.name,
-            tokens: match.teamTwo.tokens
-          },
-          isActive: false
-        };
-        
-        wsClient.setActiveMatch(matchInfo);
-        
-        // Log the final data
-        const priceLog = wsClient.getMatchPriceLog(match.id);
-        console.log(`Match ${match.id} completed - WebSocket log data:`, {
-          entries: priceLog.length,
-          firstEntry: priceLog[0],
-          lastEntry: priceLog[priceLog.length - 1]
-        });
-      }
+      console.log(`Match ${match.id} completed`);
     }
-    
-    // Cleanup when component unmounts
-    return () => {
-      if (isMatchActive) {
-        wsClient.setActiveMatch(null);
-      }
-    };
-  }, [match.status, isMatchActive, matchDuration, match.teamOne, match.teamTwo, match.id]);
+  }, [match.status, isMatchActive, matchDuration, match.id]);
   
   // Function to save match results to the database
   const saveMatchResults = async (teamOneScore: number, teamTwoScore: number) => {
     try {
-      // Get WebSocket client for logging
-      const wsClient = getBinanceWebSocketClient();
-      
       // Determine the winner
       let result: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW' = 'DRAW';
       let winnerId = null;
@@ -393,14 +314,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       }
       
       // Log the final match data
-      const priceLog = wsClient.getMatchPriceLog(match.id);
       console.log(`Match ${match.id} completed with result: ${result}`, {
         teamOneScore: teamOneScore.toFixed(4) + '%',
         teamTwoScore: teamTwoScore.toFixed(4) + '%',
         winner: result,
-        winnerId: winnerId,
-        priceDataPoints: priceLog.length,
-        finalPriceData: priceLog[priceLog.length - 1]
+        winnerId: winnerId
       });
       
       // Update the match in the database
@@ -499,12 +417,10 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     // Set up a timer to update the chart regularly
     let updateTimer: NodeJS.Timeout;
     let mounted = true;
-    
-    const updateChartData = () => {
+        const updateChartData = () => {
       if (!mounted) return;
       
       const now = new Date();
-      const wsClient = getBinanceWebSocketClient();
       
       // Initialize prices if needed
       if (Object.keys(initialPrices).length === 0 && isMatchActive) {
@@ -581,11 +497,6 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       // Calculate percentage change for each team
       const teamOnePercentageChange = calculateTeamPercentageChange(match.teamOne.tokens);
       const teamTwoPercentageChange = calculateTeamPercentageChange(match.teamTwo?.tokens || []);
-      
-      // Log performance data to WebSocket client if match is active
-      if (isMatchActive) {
-        wsClient.logMatchPerformance(teamOnePercentageChange, teamTwoPercentageChange);
-      }
       
       // Initialize chart data if empty
       if (chartData.length === 0) {

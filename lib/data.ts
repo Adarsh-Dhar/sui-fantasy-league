@@ -5,52 +5,71 @@ export const tokens: TokenData[] = [
     id: 'sui',
     name: 'Sui',
     symbol: 'SUI',
+    price: 1.25,
+    logo: 'https://cryptologos.cc/logos/sui-sui-logo.png'
   },
   {
     id: 'bitcoin',
     name: 'Bitcoin',
     symbol: 'BTC',
+    price: 68432.51,
+    logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png'
   },
   {
     id: 'ethereum',
     name: 'Ethereum',
     symbol: 'ETH',
- 
+    price: 3452.87,
+    logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
   },
   {
     id: 'solana',
     name: 'Solana',
     symbol: 'SOL',
+    price: 143.25,
+    logo: 'https://cryptologos.cc/logos/solana-sol-logo.png'
   },
   {
     id: 'cardano',
     name: 'Cardano',
     symbol: 'ADA',
+    price: 0.45,
+    logo: 'https://cryptologos.cc/logos/cardano-ada-logo.png'
   },
   {
     id: 'polkadot',
     name: 'Polkadot',
     symbol: 'DOT',
+    price: 6.78,
+    logo: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.png'
   },
   {
     id: 'ripple',
     name: 'Ripple',
     symbol: 'XRP',
+    price: 0.52,
+    logo: 'https://cryptologos.cc/logos/xrp-xrp-logo.png'
   },
   {
     id: 'binancecoin',
     name: 'Binance Coin',
     symbol: 'BNB',
+    price: 562.34,
+    logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png'
   },
   {
     id: 'avalanche',
     name: 'Avalanche',
     symbol: 'AVAX',
+    price: 34.21,
+    logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png'
   },
   {
     id: 'dogecoin',
     name: 'Dogecoin',
     symbol: 'DOGE',
+    price: 0.15,
+    logo: 'https://cryptologos.cc/logos/dogecoin-doge-logo.png'
   },
 ];
 
