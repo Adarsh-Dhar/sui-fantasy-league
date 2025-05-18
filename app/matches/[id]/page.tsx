@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Clock, TrendingUp, ArrowLeft, Users, Zap, Trophy } from "lucide-react";
 import { PerformanceGraph } from "@/components/performance-graph";
 import { WinnerCelebration } from "@/components/winner-celebration";
-import { Team } from "@/lib/types";
+import { usePriceWebSocket } from "@/hooks/use-price-websocket";
 
 interface MatchPlayer {
   id: string;
@@ -47,8 +47,15 @@ export default function MatchDetailPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [matchEnded, setMatchEnded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<any[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
+  
+  // Get real-time price updates via WebSocket
+  const { averageA, averageB } = usePriceWebSocket(tokenSymbols, {
+    setATokens: match?.teamOne?.tokens || [],
+    setBTokens: match?.teamTwo?.tokens || []
+  });
 
   // Fetch match data
   useEffect(() => {
@@ -70,7 +77,51 @@ export default function MatchDetailPage() {
             console.log("Match updated:", newMatch);
             setMatch(newMatch);
             setMatchEnded(newMatch.status === "COMPLETED");
-          }
+            
+            // Set up token symbols for WebSocket subscription
+            if (newMatch.teamOne) {
+              // Combine tokens from both teams (if team two exists)
+              const allTokens = [...newMatch.teamOne.tokens];
+              if (newMatch.teamTwo) {
+                allTokens.push(...newMatch.teamTwo.tokens);
+              }
+              
+              // Remove duplicates
+              const uniqueTokens = Array.from(new Set(allTokens));
+              
+              // Map full token names to ticker symbols
+              const tokenToSymbol: Record<string, string> = {
+                'bitcoin': 'btc',
+                'ethereum': 'eth',
+                'optimism': 'op',
+                'solana': 'sol',
+                'avalanche': 'avax',
+                'cardano': 'ada',
+                'polkadot': 'dot',
+                'chainlink': 'link',
+                'polygon': 'matic',
+                'binance': 'bnb',
+                'ripple': 'xrp',
+                'dogecoin': 'doge',
+                'shiba': 'shib',
+                'litecoin': 'ltc',
+                'uniswap': 'uni',
+                'tron': 'trx',
+                'stellar': 'xlm',
+                'cosmos': 'atom',
+                'near': 'near',
+                'sui': 'sui'
+              };
+              
+              // Format tokens for WebSocket subscription
+              const wsSymbols = uniqueTokens.map(token => {
+                const symbol = tokenToSymbol[token.toLowerCase()] || token.toLowerCase();
+                return symbol.endsWith('usdt') ? symbol : `${symbol}usdt`;
+              });
+              
+              setTokenSymbols(wsSymbols);
+            }
+          } 
         }
       } catch (error) {
         console.error("Error fetching match:", error);
@@ -367,7 +418,7 @@ export default function MatchDetailPage() {
                 by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
               </p>
               <div className="text-xl font-bold positive-value">
-                +0.00%
+                {averageA !== null ? (averageA > 0 ? `+${averageA.toFixed(2)}%` : `${averageA.toFixed(2)}%`) : '+0.00%'}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 $0
@@ -392,7 +443,7 @@ export default function MatchDetailPage() {
                   by {match.playerTwo?.address.slice(0, 6)}...{match.playerTwo?.address.slice(-4)}
                 </p>
                 <div className="text-xl font-bold positive-value">
-                  +0.00%
+                  {averageB !== null ? (averageB > 0 ? `+${averageB.toFixed(2)}%` : `${averageB.toFixed(2)}%`) : '+0.00%'}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   $0
