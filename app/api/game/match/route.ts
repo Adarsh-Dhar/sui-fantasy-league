@@ -90,31 +90,38 @@ export async function POST(request: Request) {
             not: player.id
           },
           playerTwoId: null
+        },
+        include: {
+          playerOne: true,
+          teamOne: true
         }
       });
 
-      // If a pending match is found, join it
+      // If a pending match is found, join it as playerTwo (never as playerOne)
       if (pendingMatch) {
-        const updatedMatch = await prisma.match.update({
-          where: { id: pendingMatch.id },
-          data: {
-            playerTwo: {
-              connect: { id: player.id }
+        // Double-check that we're not replacing playerOne
+        if (pendingMatch.playerOne && pendingMatch.playerOne.id !== player.id) {
+          const updatedMatch = await prisma.match.update({
+            where: { id: pendingMatch.id },
+            data: {
+              playerTwo: {
+                connect: { id: player.id }
+              },
+              teamTwo: {
+                connect: { id: team.id }
+              },
+              status: 'IN_PROGRESS'
             },
-            teamTwo: {
-              connect: { id: team.id }
-            },
-            status: 'IN_PROGRESS'
-          },
-          include: {
-            playerOne: true,
-            teamOne: true,
-            playerTwo: true,
-            teamTwo: true
-          }
-        });
+            include: {
+              playerOne: true,
+              teamOne: true,
+              playerTwo: true,
+              teamTwo: true
+            }
+          });
 
-        return NextResponse.json({ match: updatedMatch }, { status: 200 });
+          return NextResponse.json({ match: updatedMatch }, { status: 200 });
+        }
       }
     }
 

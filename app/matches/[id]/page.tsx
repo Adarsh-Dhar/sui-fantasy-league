@@ -52,10 +52,21 @@ export default function MatchDetailPage() {
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
   // Get real-time price updates via WebSocket
-  const { averageA, averageB } = usePriceWebSocket(tokenSymbols, {
+  const { averageA, averageB, percentageData } = usePriceWebSocket(tokenSymbols, {
     setATokens: match?.teamOne?.tokens || [],
     setBTokens: match?.teamTwo?.tokens || []
   });
+  
+  // Create a map of token symbols to their current price and percentage change
+  const tokenDataMap = percentageData.reduce((acc, token) => {
+    // Convert symbol to match our token format (remove 'usdt' suffix)
+    const symbol = token.symbol.replace('usdt', '');
+    acc[symbol] = {
+      currentPrice: token.currentPrice,
+      percentageChange: token.percentageChange
+    };
+    return acc;
+  }, {} as Record<string, { currentPrice: string, percentageChange: number }>);
 
   // Fetch match data
   useEffect(() => {
@@ -417,8 +428,8 @@ export default function MatchDetailPage() {
               <p className="text-sm text-muted-foreground mb-1">
                 by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
               </p>
-              <div className="text-xl font-bold positive-value">
-                {averageA !== null ? (averageA > 0 ? `+${averageA.toFixed(2)}%` : `${averageA.toFixed(2)}%`) : '+0.00%'}
+              <div className="text-xl font-bold text-[#3b82f6]">
+                {averageA !== null ? (averageA > 0 ? `+${averageA.toFixed(4)}%` : `${averageA.toFixed(4)}%`) : '+0.0000%'}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 $0
@@ -442,8 +453,8 @@ export default function MatchDetailPage() {
                 <p className="text-sm text-muted-foreground mb-1">
                   by {match.playerTwo?.address.slice(0, 6)}...{match.playerTwo?.address.slice(-4)}
                 </p>
-                <div className="text-xl font-bold positive-value">
-                  {averageB !== null ? (averageB > 0 ? `+${averageB.toFixed(2)}%` : `${averageB.toFixed(2)}%`) : '+0.00%'}
+                <div className="text-xl font-bold text-[#eab308]">
+                  {averageB !== null ? (averageB > 0 ? `+${averageB.toFixed(4)}%` : `${averageB.toFixed(4)}%`) : '+0.0000%'}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   $0
@@ -474,15 +485,33 @@ export default function MatchDetailPage() {
                 {match.teamOne.tokens.map((tokenId, index) => (
                   <div
                     key={index}
-                    className="flex items-center p-3 bg-muted/50 rounded-lg"
+                    className="flex items-center p-3 bg-muted/50 rounded-lg border-l-4 border-[#3b82f6]"
                   >
                     <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background flex items-center justify-center">
                       <span className="text-xs font-bold">{tokenId.slice(0, 2).toUpperCase()}</span>
                     </div>
                     <div>
                       <div className="font-medium">{tokenId.slice(0, 4).toUpperCase()}</div>
-                      <div className="text-xs positive-value">
-                        +0.00%
+                      <div className="text-xs">
+                        {(() => {
+                          const tokenSymbol = tokenId.toLowerCase();
+                          const tokenData = tokenDataMap[tokenSymbol];
+                          if (tokenData) {
+                            const { currentPrice, percentageChange } = tokenData;
+                            const formattedPrice = parseFloat(currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            const formattedChange = percentageChange > 0 
+                              ? `+${percentageChange.toFixed(4)}%` 
+                              : `${percentageChange.toFixed(4)}%`;
+                            const changeClass = percentageChange >= 0 ? 'text-positive' : 'text-negative';
+                            return (
+                              <>
+                                <span className="font-medium">${formattedPrice}</span>
+                                <span className={changeClass}> {formattedChange}</span>
+                              </>
+                            );
+                          }
+                          return '+0.0000%';
+                        })()} 
                       </div>
                     </div>
                   </div>
@@ -497,15 +526,33 @@ export default function MatchDetailPage() {
                   {match.teamTwo.tokens.map((tokenId, index) => (
                     <div
                       key={index}
-                      className="flex items-center p-3 bg-muted/50 rounded-lg"
+                      className="flex items-center p-3 bg-muted/50 rounded-lg border-l-4 border-[#eab308]"
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-background flex items-center justify-center">
                         <span className="text-xs font-bold">{tokenId.slice(0, 2).toUpperCase()}</span>
                       </div>
                       <div>
                         <div className="font-medium">{tokenId.slice(0, 4).toUpperCase()}</div>
-                        <div className="text-xs positive-value">
-                          +0.00%
+                        <div className="text-xs">
+                          {(() => {
+                            const tokenSymbol = tokenId.toLowerCase();
+                            const tokenData = tokenDataMap[tokenSymbol];
+                            if (tokenData) {
+                              const { currentPrice, percentageChange } = tokenData;
+                              const formattedPrice = parseFloat(currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                              const formattedChange = percentageChange > 0 
+                                ? `+${percentageChange.toFixed(2)}%` 
+                                : `${percentageChange.toFixed(2)}%`;
+                              const changeClass = percentageChange >= 0 ? 'text-positive' : 'text-negative';
+                              return (
+                                <>
+                                  <span className="font-medium">${formattedPrice}</span>
+                                  <span className={changeClass}> {formattedChange}</span>
+                                </>
+                              );
+                            }
+                            return '+0.0000%';
+                          })()} 
                         </div>
                       </div>
                     </div>

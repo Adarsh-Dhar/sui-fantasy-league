@@ -151,8 +151,8 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   // Define chart colors
   const chartColors = useMemo(() => {
     return {
-      teamOne: "hsl(var(--positive))",
-      teamTwo: "hsl(var(--negative))",
+      teamOne: "#3b82f6", // Blue for Team A
+      teamTwo: "#eab308", // Yellow for Team B
       grid: "hsl(var(--muted))",
       text: "hsl(var(--muted-foreground))",
     };
@@ -164,11 +164,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       return (
         <div className="bg-background border rounded-md shadow-md p-2 text-xs">
           <p className="font-medium">{`Time: ${label}`}</p>
-          <p className="text-[#8884d8]">
-            {`Average A: ${payload[0]?.value.toFixed(4)}`}
+          <p className="text-[#3b82f6]">
+            {`Average A: ${payload[0]?.value.toFixed(4)}%`}
           </p>
-          <p className="text-[#82ca9d]">
-            {`Average B: ${payload[1]?.value.toFixed(4)}`}
+          <p className="text-[#eab308]">
+            {`Average B: ${payload[1]?.value.toFixed(4)}%`}
           </p>
         </div>
       );
@@ -221,6 +221,10 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
               formatter={(value) => {
                 return value === "averageA" ? "Average A" : "Average B";
               }}
+              wrapperStyle={{
+                paddingTop: "10px"
+              }}
+              iconType="circle"
             />
             <Line
               type="monotone"
