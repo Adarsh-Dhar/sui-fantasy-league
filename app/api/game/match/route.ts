@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { teamId, type, address } = body;
+    const { teamId, type, address, duration, price } = body;
 
     // Validate required fields
     if (!teamId) {
@@ -58,26 +58,72 @@ export async function POST(request: Request) {
       );
     }
 
+    // Convert duration string to seconds
+    let durationInSeconds = 60; // Default 1 minute
+    if (duration) {
+      if (duration === '1m') durationInSeconds = 60;
+      else if (duration === '5m') durationInSeconds = 300;
+      else if (duration === '1h') durationInSeconds = 3600;
+      else if (duration === '12h') durationInSeconds = 43200;
+      else durationInSeconds = parseInt(duration);
+    }
+
+    // Parse price (default to 1 SUI)
+    const matchPrice = price ? parseInt(price) : 1;
+
     // Create a new match
-    const match = await prisma.match.create({
-      data: {
-        type,
-        playerOne: {
-          connect: { id: player.id }
+    let match;
+    try {
+      // First try to create with duration and price
+      match = await prisma.match.create({
+        data: {
+          type,
+          playerOne: {
+            connect: { id: player.id }
+          },
+          teamOne: {
+            connect: { id: team.id }
+          },
+          duration: durationInSeconds,
+          price: matchPrice,
         },
-        teamOne: {
-          connect: { id: team.id }
-        },
-        // For RANDOM matches, we'll find an opponent later
-        // For FRIEND matches, the friend will join using the match ID
-      },
-      include: {
-        playerOne: true,
-        teamOne: true,
-        playerTwo: true,
-        teamTwo: true
+        include: {
+          playerOne: true,
+          teamOne: true,
+          playerTwo: true,
+          teamTwo: true
+        }
+      });
+    } catch (error) {
+      console.error('Error with price field, trying without price:', error);
+      // If that fails, try without the price field
+      try {
+        match = await prisma.match.create({
+          data: {
+            type,
+            playerOne: {
+              connect: { id: player.id }
+            },
+            teamOne: {
+              connect: { id: team.id }
+            },
+            duration: durationInSeconds,
+          },
+          include: {
+            playerOne: true,
+            teamOne: true,
+            playerTwo: true,
+            teamTwo: true
+          }
+        });
+      } catch (error) {
+        console.error('Error creating match:', error);
+        return NextResponse.json(
+          { error: 'Failed to create match' },
+          { status: 500 }
+        );
       }
-    });
+    }
 
     // For RANDOM matches, try to find a pending match to join
     if (type === 'RANDOM') {

@@ -62,7 +62,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
   // Get real-time price updates via WebSocket
-  const { averageA, averageB } = usePriceWebSocket(tokenSymbols);
+  const { averageA, averageB, connectionTime, connectionDuration } = usePriceWebSocket(tokenSymbols);
   
   // Initialize token symbols for WebSocket subscription
   useEffect(() => {
@@ -180,8 +180,12 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     <div className="space-y-4 p-4 bg-background rounded-lg border shadow-sm">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Performance Graph</h3>
-        <div className="text-xs text-muted-foreground">
-          Last updated: {format(lastUpdateTime, 'HH:mm:ss')}
+        <div className="flex items-center gap-4">
+          {connectionTime && (
+            <div className="text-xs text-muted-foreground">
+              Connection time: {connectionTime}
+            </div>
+          )}
         </div>
       </div>
       

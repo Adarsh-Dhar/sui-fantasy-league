@@ -74,7 +74,7 @@ export default function PlayPage() {
           type: matchType,
           address: account?.address,
           duration: matchDuration,
-          price: parseInt(matchPrice),
+          price: matchPrice, // Send as string, API will parse it
         }),
       });
 

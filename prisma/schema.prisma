@@ -60,8 +60,11 @@ model Match {
   winnerId String?
   result MatchResult?
   
-  // Match duration in seconds
+  // Match duration in seconds (60 = 1min, 300 = 5min, 3600 = 1hr, 43200 = 12hrs)
   duration Int @default(60)
+  
+  // Match price in SUI tokens
+  price Int @default(1)
   
   // Match start and end times
   startTime DateTime?

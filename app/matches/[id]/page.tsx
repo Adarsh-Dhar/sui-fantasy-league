@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import Link from "next/link";
-import { Clock, TrendingUp, ArrowLeft, Users, Zap, Trophy } from "lucide-react";
+import { Clock, TrendingUp, ArrowLeft, Users, Zap, Trophy, Coins } from "lucide-react";
 import { PerformanceGraph } from "@/components/performance-graph";
 import { WinnerCelebration } from "@/components/winner-celebration";
 import { usePriceWebSocket } from "@/hooks/use-price-websocket";
@@ -38,6 +38,9 @@ interface Match {
   teamTwo?: MatchTeam;
   winnerId?: string;
   result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
+  endTime?: number; // Timestamp when match should end
+  duration?: number; // Match duration in seconds
+  price?: number; // Match price in SUI tokens
 }
 
 export default function MatchDetailPage() {
@@ -369,6 +372,23 @@ export default function MatchDetailPage() {
   
   const timeRemaining = match.status === "IN_PROGRESS" ? "In Progress" : "Finished";
   const timeElapsed = match.status === "IN_PROGRESS" ? "Live" : "Completed";
+  
+  // Format match duration for display
+  const formatDuration = (seconds: number) => {
+    if (seconds === 60) return "1 Minute";
+    if (seconds === 300) return "5 Minutes";
+    if (seconds === 3600) return "1 Hour";
+    if (seconds === 43200) return "12 Hours";
+    
+    // Fallback for custom durations
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} Minutes`;
+    
+    const hours = Math.floor(minutes / 60);
+    return `${hours} Hours`;
+  };
+  
+  const matchDuration = formatDuration(match.duration || 60);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -438,9 +458,23 @@ export default function MatchDetailPage() {
 
             <div className="flex flex-col items-center text-center">
               <div className="text-4xl font-bold mb-2">VS</div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <span className="text-muted-foreground">Real-time performance</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 justify-center">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span className="text-muted-foreground">Real-time performance</span>
+                </div>
+                
+                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{matchDuration}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Coins className="h-4 w-4" />
+                    <span>{(match as any).price || 1} SUI</span>
+                  </div>
+                </div>
               </div>
             </div>
 

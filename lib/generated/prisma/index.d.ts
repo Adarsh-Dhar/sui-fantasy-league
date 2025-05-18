@@ -3449,12 +3449,14 @@ export namespace Prisma {
     teamOneScore: number | null
     teamTwoScore: number | null
     duration: number | null
+    price: number | null
   }
 
   export type MatchSumAggregateOutputType = {
     teamOneScore: number | null
     teamTwoScore: number | null
     duration: number | null
+    price: number | null
   }
 
   export type MatchMinAggregateOutputType = {
@@ -3472,6 +3474,7 @@ export namespace Prisma {
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number | null
+    price: number | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3491,6 +3494,7 @@ export namespace Prisma {
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number | null
+    price: number | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3510,6 +3514,7 @@ export namespace Prisma {
     winnerId: number
     result: number
     duration: number
+    price: number
     startTime: number
     endTime: number
     _all: number
@@ -3520,12 +3525,14 @@ export namespace Prisma {
     teamOneScore?: true
     teamTwoScore?: true
     duration?: true
+    price?: true
   }
 
   export type MatchSumAggregateInputType = {
     teamOneScore?: true
     teamTwoScore?: true
     duration?: true
+    price?: true
   }
 
   export type MatchMinAggregateInputType = {
@@ -3543,6 +3550,7 @@ export namespace Prisma {
     winnerId?: true
     result?: true
     duration?: true
+    price?: true
     startTime?: true
     endTime?: true
   }
@@ -3562,6 +3570,7 @@ export namespace Prisma {
     winnerId?: true
     result?: true
     duration?: true
+    price?: true
     startTime?: true
     endTime?: true
   }
@@ -3581,6 +3590,7 @@ export namespace Prisma {
     winnerId?: true
     result?: true
     duration?: true
+    price?: true
     startTime?: true
     endTime?: true
     _all?: true
@@ -3687,6 +3697,7 @@ export namespace Prisma {
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number
+    price: number
     startTime: Date | null
     endTime: Date | null
     _count: MatchCountAggregateOutputType | null
@@ -3725,6 +3736,7 @@ export namespace Prisma {
     winnerId?: boolean
     result?: boolean
     duration?: boolean
+    price?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3748,6 +3760,7 @@ export namespace Prisma {
     winnerId?: boolean
     result?: boolean
     duration?: boolean
+    price?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3771,6 +3784,7 @@ export namespace Prisma {
     winnerId?: boolean
     result?: boolean
     duration?: boolean
+    price?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3794,11 +3808,12 @@ export namespace Prisma {
     winnerId?: boolean
     result?: boolean
     duration?: boolean
+    price?: boolean
     startTime?: boolean
     endTime?: boolean
   }
 
-  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "winnerId" | "result" | "duration" | "startTime" | "endTime", ExtArgs["result"]["match"]>
+  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "winnerId" | "result" | "duration" | "price" | "startTime" | "endTime", ExtArgs["result"]["match"]>
   export type MatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
@@ -3841,6 +3856,7 @@ export namespace Prisma {
       winnerId: string | null
       result: $Enums.MatchResult | null
       duration: number
+      price: number
       startTime: Date | null
       endTime: Date | null
     }, ExtArgs["result"]["match"]>
@@ -4284,6 +4300,7 @@ export namespace Prisma {
     readonly winnerId: FieldRef<"Match", 'String'>
     readonly result: FieldRef<"Match", 'MatchResult'>
     readonly duration: FieldRef<"Match", 'Int'>
+    readonly price: FieldRef<"Match", 'Int'>
     readonly startTime: FieldRef<"Match", 'DateTime'>
     readonly endTime: FieldRef<"Match", 'DateTime'>
   }
@@ -4787,6 +4804,7 @@ export namespace Prisma {
     winnerId: 'winnerId',
     result: 'result',
     duration: 'duration',
+    price: 'price',
     startTime: 'startTime',
     endTime: 'endTime'
   };
@@ -5056,6 +5074,7 @@ export namespace Prisma {
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
+    price?: IntFilter<"Match"> | number
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5079,6 +5098,7 @@ export namespace Prisma {
     winnerId?: SortOrderInput | SortOrder
     result?: SortOrderInput | SortOrder
     duration?: SortOrder
+    price?: SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     playerOne?: PlayerOrderByWithRelationInput
@@ -5105,6 +5125,7 @@ export namespace Prisma {
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
+    price?: IntFilter<"Match"> | number
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5128,6 +5149,7 @@ export namespace Prisma {
     winnerId?: SortOrderInput | SortOrder
     result?: SortOrderInput | SortOrder
     duration?: SortOrder
+    price?: SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     _count?: MatchCountOrderByAggregateInput
@@ -5155,6 +5177,7 @@ export namespace Prisma {
     winnerId?: StringNullableWithAggregatesFilter<"Match"> | string | null
     result?: EnumMatchResultNullableWithAggregatesFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntWithAggregatesFilter<"Match"> | number
+    price?: IntWithAggregatesFilter<"Match"> | number
     startTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
   }
@@ -5287,6 +5310,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -5310,6 +5334,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5325,6 +5350,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -5348,6 +5374,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5367,6 +5394,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5382,6 +5410,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5401,6 +5430,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5652,6 +5682,7 @@ export namespace Prisma {
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
+    price?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5660,6 +5691,7 @@ export namespace Prisma {
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
     duration?: SortOrder
+    price?: SortOrder
   }
 
   export type MatchMaxOrderByAggregateInput = {
@@ -5677,6 +5709,7 @@ export namespace Prisma {
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
+    price?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5696,6 +5729,7 @@ export namespace Prisma {
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
+    price?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5704,6 +5738,7 @@ export namespace Prisma {
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
     duration?: SortOrder
+    price?: SortOrder
   }
 
   export type EnumMatchStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -6411,6 +6446,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
@@ -6432,6 +6468,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6457,6 +6494,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6478,6 +6516,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6552,6 +6591,7 @@ export namespace Prisma {
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
+    price?: IntFilter<"Match"> | number
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
   }
@@ -6606,6 +6646,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6627,6 +6668,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6652,6 +6694,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6673,6 +6716,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6968,6 +7012,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6986,6 +7031,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7023,6 +7069,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
@@ -7044,6 +7091,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7062,6 +7110,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7077,6 +7126,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7098,6 +7148,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7116,6 +7167,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7134,6 +7186,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7152,6 +7205,7 @@ export namespace Prisma {
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
+    price?: number
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7167,6 +7221,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7188,6 +7243,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7206,6 +7262,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7221,6 +7278,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7242,6 +7300,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7260,6 +7319,7 @@ export namespace Prisma {
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
+    price?: IntFieldUpdateOperationsInput | number
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
