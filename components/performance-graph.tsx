@@ -28,6 +28,7 @@ interface MatchTeam {
 }
 
 interface Match {
+  duration: number | null;
   id: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   type: 'RANDOM' | 'FRIEND';
@@ -63,6 +64,9 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   
   // Get real-time price updates via WebSocket
   const { averageA, averageB, connectionTime, connectionDuration } = usePriceWebSocket(tokenSymbols);
+  
+  // Calculate time remaining in the match
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
   
   // Initialize token symbols for WebSocket subscription
   useEffect(() => {
@@ -116,6 +120,25 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       updateChartData(averageA, averageB);
     }
   }, [averageA, averageB]);
+  
+  // Calculate time remaining whenever connectionDuration changes
+  useEffect(() => {
+    if (match.duration && connectionDuration) {
+      // Match duration is in seconds, connectionDuration is in milliseconds
+      const durationMs = match.duration * 1000;
+      const remainingMs = Math.max(0, durationMs - connectionDuration);
+      
+      // Format remaining time
+      if (remainingMs <= 0) {
+        setTimeRemaining("Time's up!");
+      } else {
+        const remainingSeconds = Math.floor(remainingMs / 1000);
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      }
+    }
+  }, [connectionDuration, match.duration]);
   
   // Function to update chart data with latest averageA and averageB from WebSocket
   const updateChartData = (averageAValue: number | null, averageBValue: number | null) => {
@@ -181,6 +204,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Performance Graph</h3>
         <div className="flex items-center gap-4">
+          {timeRemaining && (
+            <div className="text-xs font-medium text-primary">
+              Time remaining: {timeRemaining}
+            </div>
+          )}
           {connectionTime && (
             <div className="text-xs text-muted-foreground">
               Connection time: {connectionTime}
