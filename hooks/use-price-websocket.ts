@@ -55,6 +55,7 @@ export function usePriceWebSocket(
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [connectionTime, setConnectionTime] = useState<string | null>(null);
   const [connectionDuration, setConnectionDuration] = useState<number | null>(null);
+  const [timestamp, setTimestamp] = useState<number | null>(null)
   
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -163,7 +164,7 @@ export function usePriceWebSocket(
               //@ts-ignore
               setAverageB(tokenUpdate.averageB);
               setOverallAverage(tokenUpdate.averagePercentageChange);
-              
+              setTimestamp(tokenUpdate.timestamp)
               // Update connection time and duration if available
               if (message.connectionTime) {
                 setConnectionTime(message.connectionTime);
@@ -325,6 +326,7 @@ export function usePriceWebSocket(
     error,
     averageA,
     averageB,
+    timestamp,
     overallAverage,
     sessionEnded,
     remainingTime,
