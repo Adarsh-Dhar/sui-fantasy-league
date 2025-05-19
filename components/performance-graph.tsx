@@ -63,7 +63,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
   // Get real-time price updates via WebSocket
-  const { averageA, averageB, connectionTime, connectionDuration, timestamp } = usePriceWebSocket(tokenSymbols);
+  const { averageA, averageB, connectionTime, connectionDuration, timestamp, initialTime } = usePriceWebSocket(tokenSymbols);
   
   // Calculate time remaining in the match
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
@@ -217,6 +217,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
           {timestamp && (
             <div className="text-xs font-medium text-primary-foreground bg-primary px-2 py-1 rounded">
               Timestamp: {new Date(timestamp).toLocaleTimeString()}
+            </div>
+          )}
+          {initialTime && (
+            <div className="text-xs font-medium text-emerald-100 bg-emerald-600 px-2 py-1 rounded ml-2">
+              Initial Timestamp: {new Date(initialTime).toLocaleTimeString()}
             </div>
           )}
         </div>

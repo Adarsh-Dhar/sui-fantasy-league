@@ -18,6 +18,7 @@ export interface TokenPercentageUpdate {
 export interface AllTokensUpdate {
   tokens: TokenPercentageUpdate[];
   timestamp: number;
+  initialTime?: number | null;
   averagePercentageChange: number;
   averageA?: number | null;
   averageB?: number | null;
@@ -55,7 +56,9 @@ export function usePriceWebSocket(
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [connectionTime, setConnectionTime] = useState<string | null>(null);
   const [connectionDuration, setConnectionDuration] = useState<number | null>(null);
-  const [timestamp, setTimestamp] = useState<number | null>(null)
+  const [timestamp, setTimestamp] = useState<number | null>(null);
+  const [initialTime, setinitialTime] = useState<number | null>(null);
+  const [initialPrices, setInitialPrices] = useState<Record<string, string>>({})
   
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -86,7 +89,7 @@ export function usePriceWebSocket(
       }
 
       // Connect to the WebSocket server
-      const socket = new WebSocket('wss://sfl-wss.adarsh.software/');
+      const socket = new WebSocket('ws://localhost:5000');
       socketRef.current = socket;
 
       // Handle connection opening
@@ -116,98 +119,57 @@ export function usePriceWebSocket(
         try {
           const message = JSON.parse(event.data);
 
-          switch (message.type) {
-            case 'price':
-              const priceUpdate = message.data as PriceUpdate;
-              setPriceData(prev => ({
-                ...prev,
-                [priceUpdate.symbol]: {
-                  price: priceUpdate.price,
-                  timestamp: priceUpdate.timestamp
-                }
-              }));
-              break;
-              
-            case 'percentage': 
-              const percentUpdate = message.data as TokenPercentageUpdate;
-              // Update percentage in price data
-              setPriceData(prev => ({
-                ...prev,
-                [percentUpdate.symbol]: {
-                  ...prev[percentUpdate.symbol],
-                  price: percentUpdate.currentPrice,
-                  timestamp: percentUpdate.timestamp,
-                  percentageChange: percentUpdate.percentageChange
-                }
-              }));
-              // Update percentage data array
-              setPercentageData(prev => {
-                const existing = prev.findIndex(item => item.symbol === percentUpdate.symbol);
-                if (existing >= 0) {
-                  const updated = [...prev];
-                  updated[existing] = percentUpdate;
-                  return updated;
-                }
-                return [...prev, percentUpdate];
-              });
-              break;
-              
-            case 'allTokensUpdate':
-              const tokenUpdate = message.data as AllTokensUpdate;
-              
-              // Update percentage data for all tokens
-              setPercentageData(tokenUpdate.tokens);
-              
-              // Update set averages
-              //@ts-ignore
-              setAverageA(tokenUpdate.averageA);
-              //@ts-ignore
-              setAverageB(tokenUpdate.averageB);
-              setOverallAverage(tokenUpdate.averagePercentageChange);
-              setTimestamp(tokenUpdate.timestamp)
-              // Update connection time and duration if available
-              if (message.connectionTime) {
-                setConnectionTime(message.connectionTime);
-              }
-              if (message.connectionDuration) {
-                setConnectionDuration(message.connectionDuration);
-              }
-              
-              // Update price data with percentages
-              const updatedPriceData = { ...priceData };
+          // Only process allTokensUpdate messages
+          if (message.type === 'allTokensUpdate') {
+            const tokenUpdate = message.data as AllTokensUpdate;
+            
+            // Update percentage data for all tokens
+            setPercentageData(tokenUpdate.tokens);
+            
+            // Update set averages
+            //@ts-ignore
+            setAverageA(tokenUpdate.averageA);
+            //@ts-ignore
+            setAverageB(tokenUpdate.averageB);
+            setOverallAverage(tokenUpdate.averagePercentageChange);
+            setTimestamp(tokenUpdate.timestamp);
+            
+            // Set initial timestamp if it's provided by the server
+            if (tokenUpdate.initialTime !== undefined && tokenUpdate.initialTime !== null) {
+              setinitialTime(tokenUpdate.initialTime);
+              console.log('Server provided initialTime:', tokenUpdate.initialTime);
+            }
+            
+            // Collect initial prices from tokens
+            if (initialTime === null && tokenUpdate.tokens.length > 0) {
+              const initialPricesObj: Record<string, string> = {};
               tokenUpdate.tokens.forEach(token => {
-                updatedPriceData[token.symbol] = {
-                  price: token.currentPrice,
-                  timestamp: token.timestamp,
-                  percentageChange: token.percentageChange
-                };
+                initialPricesObj[token.symbol] = token.initialPrice;
               });
-              setPriceData(updatedPriceData);
-              break;
-              
-            case 'sessionStarted':
-              setSessionEnded(false);
-              setSessionEndTime(message.startTime + (message.duration * 1000));
-              break;
-              
-            case 'sessionEnd':
-              setSessionEnded(true);
-              setSessionEndTime(null);
-              setRemainingTime(0);
-              
-              // Call the onSessionEnd callback if provided
-              if (onSessionEnd && message.finalResults) {
-                onSessionEnd(message.finalResults);
-              }
-              break;
-              
-            case 'error':
-              setError(message.message);
-              break;
-              
-            case 'info':
-              console.log('Server info:', message.message);
-              break;
+              setInitialPrices(initialPricesObj);
+            }
+            
+            // Update connection time and duration if available
+            if (message.connectionTime) {
+              setConnectionTime(message.connectionTime);
+            }
+            if (message.connectionDuration) {
+              setConnectionDuration(message.connectionDuration);
+            }
+            
+            // Update price data with percentages
+            const updatedPriceData = { ...priceData };
+            tokenUpdate.tokens.forEach(token => {
+              updatedPriceData[token.symbol] = {
+                price: token.currentPrice,
+                timestamp: token.timestamp,
+                percentageChange: token.percentageChange
+              };
+            });
+            setPriceData(updatedPriceData);
+          } else {
+            // Log other message types but don't process them
+            console.log(`Received message of type: ${message.type}`);
           }
         } catch (err) {
           console.error('Error parsing WebSocket message:', err);
@@ -327,6 +289,8 @@ export function usePriceWebSocket(
     averageA,
     averageB,
     timestamp,
+    initialTime,
+    initialPrices,
     overallAverage,
     sessionEnded,
     remainingTime,
