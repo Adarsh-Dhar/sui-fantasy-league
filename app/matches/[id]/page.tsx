@@ -507,7 +507,13 @@ export default function MatchDetailPage() {
             )}
           </div>
 
-          <PerformanceGraph match={match} />
+          {/* Convert the match object to be compatible with PerformanceGraph's Match interface */}
+          <PerformanceGraph 
+            match={{
+              ...match,
+              duration: match.duration || null // Convert undefined to null
+            }} 
+          />
         </div>
 
         <div className="bg-card/90 backdrop-blur-sm rounded-lg border p-6">

@@ -62,8 +62,16 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   // Set up token symbols for WebSocket subscription
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
+  // Use match creation time as initial time
+  const matchCreationTime = useMemo(() => {
+    return match.createdAt ? new Date(match.createdAt).getTime() : null;
+  }, [match.createdAt]);
+  
   // Get real-time price updates via WebSocket
-  const { averageA, averageB, connectionTime, connectionDuration, timestamp, initialTime } = usePriceWebSocket(tokenSymbols);
+  const { averageA, averageB, connectionTime, connectionDuration, timestamp, initialTime: wsInitialTime } = usePriceWebSocket(tokenSymbols);
+  
+  // Use match creation time as the initial time
+  const initialTime = useMemo(() => matchCreationTime || wsInitialTime, [matchCreationTime, wsInitialTime]);
   
   // Calculate time remaining in the match
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
@@ -142,30 +150,36 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   
   // Function to update chart data with latest averageA and averageB from WebSocket
   const updateChartData = (averageAValue: number | null, averageBValue: number | null) => {
-    if (!averageAValue && !averageBValue) return;
-
-    // Get current time
+    if (averageAValue === null && averageBValue === null) return;
+    
     const now = new Date();
     setLastUpdateTime(now);
-
-    // Format time for display
-    const timeString = format(now, 'HH:mm:ss');
-    const timestamp = now.getTime();
-
-    // Create new data point
-    const newDataPoint: ChartDataPoint = {
-      time: timeString,
-      timestamp: timestamp,
-      averageA: averageAValue || 0,
-      averageB: averageBValue || 0
+    
+    const newPoint: ChartDataPoint = {
+      time: format(now, 'HH:mm:ss'),
+      timestamp: now.getTime(),
+      averageA: averageAValue !== null ? averageAValue : 0,
+      averageB: averageBValue !== null ? averageBValue : 0,
     };
-
-    // Update chart data
-    setChartData((prevData: ChartDataPoint[]) => {
-      // Keep only the last 60 data points to avoid performance issues
-      const newData = [...prevData, newDataPoint];
-      if (newData.length > 60) {
-        return newData.slice(newData.length - 60);
+    
+    setChartData(prevData => {
+      // If this is the first data point and we have a match creation time,
+      // add a starting point at the match creation time with zeros
+      if (prevData.length === 0 && matchCreationTime) {
+        const matchCreationDate = new Date(matchCreationTime);
+        const startingPoint: ChartDataPoint = {
+          time: format(matchCreationDate, 'HH:mm:ss'),
+          timestamp: matchCreationTime,
+          averageA: 0,
+          averageB: 0,
+        };
+        return [startingPoint, newPoint];
+      }
+      
+      // Keep only the last 30 data points to avoid performance issues
+      const newData = [...prevData, newPoint];
+      if (newData.length > 30) {
+        return newData.slice(newData.length - 30);
       }
       return newData;
     });
@@ -221,7 +235,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
           )}
           {initialTime && (
             <div className="text-xs font-medium text-emerald-100 bg-emerald-600 px-2 py-1 rounded ml-2">
-              Initial Timestamp: {new Date(initialTime).toLocaleTimeString()}
+              Match Start: {new Date(initialTime).toLocaleTimeString()}
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 // Define interface types based on your server implementation
 export interface PriceUpdate {
@@ -62,6 +62,8 @@ export function usePriceWebSocket(
   
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef<number>(0);
+  const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     setATokens,
@@ -69,6 +71,11 @@ export function usePriceWebSocket(
     onSessionEnd,
     autoReconnect = true
   } = options;
+
+  // Memoize sorted tokens to stabilize dependencies
+  const sortedSymbols = useMemo(() => [...symbols].sort().join(','), [symbols]);
+  const sortedSetA = useMemo(() => [...(setATokens || [])].sort().join(','), [setATokens]);
+  const sortedSetB = useMemo(() => [...(setBTokens || [])].sort().join(','), [setBTokens]);
 
   useEffect(() => {
     if (!symbols || symbols.length === 0) {
@@ -80,6 +87,12 @@ export function usePriceWebSocket(
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
+    
+    // Clear any existing keep-alive interval
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
+    }
 
     // Function to establish the WebSocket connection
     const connectWebSocket = () => {
@@ -89,7 +102,7 @@ export function usePriceWebSocket(
       }
 
       // Connect to the WebSocket server
-      const socket = new WebSocket('ws://localhost:5000');
+      const socket = new WebSocket('wss://sfl-wss.adarsh.software/');
       socketRef.current = socket;
 
       // Handle connection opening
@@ -97,6 +110,9 @@ export function usePriceWebSocket(
         console.log('WebSocket connection established with server');
         setIsConnected(true);
         setError(null);
+        
+        // Reset reconnection attempts on successful connection
+        reconnectAttemptsRef.current = 0;
         
         // Normalize symbols for consistency
         const normalizedSymbols = symbols.map(s => 
@@ -112,6 +128,14 @@ export function usePriceWebSocket(
         };
         
         socket.send(JSON.stringify(subscriptionMessage));
+        
+        // Set up keep-alive ping to prevent idle connection closure
+        keepAliveIntervalRef.current = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'ping' }));
+            console.log('Sent keep-alive ping');
+          }
+        }, 30000); // Send ping every 30 seconds
       };
 
       // Handle incoming messages
@@ -134,8 +158,8 @@ export function usePriceWebSocket(
             setOverallAverage(tokenUpdate.averagePercentageChange);
             setTimestamp(tokenUpdate.timestamp);
             
-            // Set initial timestamp if it's provided by the server
-            if (tokenUpdate.initialTime !== undefined && tokenUpdate.initialTime !== null) {
+            // Set initial timestamp if it's provided by the server and not already set
+            if (tokenUpdate.initialTime !== undefined && tokenUpdate.initialTime !== null && initialTime === null) {
               setinitialTime(tokenUpdate.initialTime);
               console.log('Server provided initialTime:', tokenUpdate.initialTime);
             }
@@ -182,20 +206,6 @@ export function usePriceWebSocket(
         setError('WebSocket connection error');
       };
 
-      // Handle WebSocket close
-      socket.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason);
-        setIsConnected(false);
-        
-        // Attempt to reconnect if enabled
-        if (autoReconnect && event.code !== 1000) {
-          console.log('Attempting to reconnect in 5 seconds...');
-          reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('Reconnecting to WebSocket server...');
-            connectWebSocket();
-          }, 5000);
-        }
-      };
     };
 
     // Initialize connection
@@ -226,12 +236,19 @@ export function usePriceWebSocket(
         reconnectTimeoutRef.current = null;
       }
       
+      if (keepAliveIntervalRef.current) {
+        clearInterval(keepAliveIntervalRef.current);
+        keepAliveIntervalRef.current = null;
+      }
+      
       if (socketRef.current) {
-        socketRef.current.close();
+        if (socketRef.current.readyState === WebSocket.OPEN) {
+          socketRef.current.close();
+        }
         socketRef.current = null;
       }
     };
-  }, [symbols.join(','), setATokens?.join(','), setBTokens?.join(',')]); // Depend on symbols and token sets
+  }, [sortedSymbols, sortedSetA, sortedSetB]); // Use memoized values for stable dependencies
 
   // Function to start a timed session
   const startTimedSession = (durationSeconds: number) => {
