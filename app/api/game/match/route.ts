@@ -156,7 +156,8 @@ export async function POST(request: Request) {
               teamTwo: {
                 connect: { id: team.id }
               },
-              status: 'IN_PROGRESS'
+              status: 'IN_PROGRESS',
+              startTime: new Date() // Set the start time when match becomes active
             },
             include: {
               playerOne: true,

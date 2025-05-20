@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Join the match
+    // Join the match and set the startTime when transitioning to IN_PROGRESS
     const updatedMatch = await prisma.match.update({
       where: { id: matchId },
       data: {
@@ -99,7 +99,8 @@ export async function POST(request: Request) {
         teamTwo: {
           connect: { id: team.id }
         },
-        status: 'IN_PROGRESS'
+        status: 'IN_PROGRESS',
+        startTime: new Date() // Set the start time when match becomes active
       },
       include: {
         playerOne: true,

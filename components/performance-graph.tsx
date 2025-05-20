@@ -45,6 +45,7 @@ interface Match {
   winnerId?: string;
   result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
   endTime?: number; // Timestamp when match should end
+  startTime?: string; // Timestamp when match started (status changed to IN_PROGRESS)
 }
 
 interface ChartDataPoint {
@@ -62,19 +63,44 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
   // Set up token symbols for WebSocket subscription
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
-  // Use match creation time as initial time
-  const matchCreationTime = useMemo(() => {
-    return match.createdAt ? new Date(match.createdAt).getTime() : null;
-  }, [match.createdAt]);
+  // Use match start time as initial time (when match status changed to IN_PROGRESS)
+  const matchStartTime = useMemo(() => {
+    return match.startTime ? new Date(match.startTime).getTime() : null;
+  }, [match.startTime]);
   
   // Get real-time price updates via WebSocket
-  const { averageA, averageB, connectionTime, connectionDuration, timestamp, initialTime: wsInitialTime } = usePriceWebSocket(tokenSymbols);
+  const { averageA, averageB, connectionTime, timestamp, initialTime: wsInitialTime } = usePriceWebSocket(tokenSymbols);
   
-  // Use match creation time as the initial time
-  const initialTime = useMemo(() => matchCreationTime || wsInitialTime, [matchCreationTime, wsInitialTime]);
+  // Use match start time as the initial time
+  const initialTime = useMemo(() => matchStartTime || wsInitialTime, [matchStartTime, wsInitialTime]);
   
   // Calculate time remaining in the match
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  
+  // Format the connection time into hours, minutes, and seconds
+  
+  // Calculate connection duration only when both timestamp and initialTime are available
+  const connectionDuration = useMemo(() => {
+    if (!timestamp || !initialTime) return null;
+    return timestamp - initialTime;
+  }, [timestamp, initialTime]);
+
+  const formattedConnectionTime = useMemo(() => {
+    
+    if (!connectionDuration) return null;
+    
+    const totalSeconds = Math.floor(connectionDuration / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return {
+      hours,
+      minutes,
+      seconds,
+      formatted: `${hours > 0 ? `${hours}h ` : ''}${minutes}m ${seconds}s`
+    };
+  }, [connectionDuration]);
   
   // Initialize token symbols for WebSocket subscription
   useEffect(() => {
@@ -163,13 +189,13 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     };
     
     setChartData(prevData => {
-      // If this is the first data point and we have a match creation time,
-      // add a starting point at the match creation time with zeros
-      if (prevData.length === 0 && matchCreationTime) {
-        const matchCreationDate = new Date(matchCreationTime);
+      // If this is the first data point and we have a match start time,
+      // add a starting point at the match start time with zeros
+      if (prevData.length === 0 && matchStartTime) {
+        const matchStartDate = new Date(matchStartTime);
         const startingPoint: ChartDataPoint = {
-          time: format(matchCreationDate, 'HH:mm:ss'),
-          timestamp: matchCreationTime,
+          time: format(matchStartDate, 'HH:mm:ss'),
+          timestamp: matchStartTime,
           averageA: 0,
           averageB: 0,
         };
@@ -223,9 +249,9 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
               Time remaining: {timeRemaining}
             </div>
           )}
-          {connectionTime && (
+          {formattedConnectionTime && (
             <div className="text-xs text-muted-foreground">
-              Connection time: {connectionTime}
+              Connection time: {formattedConnectionTime.formatted}
             </div>
           )}
           {timestamp && (
