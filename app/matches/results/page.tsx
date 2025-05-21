@@ -278,9 +278,10 @@ export default function MatchResultsPage() {
                 winnerShare = potAmount - floor;
               }
               
-              // Format for display
-              const winnerProfit = (winnerShare - 1).toFixed(4);
-              const loserLoss = (1 - loserShare).toFixed(4);
+              // Format for display - use the actual bet amount instead of hardcoded 1 SUI
+              const individualBetAmount = betAmount; // Each player's contribution
+              const winnerProfit = (winnerShare - individualBetAmount).toFixed(4);
+              const loserLoss = (individualBetAmount - loserShare).toFixed(4);
               
               // Log for debugging
               console.log('Bet Distribution:', {
