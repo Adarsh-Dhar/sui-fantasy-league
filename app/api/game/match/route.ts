@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { teamId, type, address, duration, price } = body;
+    const { teamId, type, address, duration, price, vaultId, ownerCapId } = body;
 
     // Validate required fields
     if (!teamId) {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     // Create a new match
     let match;
     try {
-      // First try to create with duration and price
+      // Create with duration, price, and vault information
       match = await prisma.match.create({
         data: {
           type,
@@ -86,6 +86,8 @@ export async function POST(request: Request) {
           },
           duration: durationInSeconds,
           price: matchPrice,
+          vaultId: vaultId,
+          ownerCapId: ownerCapId,
         },
         include: {
           playerOne: true,
@@ -95,34 +97,11 @@ export async function POST(request: Request) {
         }
       });
     } catch (error) {
-      console.error('Error with price field, trying without price:', error);
-      // If that fails, try without the price field
-      try {
-        match = await prisma.match.create({
-          data: {
-            type,
-            playerOne: {
-              connect: { id: player.id }
-            },
-            teamOne: {
-              connect: { id: team.id }
-            },
-            duration: durationInSeconds,
-          },
-          include: {
-            playerOne: true,
-            teamOne: true,
-            playerTwo: true,
-            teamTwo: true
-          }
-        });
-      } catch (error) {
-        console.error('Error creating match:', error);
-        return NextResponse.json(
-          { error: 'Failed to create match' },
-          { status: 500 }
-        );
-      }
+      console.error('Error creating match:', error);
+      return NextResponse.json(
+        { error: 'Failed to create match' },
+        { status: 500 }
+      );
     }
 
     // For RANDOM matches, try to find a pending match to join

@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Trophy, Users, Zap, Clock, Coins } from "lucide-react";
 import { Team } from "@/lib/types";
+import { CreateVault } from "@/components/CreateVault";
 
 export default function PlayPage() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function PlayPage() {
   const [matchDuration, setMatchDuration] = useState<string>("1m");
   const [matchPrice, setMatchPrice] = useState<string>("1");
   const [isLoading, setIsLoading] = useState(false);
+  const [vaultInfo, setVaultInfo] = useState<{ vaultId: string; ownerCapId: string } | null>(null);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -59,7 +61,7 @@ export default function PlayPage() {
   }, [account?.address, selectedTeamId]);
 
   const handleCreateMatch = async () => {
-    if (!selectedTeamId) return;
+    if (!selectedTeamId || !vaultInfo) return;
     
     setIsLoading(true);
     
@@ -75,6 +77,8 @@ export default function PlayPage() {
           address: account?.address,
           duration: matchDuration,
           price: matchPrice, // Send as string, API will parse it
+          vaultId: vaultInfo.vaultId,
+          ownerCapId: vaultInfo.ownerCapId
         }),
       });
 
@@ -91,6 +95,11 @@ export default function PlayPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVaultCreated = (vaultId: string, ownerCapId: string) => {
+    setVaultInfo({ vaultId, ownerCapId });
+    handleCreateMatch();
   };
 
   if (!account?.address) {
@@ -303,15 +312,11 @@ export default function PlayPage() {
 
         <Card>
           <CardFooter className="flex justify-center pt-6">
-            <Button
-              onClick={handleCreateMatch}
+            <CreateVault
+              onCreated={handleVaultCreated}
               disabled={!selectedTeamId || isLoading}
-              size="lg"
-              className="gap-2 w-full md:w-auto"
-            >
-              <Zap className="h-5 w-5" />
-              {isLoading ? "Creating Match..." : "Start Playing"}
-            </Button>
+              buttonText={isLoading ? "Processing..." : "Start Playing"}
+            />
           </CardFooter>
         </Card>
       </div>

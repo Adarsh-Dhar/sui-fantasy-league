@@ -74,6 +74,10 @@ model Match {
   // Match price in SUI tokens
   price Int @default(1)
   
+  // Blockchain vault information
+  vaultId String?
+  ownerCapId String?
+  
   // Match start and end times
   startTime DateTime?
   endTime DateTime?
