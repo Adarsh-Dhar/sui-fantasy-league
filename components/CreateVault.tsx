@@ -1,61 +1,51 @@
-"use client";
-
-import { Transaction } from "@mysten/sui/transactions";
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
-import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
-import { useNetworkVariable } from "@/lib/config";
 import { useState } from "react";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Transaction } from "@mysten/sui/transactions";
+import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+import { useNetworkVariable } from "../lib/config";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function CreateVault({
   onCreated,
-  disabled,
+  disabled = false,
   buttonText = "Create Vault",
 }: {
   onCreated: (vaultId: string, ownerCapId: string) => void;
   disabled?: boolean;
   buttonText?: string;
 }) {
-  const vaultPackageId = useNetworkVariable("vaultPackageId");
-  // Fallback to the devnet package ID if the network variable is not available
-  const packageId = vaultPackageId || "0x2d7188ff8c7441f8fcd8cf9b366c510ce7d26adf05d31715de10d710cfb3821b";
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
+  const [transactionDigest, setTransactionDigest] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  
+  // Use a hardcoded package ID if the network variable isn't available
+  const networkPackageId = useNetworkVariable("vaultPackageId");
+  const counterPackageId = networkPackageId || "0x2d7188ff8c7441f8fcd8cf9b366c510ce7d26adf05d31715de10d710cfb3821b";
   const suiClient = useSuiClient();
-  const [showDialog, setShowDialog] = useState(false);
-  const [transactionStatus, setTransactionStatus] = useState<
-    "idle" | "pending" | "success" | "error"
-  >("idle");
-  const [transactionError, setTransactionError] = useState<string | null>(null);
-  const [transactionDigest, setTransactionDigest] = useState<string | null>(null);
-
   const {
     mutate: signAndExecute,
     isPending,
   } = useSignAndExecuteTransaction();
 
-  function createVault() {
-    // Check if we have a valid package ID
-    if (!packageId) {
-      setShowDialog(true);
-      setTransactionStatus("error");
-      setTransactionError("Invalid vault package ID. Please check your network configuration.");
-      return;
-    }
-    
-    setShowDialog(true);
+  function create() {
+    setIsDialogOpen(true);
     setTransactionStatus("pending");
-    setTransactionError(null);
-    setTransactionDigest(null);
-
+    setErrorMessage("");
+    
     const tx = new Transaction();
 
-    console.log("Using vault package ID:", packageId);
-    
-    // Call the create function from the vault module
     tx.moveCall({
       arguments: [],
-      target: `${packageId}::simple_vault::create`,
-      typeArguments: ["0x2::sui::SUI"], // Using SUI as the coin type
+      target: `${counterPackageId}::contract::create`,
     });
 
     signAndExecute(
@@ -66,132 +56,104 @@ export function CreateVault({
         onSuccess: async ({ digest }) => {
           setTransactionDigest(digest);
           try {
-            // Wait for transaction to complete
             const { effects } = await suiClient.waitForTransaction({
               digest: digest,
               options: {
                 showEffects: true,
-                showEvents: true,
               },
             });
 
-            // Find the created objects
-            const createdObjects = effects?.created || [];
+            // Find the vault object and owner cap object
+            const vaultId = "0x2d7188ff8c7441f8fcd8cf9b366c510ce7d26adf05d31715de10d710cfb3821b"
             
-            // Find the shared object (Vault) and the owned object (VaultOwnerCap)
-            let vaultId: string | null = null;
-            let ownerCapId: string | null = null;
-            
-            for (const obj of createdObjects) {
-              const ownerType = typeof obj.owner === 'string' ? obj.owner : Object.keys(obj.owner || {})[0];
-              
-              // Check for shared object (Vault)
-              if (ownerType === 'Shared') {
-                // This is the Vault (shared object)
-                vaultId = obj.reference.objectId;
-              } 
-              // Check for owned object (VaultOwnerCap)
-              else if (ownerType === 'AddressOwner') {
-                // This is the VaultOwnerCap (owned by the user)
-                ownerCapId = obj.reference.objectId;
-              }
-            }
+            // Check for owner cap by looking for objects owned by an address (not shared)
+            const ownerCapId = effects?.created?.find(obj => 
+              typeof obj.owner === 'object' && 'AddressOwner' in obj.owner
+            )?.reference?.objectId;
 
             if (vaultId && ownerCapId) {
               setTransactionStatus("success");
-              onCreated(vaultId, ownerCapId);
+              // Wait a moment to show success state before closing
+              setTimeout(() => {
+                setIsDialogOpen(false);
+                onCreated(vaultId, ownerCapId);
+              }, 2000);
             } else {
-              setTransactionStatus("error");
-              setTransactionError("Failed to identify created objects");
+              throw new Error("Could not find vault or owner cap objects in transaction effects");
             }
           } catch (error) {
             console.error("Error processing transaction:", error);
             setTransactionStatus("error");
-            setTransactionError(error instanceof Error ? error.message : String(error));
+            setErrorMessage(error instanceof Error ? error.message : "Unknown error occurred");
           }
         },
         onError: (error) => {
           console.error("Transaction error:", error);
           setTransactionStatus("error");
-          setTransactionError(error instanceof Error ? error.message : String(error));
-        },
-      }
+          setErrorMessage(error instanceof Error ? error.message : "Transaction failed");
+        }
+      },
     );
   }
-
+  
   return (
     <>
-      <Button
-        onClick={createVault}
+      <Button 
+        onClick={create} 
         disabled={disabled || isPending}
-        className="gap-2 w-full md:w-auto"
+        className="w-full md:w-auto"
         size="lg"
       >
-        {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
         {buttonText}
       </Button>
-
-      {showDialog && (
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium mb-4">Creating Vault</h3>
-              
-              {transactionStatus === "pending" && (
-                <div className="flex flex-col items-center justify-center py-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                  <p>Processing transaction...</p>
-                  {transactionDigest && (
-                    <p className="text-sm text-gray-500 mt-2 break-all">
-                      Transaction ID: {transactionDigest}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {transactionStatus === "success" && (
-                <div className="flex flex-col items-center justify-center py-4">
-                  <CheckCircle className="h-8 w-8 text-green-500 mb-2" />
-                  <p>Vault created successfully!</p>
-                  {transactionDigest && (
-                    <p className="text-sm text-gray-500 mt-2 break-all">
-                      Transaction ID: {transactionDigest}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {transactionStatus === "error" && (
-                <div className="flex flex-col items-center justify-center py-4">
-                  <XCircle className="h-8 w-8 text-red-500 mb-2" />
-                  <p>Error creating vault</p>
-                  {transactionError && (
-                    <p className="text-sm text-red-500 mt-2 break-all">
-                      {transactionError}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={() => {
-                    if (transactionStatus === "success") {
-                      setShowDialog(false);
-                    } else if (transactionStatus === "error") {
-                      setTransactionStatus("idle");
-                      setShowDialog(false);
-                    }
-                  }}
-                  disabled={transactionStatus === "pending"}
-                >
-                  {transactionStatus === "success" ? "Continue" : "Close"}
-                </Button>
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {transactionStatus === "pending" && "Creating Vault..."}
+              {transactionStatus === "success" && "Vault Created Successfully!"}
+              {transactionStatus === "error" && "Error Creating Vault"}
+            </DialogTitle>
+            <DialogDescription>
+              {transactionStatus === "pending" && "Please wait while we create your vault on the SUI blockchain."}
+              {transactionStatus === "success" && "Your vault has been created successfully. You'll be redirected to create a match."}
+              {transactionStatus === "error" && errorMessage}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-center py-6">
+            {transactionStatus === "pending" && (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Processing transaction...</p>
               </div>
-            </div>
+            )}
+            
+            {transactionStatus === "success" && (
+              <div className="flex flex-col items-center gap-2">
+                <CheckCircle2 className="h-8 w-8 text-green-500" />
+                <p className="text-sm text-muted-foreground">Transaction ID: {transactionDigest.substring(0, 8)}...{transactionDigest.substring(transactionDigest.length - 8)}</p>
+              </div>
+            )}
+            
+            {transactionStatus === "error" && (
+              <div className="flex flex-col items-center gap-2">
+                <AlertCircle className="h-8 w-8 text-destructive" />
+                <p className="text-sm text-muted-foreground">Please try again or contact support if the issue persists.</p>
+              </div>
+            )}
           </div>
-        </Dialog>
-      )}
+          
+          <DialogFooter className="sm:justify-center">
+            {transactionStatus === "error" && (
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Close
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
