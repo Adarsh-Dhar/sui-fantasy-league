@@ -39,6 +39,8 @@ interface Match {
   result?: 'PLAYER_ONE_WIN' | 'PLAYER_TWO_WIN' | 'DRAW';
   endTime?: number;
   duration?: number;
+  // Match price in SUI tokens
+  price?: number;
   // Performance gains as percentages
   teamOneGain?: number;
   teamTwoGain?: number;
@@ -251,7 +253,9 @@ export default function MatchResultsPage() {
                       match.duration && match.duration <= 5 ? 0.15 : 
                       match.duration && match.duration <= 60 ? 0.1 : 0.05;
               
-              const potAmount = 2; // 2 SUI (1 from each player)
+              // Use the match price from the database to determine pot amount
+              const betAmount = match.price || 1; // Default to 1 SUI if price is not available
+              const potAmount = betAmount * 2; // Total pot is price × number of players
               const floor = 0.05 * potAmount; // 5% minimum for loser
               
               // Determine winner and loser gains

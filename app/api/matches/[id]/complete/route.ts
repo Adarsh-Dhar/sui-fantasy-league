@@ -29,8 +29,13 @@ export async function POST(
     }
 
     // Calculate bet distribution
-    // Default pot amount is 2 SUI (1 SUI from each player)
-    const potAmount = 2;
+    // Use the match price from the database to determine pot amount
+    // The price field in the database represents the amount each player contributes
+    // When creating a match, price is parsed as an integer: const matchPrice = price ? parseInt(price) : 1;
+    const betAmount = typeof match.price === 'number' ? match.price : parseInt(String(match.price)) || 1;
+    // Total pot is the bet amount multiplied by the number of players (2 for a standard match)
+    const potAmount = betAmount * 2;
+    console.log("pot amount", potAmount)
     
     // Determine time interval from match duration
     let timeInterval: TimeInterval = '1h'; // Default
