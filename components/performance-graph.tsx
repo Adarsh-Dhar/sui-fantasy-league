@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import { usePriceWebSocket } from "@/hooks/use-price-websocket";
+import { useRouter } from "next/navigation";
 
 // Define our own Match interface to match the database schema
 interface MatchPlayer {
@@ -56,6 +57,7 @@ interface ChartDataPoint {
 }
 
 export const PerformanceGraph = ({ match }: { match: Match }) => {
+  const router = useRouter();
   // State for chart data
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
@@ -68,8 +70,21 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     return match.startTime ? new Date(match.startTime).getTime() : null;
   }, [match.startTime]);
   
-  // Get real-time price updates via WebSocket
-  const { averageA, averageB, connectionTime, timestamp, initialTime: wsInitialTime } = usePriceWebSocket(tokenSymbols);
+  // Track if the match time is up
+  const [isMatchTimeUp, setIsMatchTimeUp] = useState<boolean>(false);
+
+  // Get real-time price updates via WebSocket with auto-reconnect disabled when match time is up
+  const { 
+    averageA, 
+    averageB, 
+    connectionTime, 
+    timestamp, 
+    initialTime: wsInitialTime,
+    isConnected,
+    closeConnection
+  } = usePriceWebSocket(tokenSymbols, {
+    autoReconnect: !isMatchTimeUp // Prevent reconnection when match time is up
+  });
   
   // Use match start time as the initial time
   const initialTime = useMemo(() => matchStartTime || wsInitialTime, [matchStartTime, wsInitialTime]);
@@ -148,14 +163,14 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
     setTokenSymbols(wsSymbols);
   }, [match.teamOne, match.teamTwo]);
   
-  // Update chart data when averageA or averageB changes
+  // Update chart data when averageA or averageB changes, but only if match time is not up
   useEffect(() => {
-    if (averageA !== null || averageB !== null) {
+    if ((averageA !== null || averageB !== null) && !isMatchTimeUp) {
       updateChartData(averageA, averageB);
     }
-  }, [averageA, averageB]);
+  }, [averageA, averageB, isMatchTimeUp]);
   
-  // Calculate time remaining whenever connectionDuration changes
+  // Calculate time remaining whenever connectionDuration changes and handle match end
   useEffect(() => {
     if (match.duration && connectionDuration) {
       // Match duration is in seconds, connectionDuration is in milliseconds
@@ -165,6 +180,25 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       // Format remaining time
       if (remainingMs <= 0) {
         setTimeRemaining("Time's up!");
+        
+        // Mark match as time up to prevent WebSocket reconnection
+        if (!isMatchTimeUp) {
+          console.log('Match time is up, stopping WebSocket connection');
+          setIsMatchTimeUp(true);
+          
+          // Explicitly close the WebSocket connection to stop price updates
+          closeConnection();
+          
+          // Determine the winner based on averageA and averageB
+          const teamAScore = averageA || 0;
+          const teamBScore = averageB || 0;
+          
+          // Wait a moment to show the final state before redirecting
+          setTimeout(() => {
+            // Navigate to the results page with scores
+            router.push(`/matches/results?id=${match.id}&teamAScore=${teamAScore.toFixed(4)}&teamBScore=${teamBScore.toFixed(4)}`);
+          }, 3000); // Wait 3 seconds before redirecting
+        }
       } else {
         const remainingSeconds = Math.floor(remainingMs / 1000);
         const minutes = Math.floor(remainingSeconds / 60);
@@ -172,7 +206,7 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
         setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
       }
     }
-  }, [connectionDuration, match.duration]);
+  }, [connectionDuration, match.duration, isMatchTimeUp]);
   
   // Function to update chart data with latest averageA and averageB from WebSocket
   const updateChartData = (averageAValue: number | null, averageBValue: number | null) => {
@@ -244,6 +278,11 @@ export const PerformanceGraph = ({ match }: { match: Match }) => {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Performance Graph</h3>
         <div className="flex items-center gap-4">
+          {isMatchTimeUp && (
+            <div className="text-xs font-medium text-red-500 bg-red-100 px-2 py-1 rounded">
+              Match ended - Prices frozen
+            </div>
+          )}
           {timeRemaining && (
             <div className="text-xs font-medium text-primary">
               Time remaining: {timeRemaining}

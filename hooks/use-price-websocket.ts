@@ -297,6 +297,31 @@ export function usePriceWebSocket(
       setError('WebSocket is not connected, cannot refresh data.');
     }
   };
+  
+  // Function to explicitly close the WebSocket connection
+  const closeConnection = () => {
+    if (socketRef.current) {
+      console.log('Explicitly closing WebSocket connection');
+      if (socketRef.current.readyState === WebSocket.OPEN || 
+          socketRef.current.readyState === WebSocket.CONNECTING) {
+        socketRef.current.close();
+      }
+      socketRef.current = null;
+      setIsConnected(false);
+    }
+    
+    // Clear any reconnect timeouts
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
+    // Clear any keep-alive intervals
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
+    }
+  };
 
   return {
     priceData,
@@ -316,6 +341,7 @@ export function usePriceWebSocket(
     startTimedSession,
     startFixedSession,
     resetTracking,
-    refreshPercentageData
+    refreshPercentageData,
+    closeConnection
   };
 }
