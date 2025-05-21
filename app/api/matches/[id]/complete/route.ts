@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { distributeBettingPool, TimeInterval } from "@/utils/bet-distribution";
 
 export async function POST(
   request: NextRequest,
@@ -7,7 +8,48 @@ export async function POST(
 ) {
   try {
     const { id } = params;
-    const { teamOneScore, teamTwoScore, result, winnerId, endTime } = await request.json();
+    const { teamOneScore, teamTwoScore, result, winnerId, endTime, teamOneGain, teamTwoGain } = await request.json();
+
+    // Get the match with player and team details
+    const match = await prisma.match.findUnique({
+      where: { id },
+      include: {
+        playerOne: true,
+        playerTwo: true,
+        teamOne: true,
+        teamTwo: true
+      }
+    });
+
+    if (!match || !match.playerTwo || !match.teamTwo) {
+      return NextResponse.json(
+        { error: "Match not found or incomplete" },
+        { status: 404 }
+      );
+    }
+
+    // Calculate bet distribution
+    // Default pot amount is 2 SUI (1 SUI from each player)
+    const potAmount = 2;
+    
+    // Determine time interval from match duration
+    let timeInterval: TimeInterval = '1h'; // Default
+    if (match.duration) {
+      if (match.duration <= 1) timeInterval = '1m';
+      else if (match.duration <= 5) timeInterval = '5m';
+      else if (match.duration <= 60) timeInterval = '1h';
+      else timeInterval = '12h';
+    }
+
+    // Calculate bet distribution
+    const distribution = distributeBettingPool(
+      teamOneGain || 0,
+      teamTwoGain || 0,
+      potAmount,
+      timeInterval,
+      match.playerOne.address,
+      match.playerTwo.address
+    );
 
     // Update the match in the database
     const updatedMatch = await prisma.match.update({
@@ -21,6 +63,10 @@ export async function POST(
         result,
         winnerId,
         endTime: new Date(endTime),
+        teamOneGain,
+        teamTwoGain,
+        winnerShare: distribution.winnerShare,
+        loserShare: distribution.loserShare
       },
     });
 
@@ -54,7 +100,11 @@ export async function POST(
       });
     }
 
-    return NextResponse.json({ success: true, match: updatedMatch });
+    return NextResponse.json({ 
+      success: true, 
+      match: updatedMatch,
+      distribution
+    });
   } catch (error) {
     console.error("Error completing match:", error);
     return NextResponse.json(

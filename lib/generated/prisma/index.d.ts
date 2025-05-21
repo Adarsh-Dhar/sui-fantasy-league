@@ -3448,6 +3448,10 @@ export namespace Prisma {
   export type MatchAvgAggregateOutputType = {
     teamOneScore: number | null
     teamTwoScore: number | null
+    teamOneGain: number | null
+    teamTwoGain: number | null
+    winnerShare: number | null
+    loserShare: number | null
     duration: number | null
     price: number | null
   }
@@ -3455,6 +3459,10 @@ export namespace Prisma {
   export type MatchSumAggregateOutputType = {
     teamOneScore: number | null
     teamTwoScore: number | null
+    teamOneGain: number | null
+    teamTwoGain: number | null
+    winnerShare: number | null
+    loserShare: number | null
     duration: number | null
     price: number | null
   }
@@ -3471,6 +3479,10 @@ export namespace Prisma {
     teamTwoId: string | null
     teamOneScore: number | null
     teamTwoScore: number | null
+    teamOneGain: number | null
+    teamTwoGain: number | null
+    winnerShare: number | null
+    loserShare: number | null
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number | null
@@ -3491,6 +3503,10 @@ export namespace Prisma {
     teamTwoId: string | null
     teamOneScore: number | null
     teamTwoScore: number | null
+    teamOneGain: number | null
+    teamTwoGain: number | null
+    winnerShare: number | null
+    loserShare: number | null
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number | null
@@ -3511,6 +3527,10 @@ export namespace Prisma {
     teamTwoId: number
     teamOneScore: number
     teamTwoScore: number
+    teamOneGain: number
+    teamTwoGain: number
+    winnerShare: number
+    loserShare: number
     winnerId: number
     result: number
     duration: number
@@ -3524,6 +3544,10 @@ export namespace Prisma {
   export type MatchAvgAggregateInputType = {
     teamOneScore?: true
     teamTwoScore?: true
+    teamOneGain?: true
+    teamTwoGain?: true
+    winnerShare?: true
+    loserShare?: true
     duration?: true
     price?: true
   }
@@ -3531,6 +3555,10 @@ export namespace Prisma {
   export type MatchSumAggregateInputType = {
     teamOneScore?: true
     teamTwoScore?: true
+    teamOneGain?: true
+    teamTwoGain?: true
+    winnerShare?: true
+    loserShare?: true
     duration?: true
     price?: true
   }
@@ -3547,6 +3575,10 @@ export namespace Prisma {
     teamTwoId?: true
     teamOneScore?: true
     teamTwoScore?: true
+    teamOneGain?: true
+    teamTwoGain?: true
+    winnerShare?: true
+    loserShare?: true
     winnerId?: true
     result?: true
     duration?: true
@@ -3567,6 +3599,10 @@ export namespace Prisma {
     teamTwoId?: true
     teamOneScore?: true
     teamTwoScore?: true
+    teamOneGain?: true
+    teamTwoGain?: true
+    winnerShare?: true
+    loserShare?: true
     winnerId?: true
     result?: true
     duration?: true
@@ -3587,6 +3623,10 @@ export namespace Prisma {
     teamTwoId?: true
     teamOneScore?: true
     teamTwoScore?: true
+    teamOneGain?: true
+    teamTwoGain?: true
+    winnerShare?: true
+    loserShare?: true
     winnerId?: true
     result?: true
     duration?: true
@@ -3694,6 +3734,10 @@ export namespace Prisma {
     teamTwoId: string | null
     teamOneScore: number | null
     teamTwoScore: number | null
+    teamOneGain: number | null
+    teamTwoGain: number | null
+    winnerShare: number | null
+    loserShare: number | null
     winnerId: string | null
     result: $Enums.MatchResult | null
     duration: number
@@ -3733,6 +3777,10 @@ export namespace Prisma {
     teamTwoId?: boolean
     teamOneScore?: boolean
     teamTwoScore?: boolean
+    teamOneGain?: boolean
+    teamTwoGain?: boolean
+    winnerShare?: boolean
+    loserShare?: boolean
     winnerId?: boolean
     result?: boolean
     duration?: boolean
@@ -3757,6 +3805,10 @@ export namespace Prisma {
     teamTwoId?: boolean
     teamOneScore?: boolean
     teamTwoScore?: boolean
+    teamOneGain?: boolean
+    teamTwoGain?: boolean
+    winnerShare?: boolean
+    loserShare?: boolean
     winnerId?: boolean
     result?: boolean
     duration?: boolean
@@ -3781,6 +3833,10 @@ export namespace Prisma {
     teamTwoId?: boolean
     teamOneScore?: boolean
     teamTwoScore?: boolean
+    teamOneGain?: boolean
+    teamTwoGain?: boolean
+    winnerShare?: boolean
+    loserShare?: boolean
     winnerId?: boolean
     result?: boolean
     duration?: boolean
@@ -3805,6 +3861,10 @@ export namespace Prisma {
     teamTwoId?: boolean
     teamOneScore?: boolean
     teamTwoScore?: boolean
+    teamOneGain?: boolean
+    teamTwoGain?: boolean
+    winnerShare?: boolean
+    loserShare?: boolean
     winnerId?: boolean
     result?: boolean
     duration?: boolean
@@ -3813,7 +3873,7 @@ export namespace Prisma {
     endTime?: boolean
   }
 
-  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "winnerId" | "result" | "duration" | "price" | "startTime" | "endTime", ExtArgs["result"]["match"]>
+  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "startTime" | "endTime", ExtArgs["result"]["match"]>
   export type MatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
@@ -3853,6 +3913,10 @@ export namespace Prisma {
       teamTwoId: string | null
       teamOneScore: number | null
       teamTwoScore: number | null
+      teamOneGain: number | null
+      teamTwoGain: number | null
+      winnerShare: number | null
+      loserShare: number | null
       winnerId: string | null
       result: $Enums.MatchResult | null
       duration: number
@@ -4297,6 +4361,10 @@ export namespace Prisma {
     readonly teamTwoId: FieldRef<"Match", 'String'>
     readonly teamOneScore: FieldRef<"Match", 'Float'>
     readonly teamTwoScore: FieldRef<"Match", 'Float'>
+    readonly teamOneGain: FieldRef<"Match", 'Float'>
+    readonly teamTwoGain: FieldRef<"Match", 'Float'>
+    readonly winnerShare: FieldRef<"Match", 'Float'>
+    readonly loserShare: FieldRef<"Match", 'Float'>
     readonly winnerId: FieldRef<"Match", 'String'>
     readonly result: FieldRef<"Match", 'MatchResult'>
     readonly duration: FieldRef<"Match", 'Int'>
@@ -4801,6 +4869,10 @@ export namespace Prisma {
     teamTwoId: 'teamTwoId',
     teamOneScore: 'teamOneScore',
     teamTwoScore: 'teamTwoScore',
+    teamOneGain: 'teamOneGain',
+    teamTwoGain: 'teamTwoGain',
+    winnerShare: 'winnerShare',
+    loserShare: 'loserShare',
     winnerId: 'winnerId',
     result: 'result',
     duration: 'duration',
@@ -5071,6 +5143,10 @@ export namespace Prisma {
     teamTwoId?: StringNullableFilter<"Match"> | string | null
     teamOneScore?: FloatNullableFilter<"Match"> | number | null
     teamTwoScore?: FloatNullableFilter<"Match"> | number | null
+    teamOneGain?: FloatNullableFilter<"Match"> | number | null
+    teamTwoGain?: FloatNullableFilter<"Match"> | number | null
+    winnerShare?: FloatNullableFilter<"Match"> | number | null
+    loserShare?: FloatNullableFilter<"Match"> | number | null
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
@@ -5095,6 +5171,10 @@ export namespace Prisma {
     teamTwoId?: SortOrderInput | SortOrder
     teamOneScore?: SortOrderInput | SortOrder
     teamTwoScore?: SortOrderInput | SortOrder
+    teamOneGain?: SortOrderInput | SortOrder
+    teamTwoGain?: SortOrderInput | SortOrder
+    winnerShare?: SortOrderInput | SortOrder
+    loserShare?: SortOrderInput | SortOrder
     winnerId?: SortOrderInput | SortOrder
     result?: SortOrderInput | SortOrder
     duration?: SortOrder
@@ -5122,6 +5202,10 @@ export namespace Prisma {
     teamTwoId?: StringNullableFilter<"Match"> | string | null
     teamOneScore?: FloatNullableFilter<"Match"> | number | null
     teamTwoScore?: FloatNullableFilter<"Match"> | number | null
+    teamOneGain?: FloatNullableFilter<"Match"> | number | null
+    teamTwoGain?: FloatNullableFilter<"Match"> | number | null
+    winnerShare?: FloatNullableFilter<"Match"> | number | null
+    loserShare?: FloatNullableFilter<"Match"> | number | null
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
@@ -5146,6 +5230,10 @@ export namespace Prisma {
     teamTwoId?: SortOrderInput | SortOrder
     teamOneScore?: SortOrderInput | SortOrder
     teamTwoScore?: SortOrderInput | SortOrder
+    teamOneGain?: SortOrderInput | SortOrder
+    teamTwoGain?: SortOrderInput | SortOrder
+    winnerShare?: SortOrderInput | SortOrder
+    loserShare?: SortOrderInput | SortOrder
     winnerId?: SortOrderInput | SortOrder
     result?: SortOrderInput | SortOrder
     duration?: SortOrder
@@ -5174,6 +5262,10 @@ export namespace Prisma {
     teamTwoId?: StringNullableWithAggregatesFilter<"Match"> | string | null
     teamOneScore?: FloatNullableWithAggregatesFilter<"Match"> | number | null
     teamTwoScore?: FloatNullableWithAggregatesFilter<"Match"> | number | null
+    teamOneGain?: FloatNullableWithAggregatesFilter<"Match"> | number | null
+    teamTwoGain?: FloatNullableWithAggregatesFilter<"Match"> | number | null
+    winnerShare?: FloatNullableWithAggregatesFilter<"Match"> | number | null
+    loserShare?: FloatNullableWithAggregatesFilter<"Match"> | number | null
     winnerId?: StringNullableWithAggregatesFilter<"Match"> | string | null
     result?: EnumMatchResultNullableWithAggregatesFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntWithAggregatesFilter<"Match"> | number
@@ -5307,6 +5399,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -5331,6 +5427,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -5347,6 +5447,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -5371,6 +5475,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -5391,6 +5499,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -5407,6 +5519,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -5427,6 +5543,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -5679,6 +5799,10 @@ export namespace Prisma {
     teamTwoId?: SortOrder
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
+    teamOneGain?: SortOrder
+    teamTwoGain?: SortOrder
+    winnerShare?: SortOrder
+    loserShare?: SortOrder
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
@@ -5690,6 +5814,10 @@ export namespace Prisma {
   export type MatchAvgOrderByAggregateInput = {
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
+    teamOneGain?: SortOrder
+    teamTwoGain?: SortOrder
+    winnerShare?: SortOrder
+    loserShare?: SortOrder
     duration?: SortOrder
     price?: SortOrder
   }
@@ -5706,6 +5834,10 @@ export namespace Prisma {
     teamTwoId?: SortOrder
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
+    teamOneGain?: SortOrder
+    teamTwoGain?: SortOrder
+    winnerShare?: SortOrder
+    loserShare?: SortOrder
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
@@ -5726,6 +5858,10 @@ export namespace Prisma {
     teamTwoId?: SortOrder
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
+    teamOneGain?: SortOrder
+    teamTwoGain?: SortOrder
+    winnerShare?: SortOrder
+    loserShare?: SortOrder
     winnerId?: SortOrder
     result?: SortOrder
     duration?: SortOrder
@@ -5737,6 +5873,10 @@ export namespace Prisma {
   export type MatchSumOrderByAggregateInput = {
     teamOneScore?: SortOrder
     teamTwoScore?: SortOrder
+    teamOneGain?: SortOrder
+    teamTwoGain?: SortOrder
+    winnerShare?: SortOrder
+    loserShare?: SortOrder
     duration?: SortOrder
     price?: SortOrder
   }
@@ -6443,6 +6583,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6465,6 +6609,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6491,6 +6639,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6513,6 +6665,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6588,6 +6744,10 @@ export namespace Prisma {
     teamTwoId?: StringNullableFilter<"Match"> | string | null
     teamOneScore?: FloatNullableFilter<"Match"> | number | null
     teamTwoScore?: FloatNullableFilter<"Match"> | number | null
+    teamOneGain?: FloatNullableFilter<"Match"> | number | null
+    teamTwoGain?: FloatNullableFilter<"Match"> | number | null
+    winnerShare?: FloatNullableFilter<"Match"> | number | null
+    loserShare?: FloatNullableFilter<"Match"> | number | null
     winnerId?: StringNullableFilter<"Match"> | string | null
     result?: EnumMatchResultNullableFilter<"Match"> | $Enums.MatchResult | null
     duration?: IntFilter<"Match"> | number
@@ -6643,6 +6803,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6665,6 +6829,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6691,6 +6859,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -6713,6 +6885,10 @@ export namespace Prisma {
     teamOneId: string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -7009,6 +7185,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -7028,6 +7208,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -7066,6 +7250,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7088,6 +7276,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7107,6 +7299,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7123,6 +7319,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7145,6 +7345,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7164,6 +7368,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7183,6 +7391,10 @@ export namespace Prisma {
     teamTwoId?: string | null
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -7202,6 +7414,10 @@ export namespace Prisma {
     teamOneId: string
     teamOneScore?: number | null
     teamTwoScore?: number | null
+    teamOneGain?: number | null
+    teamTwoGain?: number | null
+    winnerShare?: number | null
+    loserShare?: number | null
     winnerId?: string | null
     result?: $Enums.MatchResult | null
     duration?: number
@@ -7218,6 +7434,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7240,6 +7460,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7259,6 +7483,10 @@ export namespace Prisma {
     teamTwoId?: NullableStringFieldUpdateOperationsInput | string | null
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7275,6 +7503,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7297,6 +7529,10 @@ export namespace Prisma {
     teamOneId?: StringFieldUpdateOperationsInput | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number
@@ -7316,6 +7552,10 @@ export namespace Prisma {
     teamOneId?: StringFieldUpdateOperationsInput | string
     teamOneScore?: NullableFloatFieldUpdateOperationsInput | number | null
     teamTwoScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamOneGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    teamTwoGain?: NullableFloatFieldUpdateOperationsInput | number | null
+    winnerShare?: NullableFloatFieldUpdateOperationsInput | number | null
+    loserShare?: NullableFloatFieldUpdateOperationsInput | number | null
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
     result?: NullableEnumMatchResultFieldUpdateOperationsInput | $Enums.MatchResult | null
     duration?: IntFieldUpdateOperationsInput | number

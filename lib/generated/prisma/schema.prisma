@@ -57,6 +57,14 @@ model Match {
   teamOneScore Float?
   teamTwoScore Float?
 
+  // Store the performance gains as percentage
+  teamOneGain Float?
+  teamTwoGain Float?
+
+  // Store the betting distribution results
+  winnerShare Float?
+  loserShare  Float?
+
   winnerId String?
   result   MatchResult?
 
