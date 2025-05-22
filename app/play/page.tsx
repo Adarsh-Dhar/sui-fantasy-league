@@ -27,6 +27,7 @@ import { Team } from "@/lib/types";
 import { CreateVault } from "@/lib/createVault";
 import { VAULT_PACKAGE_ID } from '@/lib/constants';
 import { Transaction } from '@mysten/sui/transactions';
+import { Deposit } from "@/lib/deposit";
 
 
 export default function PlayPage() {
@@ -53,6 +54,8 @@ export default function PlayPage() {
       }),
   });
 
+  // This function is not used and can be removed
+  // Keeping it for reference
   function create() {
       const tx = new Transaction();
   
@@ -108,6 +111,71 @@ export default function PlayPage() {
     fetchTeams();
   }, [account?.address, selectedTeamId]);
 
+  const [depositStep, setDepositStep] = useState<boolean>(false);
+  const [matchId, setMatchId] = useState<string | null>(null);
+  const [depositLoading, setDepositLoading] = useState<boolean>(false);
+
+  const handleDeposit = async () => {
+    if (!vaultId || !account) return;
+    
+    setDepositLoading(true);
+    
+    try {
+      console.log('Starting deposit to vault:', vaultId);
+      
+      // Create a transaction to deposit 1 SUI
+      const tx = new Transaction();
+      
+      // 1 SUI = 1,000,000,000 MIST
+      const amountToDeposit = 1000000000;
+      
+      // Split coins from the gas object
+      const [coin] = tx.splitCoins(tx.gas, [
+        tx.pure.u64(amountToDeposit)
+      ]);
+      
+      // Call the deposit function from the vault contract with proper type arguments
+      tx.moveCall({
+        target: `${VAULT_PACKAGE_ID}::simple_vault::deposit`,
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [tx.object(vaultId), coin]
+      });
+      
+      // Execute the transaction
+      await new Promise<void>((resolve, reject) => {
+        signAndExecute(
+          {
+            transaction: tx,
+            chain: 'sui:devnet',
+          },
+          {
+            onSuccess: (result) => {
+              console.log('Deposit transaction successful:', result);
+              resolve();
+              
+              // After successful deposit, redirect to the match page
+              if (matchId) {
+                router.push(`/matches/${matchId}`);
+              }
+            },
+            onError: (error) => {
+              console.error('Error depositing SUI:', error);
+              reject(error);
+            },
+          },
+        );
+      }).catch(error => {
+        console.error("Promise rejection in deposit:", error);
+      });
+      
+    } catch (error) {
+      console.error("Error during deposit:", error);
+      // Show error in UI or alert user
+    } finally {
+      setDepositLoading(false);
+    }
+  };
+
   const handleCreateMatch = async () => {
     if (!selectedTeamId) return;
     
@@ -140,6 +208,9 @@ export default function PlayPage() {
                 onError: (error) => reject(error),
               }
             );
+          }).catch(error => {
+            console.error("Promise rejection in vault creation:", error);
+            throw error;
           });
           
           // Extract the object ID from the transaction result
@@ -188,8 +259,9 @@ export default function PlayPage() {
 
       if (response.ok) {
         const data = await response.json();
-        // Redirect to the match page
-        router.push(`/matches/${data.match.id}`);
+        // Instead of redirecting immediately, set the matchId and show deposit step
+        setMatchId(data.match.id);
+        setDepositStep(true);
       } else {
         const errorData = await response.json();
         console.error("Error creating match:", errorData);
@@ -413,19 +485,52 @@ export default function PlayPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardFooter className="flex justify-center pt-6">
-            <Button
-              onClick={handleCreateMatch}
-              disabled={!selectedTeamId || isLoading}
-              size="lg"
-              className="gap-2 w-full md:w-auto"
-            >
-              <Zap className="h-5 w-5" />
-              {isLoading ? "Creating Game..." : "Start Playing"}
-            </Button>
-          </CardFooter>
-        </Card>
+
+
+        {!depositStep ? (
+          <Card>
+            <CardFooter className="flex justify-center pt-6">
+              <Button
+                onClick={handleCreateMatch}
+                disabled={!selectedTeamId || isLoading}
+                size="lg"
+                className="gap-2 w-full md:w-auto"
+              >
+                <Zap className="h-5 w-5" />
+                {isLoading ? "Creating Game..." : "Start Playing"}
+              </Button>
+            </CardFooter>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Coins className="h-5 w-5 text-primary" />
+                Deposit SUI to Continue
+              </CardTitle>
+              <CardDescription>
+                Deposit 1 SUI to your vault to start the match
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm">Match is ready! Deposit 1 SUI to start playing.</p>
+                <p className="text-sm">Vault ID: {vaultId}</p>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-center pt-2">
+              <Button
+                onClick={handleDeposit}
+                disabled={depositLoading}
+                size="lg"
+                className="gap-2 w-full md:w-auto"
+              >
+                <Coins className="h-5 w-5" />
+                {depositLoading ? "Depositing..." : "Deposit 1 SUI & Start Match"}
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </div>
   );

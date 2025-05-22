@@ -39,6 +39,7 @@ export function Deposit({ id }: { id: string }) {
     tx.moveCall({
       arguments: [tx.object(id), coinToDeposit],
       target: `${vaultPackageId}::simple_vault::deposit`,
+      typeArguments: ['0x2::sui::SUI'],
     });
 
     signAndExecute(
