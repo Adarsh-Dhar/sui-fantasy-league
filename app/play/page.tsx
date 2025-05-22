@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,6 +25,9 @@ import { Input } from "@/components/ui/input";
 import { Trophy, Users, Zap, Clock, Coins } from "lucide-react";
 import { Team } from "@/lib/types";
 import { CreateVault } from "@/lib/createVault";
+import { VAULT_PACKAGE_ID } from '@/lib/constants';
+import { Transaction } from '@mysten/sui/transactions';
+
 
 export default function PlayPage() {
   const router = useRouter();
@@ -35,6 +38,51 @@ export default function PlayPage() {
   const [matchDuration, setMatchDuration] = useState<string>("1m");
   const [matchPrice, setMatchPrice] = useState<string>("1");
   const [isLoading, setIsLoading] = useState(false);
+  const [vaultId, setVaultId] = useState<string | null>(null);
+  const suiClient = useSuiClient();
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction({
+    execute: async ({ bytes, signature }) =>
+      await suiClient.executeTransactionBlock({
+        transactionBlock: bytes,
+        signature,
+        options: {
+          // Raw effects are required so the effects can be reported back to the wallet
+          showRawEffects: true,
+          showEffects: true,
+        },
+      }),
+  });
+
+  function create() {
+      const tx = new Transaction();
+  
+      tx.moveCall({
+        target: `${VAULT_PACKAGE_ID}::simple_vault::create`,
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: []
+      });
+  
+      signAndExecute(
+        {
+          transaction: tx,
+          chain: 'sui:devnet',
+        },
+        {
+          onSuccess: (result) => {
+            const objectId = result.effects?.created?.[0]?.reference?.objectId;
+            console.log('Created object ID:', objectId);
+            // No props available in this context, removed the reference
+            if (objectId) {
+              console.log('Object created successfully:', objectId);
+            }
+          },
+          onError: (error) => {
+            console.error('Error creating vault:', error);
+          },
+        },
+        
+      );
+    }
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -314,10 +362,15 @@ export default function PlayPage() {
               {isLoading ? "Creating Match..." : "Start Playing"}
             </Button>
             {/* @ts-ignore */}
-            <CreateVault onCreated={(vaultId, ownerCapId) => {
-              console.log("Vault created:", vaultId);
-              console.log("Owner Cap created:", ownerCapId);
-            }} />
+            <Button
+              onClick={create}
+              disabled={!selectedTeamId || isLoading}
+              size="lg"
+              className="gap-2 w-full md:w-auto ml-4"
+            >
+              <Zap className="h-5 w-5" />
+              {isLoading ? "Creating Vault..." : "Create Vault"}
+            </Button>
           </CardFooter>
         </Card>
       </div>

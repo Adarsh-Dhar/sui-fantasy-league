@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "Match" ADD COLUMN     "loserShare" DOUBLE PRECISION,
-ADD COLUMN     "teamOneGain" DOUBLE PRECISION,
-ADD COLUMN     "teamTwoGain" DOUBLE PRECISION,
-ADD COLUMN     "winnerShare" DOUBLE PRECISION;
