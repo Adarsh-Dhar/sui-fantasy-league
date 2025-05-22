@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { teamId, type, address, duration, price, vaultId, ownerCapId } = body;
+    const { teamId, type, address, duration, price, vaultId } = body;
 
     // Validate required fields
     if (!teamId) {
@@ -71,10 +71,22 @@ export async function POST(request: Request) {
     // Parse price (default to 1 SUI)
     const matchPrice = price ? parseInt(price) : 1;
 
+    // Log the vault ID but don't use it in the match creation
+    console.log('Received vault ID in request:', vaultId);
+    
+    console.log('Creating match with parameters:', {
+      type,
+      playerId: player.id,
+      teamId: team.id,
+      duration: durationInSeconds,
+      price: matchPrice
+    });
+    
     // Create a new match
     let match;
     try {
       // Create with duration, price, and vault information
+      // Ensure all required fields are included
       match = await prisma.match.create({
         data: {
           type,
@@ -86,8 +98,7 @@ export async function POST(request: Request) {
           },
           duration: durationInSeconds,
           price: matchPrice,
-          vaultId: vaultId,
-          ownerCapId: ownerCapId,
+          status: 'PENDING',
         },
         include: {
           playerOne: true,
@@ -96,10 +107,13 @@ export async function POST(request: Request) {
           teamTwo: true
         }
       });
+      
+      console.log('Match created successfully:', match.id);
     } catch (error) {
       console.error('Error creating match:', error);
+      // More detailed error response
       return NextResponse.json(
-        { error: 'Failed to create match' },
+        { error: 'Failed to create match', details: error instanceof Error ? error.message : 'Unknown error' },
         { status: 500 }
       );
     }

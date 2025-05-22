@@ -71,9 +71,10 @@ export default function PlayPage() {
           onSuccess: (result) => {
             const objectId = result.effects?.created?.[0]?.reference?.objectId;
             console.log('Created object ID:', objectId);
-            // No props available in this context, removed the reference
             if (objectId) {
               console.log('Object created successfully:', objectId);
+              setVaultId(objectId);
+              return objectId;
             }
           },
           onError: (error) => {
@@ -113,6 +114,63 @@ export default function PlayPage() {
     setIsLoading(true);
     
     try {
+      // First, ensure we have a vault ID
+      let currentVaultId = vaultId;
+      
+      if (!currentVaultId) {
+        console.log('No vault ID found, creating a new vault...');
+        const tx = new Transaction();
+        
+        tx.moveCall({
+          target: `${VAULT_PACKAGE_ID}::simple_vault::create`,
+          typeArguments: ['0x2::sui::SUI'],
+          arguments: []
+        });
+        
+        try {
+          // Use a more direct approach with async/await
+          const txResult = await new Promise<any>((resolve, reject) => {
+            signAndExecute(
+              {
+                transaction: tx,
+                chain: 'sui:devnet',
+              },
+              {
+                onSuccess: (result) => resolve(result),
+                onError: (error) => reject(error),
+              }
+            );
+          });
+          
+          // Extract the object ID from the transaction result
+          const newVaultId = txResult.effects?.created?.[0]?.reference?.objectId;
+          console.log('Created vault ID:', newVaultId);
+          
+          if (!newVaultId) {
+            throw new Error('No vault ID returned from transaction');
+          }
+          
+          // Set the vault ID in state
+          setVaultId(newVaultId);
+          currentVaultId = newVaultId;
+          
+          // Wait a moment for the blockchain transaction to settle
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error('Error creating vault:', error);
+          // Type assertion to handle the error message safely
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          throw new Error(`Failed to create vault: ${errorMessage}`);
+        }
+      }
+      
+      // Double-check that we have a vault ID before proceeding
+      if (!currentVaultId) {
+        throw new Error('Failed to create vault: No vault ID available');
+      }
+      
+      console.log('Using vault ID for match creation:', currentVaultId);
+      
       const response = await fetch("/api/game/match", {
         method: "POST",
         headers: {
@@ -123,7 +181,8 @@ export default function PlayPage() {
           type: matchType,
           address: account?.address,
           duration: matchDuration,
-          price: matchPrice, // Send as string, API will parse it
+          price: matchPrice, 
+          vaultId: currentVaultId,
         }),
       });
 
@@ -132,8 +191,12 @@ export default function PlayPage() {
         // Redirect to the match page
         router.push(`/matches/${data.match.id}`);
       } else {
-        const error = await response.json();
-        console.error("Error creating match:", error);
+        const errorData = await response.json();
+        console.error("Error creating match:", errorData);
+        // Log more detailed error information if available
+        if (errorData.details) {
+          console.error("Error details:", errorData.details);
+        }
       }
     } catch (error) {
       console.error("Error creating match:", error);
@@ -359,17 +422,7 @@ export default function PlayPage() {
               className="gap-2 w-full md:w-auto"
             >
               <Zap className="h-5 w-5" />
-              {isLoading ? "Creating Match..." : "Start Playing"}
-            </Button>
-            {/* @ts-ignore */}
-            <Button
-              onClick={create}
-              disabled={!selectedTeamId || isLoading}
-              size="lg"
-              className="gap-2 w-full md:w-auto ml-4"
-            >
-              <Zap className="h-5 w-5" />
-              {isLoading ? "Creating Vault..." : "Create Vault"}
+              {isLoading ? "Creating Game..." : "Start Playing"}
             </Button>
           </CardFooter>
         </Card>

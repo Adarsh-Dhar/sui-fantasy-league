@@ -75,7 +75,7 @@ model Match {
   price Int @default(1)
 
   // Blockchain vault information
-  vaultId String
+  vaultId String?
 
   // Match start and end times
   startTime DateTime?
