@@ -3,12 +3,15 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
 import Link from "next/link";
 import { Clock, TrendingUp, ArrowLeft, Users, Zap, Trophy, Coins } from "lucide-react";
 import { PerformanceGraph } from "@/components/performance-graph";
 import { WinnerCelebration } from "@/components/winner-celebration";
 import { usePriceWebSocket } from "@/hooks/use-price-websocket";
+import { Transaction } from "@mysten/sui/transactions";
+import { VAULT_PACKAGE_ID } from "@/lib/constants";
+
 
 interface MatchPlayer {
   id: string;
@@ -41,6 +44,7 @@ interface Match {
   endTime?: number; // Timestamp when match should end
   duration?: number; // Match duration in seconds
   price?: number; // Match price in SUI tokens
+  vaultId?: string; // Vault ID for match deposits
 }
 
 export default function MatchDetailPage() {
@@ -52,6 +56,9 @@ export default function MatchDetailPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [teams, setTeams] = useState<any[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [depositLoading, setDepositLoading] = useState(false);
+  const suiClient = useSuiClient();
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const [tokenSymbols, setTokenSymbols] = useState<string[]>([]);
   
   // Get real-time price updates via WebSocket
@@ -184,6 +191,8 @@ export default function MatchDetailPage() {
     }
   }, [account?.address, match, selectedTeamId]);
 
+
+
   // Handle joining a friend match
   const handleJoinMatch = async () => {
     if (!selectedTeamId || !account?.address || !match) return;
@@ -208,7 +217,13 @@ export default function MatchDetailPage() {
         const updatedMatchResponse = await fetch(`/api/game/match?id=${match.id}`);
         if (updatedMatchResponse.ok) {
           const data = await updatedMatchResponse.json();
-          setMatch(data.match);
+          const updatedMatch = data.match;
+          setMatch(updatedMatch);
+          
+          // If the match has a vault ID, deposit 1 SUI to it
+          if (updatedMatch.vaultId) {
+            await depositToVault(updatedMatch.vaultId, updatedMatch.price || 1);
+          }
           
           // Force a refresh of the matches list in the background
           // This helps ensure the matches list is updated when navigating back
@@ -224,6 +239,64 @@ export default function MatchDetailPage() {
       console.error("Error joining match:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  // Function to deposit SUI to the match vault
+  const depositToVault = async (vaultId: string, amount: number) => {
+    if (!vaultId || !account) {
+      console.error('No vault ID available or user not connected');
+      return;
+    }
+    
+    setDepositLoading(true);
+    
+    try {
+      console.log('Starting deposit to vault:', vaultId, 'amount:', amount);
+      
+      // Create a transaction to deposit SUI based on match price
+      const tx = new Transaction();
+      
+      // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
+      // Ensure we're using BigInt for large numbers to avoid precision issues
+      const amountToDeposit = BigInt(Math.floor(amount * 1000000000));
+      
+      // Split coins from the gas object
+      // Use BigInt to ensure proper type handling
+      const coinToDeposit = tx.splitCoins(tx.gas, [tx.pure.u64(amountToDeposit)]);
+      
+      // Call the deposit function from the vault contract with proper type arguments
+      tx.moveCall({
+        target: `${VAULT_PACKAGE_ID}::simple_vault::deposit`,
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [tx.object(vaultId), coinToDeposit]
+      });
+      
+      // Execute the transaction
+      await new Promise<void>((resolve, reject) => {
+        signAndExecute(
+          {
+            transaction: tx,
+          },
+          {
+            onSuccess: (result) => {
+              console.log('Deposit transaction successful:', result);
+              resolve();
+            },
+            onError: (error) => {
+              console.error('Error depositing SUI:', error);
+              reject(error);
+            },
+          },
+        );
+      }).catch(error => {
+        console.error("Promise rejection in deposit:", error);
+      });
+      
+    } catch (error) {
+      console.error("Error during deposit:", error);
+    } finally {
+      setDepositLoading(false);
     }
   };
 
@@ -265,6 +338,8 @@ export default function MatchDetailPage() {
   if (matchEnded && match.result) {
     return <WinnerCelebration match={match as any} />;
   }
+
+
 
   // For pending friend matches where the current user is not the creator and no second player yet
   if (match.type === "FRIEND" && match.status === "PENDING" && 

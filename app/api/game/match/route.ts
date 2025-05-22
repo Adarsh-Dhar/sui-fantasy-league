@@ -99,6 +99,7 @@ export async function POST(request: Request) {
           duration: durationInSeconds,
           price: matchPrice,
           status: 'PENDING',
+          vaultId: vaultId, // Save the vault ID with the match
         },
         include: {
           playerOne: true,

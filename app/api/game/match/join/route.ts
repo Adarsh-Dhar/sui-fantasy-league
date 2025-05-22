@@ -57,13 +57,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find the match
+    // Find the match and include the vaultId
     const match = await prisma.match.findUnique({
       where: { id: matchId },
       include: {
         playerOne: true,
         teamOne: true
-      }
+      },
+      // The vaultId is already included in the match model
     });
 
     if (!match) {
@@ -90,6 +91,7 @@ export async function POST(request: Request) {
     }
 
     // Join the match and set the startTime when transitioning to IN_PROGRESS
+    // The vaultId is automatically preserved as we're not modifying it
     const updatedMatch = await prisma.match.update({
       where: { id: matchId },
       data: {
@@ -109,6 +111,9 @@ export async function POST(request: Request) {
         teamTwo: true
       }
     });
+    
+    // Log the vault ID for debugging
+    console.log('Match joined with vault ID:', match.vaultId);
 
     return NextResponse.json({ match: updatedMatch }, { status: 200 });
   } catch (error) {
