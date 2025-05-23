@@ -259,7 +259,7 @@ export default function MatchDetailPage() {
       
       // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
       // Ensure we're using BigInt for large numbers to avoid precision issues
-      const amountToDeposit = BigInt(Math.floor(amount * 10000000));
+      const amountToDeposit = BigInt(Math.floor(amount * 1000000000));
       
       // Split coins from the gas object
       // Use BigInt to ensure proper type handling
@@ -305,7 +305,7 @@ export default function MatchDetailPage() {
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-2xl font-bold">Match not found</h2>
         <p className="mt-2 text-muted-foreground">
-          The match you're looking for doesn't exist or has been removed.
+          The match youre looking for doesnt exist or has been removed.
         </p>
         <Link href="/matches" className="mt-4 inline-block">
           <Button variant="outline" className="gap-2">
@@ -322,7 +322,7 @@ export default function MatchDetailPage() {
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-2xl font-bold">Match not found</h2>
         <p className="mt-2 text-muted-foreground">
-          The match you're looking for doesn't exist or has been removed.
+          The match youre looking for doesnt exist or has been removed.
         </p>
         <Link href="/matches" className="mt-4 inline-block">
           <Button variant="outline" className="gap-2">
@@ -350,11 +350,11 @@ export default function MatchDetailPage() {
           <div className="bg-card/90 backdrop-blur-sm rounded-lg border p-6 mb-8 text-center">
             <h1 className="text-2xl font-bold mb-4">Join Friend Match</h1>
             <p className="mb-6 text-muted-foreground">
-              You've been invited to join a match created by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
+              Youve been invited to join a match created by {match.playerOne.address.slice(0, 6)}...{match.playerOne.address.slice(-4)}
             </p>
             
             <div className="mb-6">
-              <h2 className="text-lg font-medium mb-3">Opponent's Team</h2>
+              <h2 className="text-lg font-medium mb-3">Opponents Team</h2>
               <div className="p-4 rounded-lg bg-muted/30">
                 <h3 className="font-bold">{match.teamOne.name}</h3>
                 <p className="text-sm text-muted-foreground">{match.teamOne.tokens.length} tokens</p>
@@ -380,7 +380,7 @@ export default function MatchDetailPage() {
             ) : (
               <div className="mb-6 text-center">
                 <p className="text-muted-foreground mb-4">
-                  You don't have any teams yet. Create a team to join this match.
+                  You dont have any teams yet. Create a team to join this match.
                 </p>
                 <Button
                   onClick={() => router.push("/teams/create")}
@@ -399,7 +399,7 @@ export default function MatchDetailPage() {
               className="gap-2 w-full md:w-auto"
             >
               <Zap className="h-5 w-5" />
-              {isLoading ? "Joining Match..." : "Join Match"}
+              {isLoading ? "Joining Match..." : "Join Match"}   
             </Button>
           </div>
         </div>

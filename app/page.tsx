@@ -109,7 +109,7 @@ export default function Home() {
               </div>
               <h3 className="font-medium mb-1">Win & Earn</h3>
               <p className="text-sm text-muted-foreground">
-                Get rewarded for your team's performance and climb the leaderboard.
+                Get rewarded for your teams performance and climb the leaderboard.
               </p>
             </div>
           </div>
