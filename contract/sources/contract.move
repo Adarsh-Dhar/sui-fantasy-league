@@ -4,20 +4,13 @@ module vault::simple_vault {
     use sui::event;
 
     /// Error codes
-    const ENotVaultOwner: u64 = 0;
     const EInsufficientBalance: u64 = 1;
 
-    /// Capability that represents ownership of the vault
-    public struct VaultOwnerCap has key, store {
-        id: UID,
-        vault_id: ID,
-    }
 
     /// The main vault object that stores coins
     public struct Vault<phantom T> has key {
         id: UID,
         balance: Balance<T>,
-        owner: address,
     }
 
     /// Event emitted when coins are deposited
@@ -35,26 +28,19 @@ module vault::simple_vault {
     }
 
     /// Creates a new vault
-    public fun create<T>(ctx: &mut TxContext) {
-        let sender = tx_context::sender(ctx);
+    public fun create<T>(ctx: &mut TxContext): ID {
         let id = object::new(ctx);
         let vault_id = object::uid_to_inner(&id);
-        
-        // Create owner capability
-        let owner_cap = VaultOwnerCap {
-            id: object::new(ctx),
-            vault_id,
-        };
+    
 
         // Create vault with empty balance
         let vault = Vault<T> {
             id,
             balance: balance::zero(),
-            owner: sender,
         };
 
         transfer::share_object(vault);
-        transfer::transfer(owner_cap, sender);
+        vault_id
     }
 
     /// Deposit coins into the vault
@@ -76,13 +62,10 @@ module vault::simple_vault {
     /// Withdraw coins from the vault (only callable by vault owner)
     public fun withdraw<T>(
         vault: &mut Vault<T>, 
-        cap: &VaultOwnerCap,
         amount: u64, 
         ctx: &mut TxContext
     ): Coin<T> {
         // Verify the capability matches this vault
-        assert!(object::uid_to_inner(&vault.id) == cap.vault_id, ENotVaultOwner);
-        
         // Verify there's enough balance
         assert!(balance::value(&vault.balance) >= amount, EInsufficientBalance);
         
