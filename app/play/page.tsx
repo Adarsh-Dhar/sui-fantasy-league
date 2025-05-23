@@ -127,8 +127,7 @@ export default function PlayPage() {
       const tx = new Transaction();
       
       // 1 SUI = 1,000,000,000 MIST
-      const amountToDeposit = parseFloat(matchPrice) * 10000000;
-      console.log("amount to deposit", amountToDeposit)
+      const amountToDeposit = 1000000000;
       
       // Split coins from the gas object
       const [coin] = tx.splitCoins(tx.gas, [
