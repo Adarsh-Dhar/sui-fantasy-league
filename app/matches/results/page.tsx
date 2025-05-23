@@ -245,7 +245,11 @@ export default function MatchResultsPage() {
                   </div>
                 </div>
                 
-                <h2 className="text-2xl font-bold mt-4 mb-2">Congratulations!</h2>
+                {winnerPlayer?.address === account?.address ? (
+                  <h2 className="text-2xl font-bold mt-4 mb-2">Congratulations! You Won!</h2>
+                ) : (
+                  <h2 className="text-2xl font-bold mt-4 mb-2">Sorry, better luck next time!</h2>
+                )}
                 <div className="text-xl font-medium mb-1">{winnerTeam?.name}</div>
                 <div className="text-sm text-muted-foreground mb-2">
                   by {formatAddress(winnerPlayer?.address)}
@@ -289,10 +293,10 @@ export default function MatchResultsPage() {
               <div className="flex flex-col items-center gap-4">
                 <div className="text-center">
                   <p className="text-lg font-medium mb-2">
-                    {match.winnerId === account.address ? 'Winner Share' : 'Loser Share'}
+                    {winnerPlayer?.address === account.address ? 'Winner Share' : 'Loser Share'}
                   </p>
                   <p className="text-2xl font-bold text-primary">
-                    {match.winnerId === account.address ? match.winnerShare : match.loserShare} SUI
+                    {winnerPlayer?.address === account.address ? match.winnerShare : match.loserShare} SUI
                   </p>
                 </div>
                 
