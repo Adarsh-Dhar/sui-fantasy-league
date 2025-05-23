@@ -259,7 +259,7 @@ export default function MatchDetailPage() {
       
       // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
       // Ensure we're using BigInt for large numbers to avoid precision issues
-      const amountToDeposit = BigInt(Math.floor(amount * 1000000000));
+      const amountToDeposit = BigInt(Math.floor(amount * 10000000));
       
       // Split coins from the gas object
       // Use BigInt to ensure proper type handling
