@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { teamId, type, address, duration, price, vaultId, vaultOwnerCap } = body;
+    const { teamId, type, address, duration, price, vaultId } = body;
 
     // Validate required fields
     if (!teamId) {
@@ -99,9 +99,7 @@ export async function POST(request: Request) {
           duration: durationInSeconds,
           price: matchPrice,
           status: 'PENDING',
-          // Only include vault fields if they are provided
           ...(vaultId && { vaultId }),
-          ...(vaultOwnerCap && { vaultOwnerCap })
         },
         include: {
           playerOne: true,

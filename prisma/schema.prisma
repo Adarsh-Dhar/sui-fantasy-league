@@ -49,7 +49,6 @@ model Match {
   duration      Int          @default(60)
   price         Int          @default(1)
   vaultId       String?      @db.Text
-  vaultOwnerCap String?      @db.Text
   startTime     DateTime?
   endTime       DateTime?
   playerOne     Player       @relation("PlayerOne", fields: [playerOneId], references: [id])

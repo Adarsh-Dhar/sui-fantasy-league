@@ -34,9 +34,6 @@ export function Withdraw({ id }: { id: string }) {
     options: {
       showContent: true,
     },
-    filter: {
-      StructType: `${vaultPackageId}::simple_vault::VaultOwnerCap`,
-    },
   }, {
     enabled: !!currentAccount,
   });
@@ -85,7 +82,6 @@ export function Withdraw({ id }: { id: string }) {
   if (!vaultData?.data) return <p className="text-sm">Vault not found</p>;
 
   const vault = getVaultFields(vaultData.data);
-  const isVaultOwner = vault?.owner === currentAccount?.address;
   const hasOwnerCap = ownedObjects?.data?.some(obj => {
     if (obj.data?.content?.dataType !== "moveObject") return false;
     const fields = obj.data.content.fields as any;
@@ -115,10 +111,10 @@ export function Withdraw({ id }: { id: string }) {
             Withdraw
           </Button>
         </div>
-        {isVaultOwner && !hasOwnerCap && (
-          <p className="text-xs text-destructive">You are the vault owner but don't have the owner capability</p>
+        { !hasOwnerCap && (
+          <p className="text-xs text-destructive">You are the vault owner but dont have the owner capability</p>
         )}
-        {!isVaultOwner && (
+        { (
           <p className="text-xs text-muted-foreground">Only the vault owner can withdraw funds</p>
         )}
       </CardContent>

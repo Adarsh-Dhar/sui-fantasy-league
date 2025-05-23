@@ -52,8 +52,7 @@ interface Match {
   winnerShare?: number;
   loserShare?: number;
   // Vault information
-  vaultId: string;
-  vaultCapId: string;
+  vaultId?: string;
 }
 
 export default function MatchResultsPage() {
@@ -141,8 +140,11 @@ export default function MatchResultsPage() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const handleWithdrawShare = async () => {
-    if (!account?.address || !match) return;
+  const handleWithdraw = async () => {
+    if (!account?.address || !match || !match.vaultId) {
+      console.error('Account, match, or vault ID not found');
+      return;
+    }
 
     try {
       const tx = new Transaction();
@@ -156,38 +158,32 @@ export default function MatchResultsPage() {
         return;
       }
 
-      // Call the withdraw function from the contract
+      // Call the withdraw function from the vault contract
       tx.moveCall({
-        target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
-        typeArguments: ['0x2::sui::SUI'],
         arguments: [
           tx.object(match.vaultId),
-          tx.object(match.vaultCapId),
           tx.pure.u64(shareAmount),
         ],
+        target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
       });
 
       signAndExecute(
         {
           transaction: tx,
+          chain: 'sui:devnet',
         },
         {
-          onSuccess: (result) => {
-            if (result.effects === 'success') {
-              toast.success(`Successfully withdrew ${shareAmount} SUI`);
-            } else {
-              toast.error('Failed to withdraw share');
-            }
+          onSuccess: () => {
+            console.log('Withdrawal successful');
+            router.push('/matches');
           },
           onError: (error) => {
-            console.error('Error withdrawing share:', error);
-            toast.error('Failed to withdraw share');
+            console.error('Error withdrawing:', error);
           },
         },
       );
     } catch (error) {
-      console.error('Error withdrawing share:', error);
-      toast.error('Failed to withdraw share');
+      console.error('Error creating transaction:', error);
     }
   };
 
@@ -297,7 +293,7 @@ export default function MatchResultsPage() {
                 </div>
                 
                 <Button 
-                  onClick={handleWithdrawShare}
+                  onClick={handleWithdraw}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Withdraw Share

@@ -3488,7 +3488,6 @@ export namespace Prisma {
     duration: number | null
     price: number | null
     vaultId: string | null
-    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3514,7 +3513,6 @@ export namespace Prisma {
     duration: number | null
     price: number | null
     vaultId: string | null
-    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3540,7 +3538,6 @@ export namespace Prisma {
     duration: number
     price: number
     vaultId: number
-    vaultOwnerCap: number
     startTime: number
     endTime: number
     _all: number
@@ -3590,7 +3587,6 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
-    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
   }
@@ -3616,7 +3612,6 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
-    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
   }
@@ -3642,7 +3637,6 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
-    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
     _all?: true
@@ -3755,7 +3749,6 @@ export namespace Prisma {
     duration: number
     price: number
     vaultId: string | null
-    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
     _count: MatchCountAggregateOutputType | null
@@ -3800,7 +3793,6 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
-    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3830,7 +3822,6 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
-    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3860,7 +3851,6 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
-    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3890,12 +3880,11 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
-    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
   }
 
-  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "vaultOwnerCap" | "startTime" | "endTime", ExtArgs["result"]["match"]>
+  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "startTime" | "endTime", ExtArgs["result"]["match"]>
   export type MatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
@@ -3944,7 +3933,6 @@ export namespace Prisma {
       duration: number
       price: number
       vaultId: string | null
-      vaultOwnerCap: string | null
       startTime: Date | null
       endTime: Date | null
     }, ExtArgs["result"]["match"]>
@@ -4394,7 +4382,6 @@ export namespace Prisma {
     readonly duration: FieldRef<"Match", 'Int'>
     readonly price: FieldRef<"Match", 'Int'>
     readonly vaultId: FieldRef<"Match", 'String'>
-    readonly vaultOwnerCap: FieldRef<"Match", 'String'>
     readonly startTime: FieldRef<"Match", 'DateTime'>
     readonly endTime: FieldRef<"Match", 'DateTime'>
   }
@@ -4904,7 +4891,6 @@ export namespace Prisma {
     duration: 'duration',
     price: 'price',
     vaultId: 'vaultId',
-    vaultOwnerCap: 'vaultOwnerCap',
     startTime: 'startTime',
     endTime: 'endTime'
   };
@@ -5180,7 +5166,6 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
-    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5210,7 +5195,6 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrderInput | SortOrder
-    vaultOwnerCap?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     playerOne?: PlayerOrderByWithRelationInput
@@ -5243,7 +5227,6 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
-    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5273,7 +5256,6 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrderInput | SortOrder
-    vaultOwnerCap?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     _count?: MatchCountOrderByAggregateInput
@@ -5307,7 +5289,6 @@ export namespace Prisma {
     duration?: IntWithAggregatesFilter<"Match"> | number
     price?: IntWithAggregatesFilter<"Match"> | number
     vaultId?: StringNullableWithAggregatesFilter<"Match"> | string | null
-    vaultOwnerCap?: StringNullableWithAggregatesFilter<"Match"> | string | null
     startTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
   }
@@ -5446,7 +5427,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -5476,7 +5456,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5498,7 +5477,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -5528,7 +5506,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5554,7 +5531,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5576,7 +5552,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5602,7 +5577,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5860,7 +5834,6 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
-    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5897,7 +5870,6 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
-    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5923,7 +5895,6 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
-    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -6624,7 +6595,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
@@ -6652,7 +6622,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6684,7 +6653,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6712,7 +6680,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6793,7 +6760,6 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
-    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
   }
@@ -6857,7 +6823,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6885,7 +6850,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6917,7 +6881,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6945,7 +6908,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7264,7 +7226,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7289,7 +7250,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7317,7 +7277,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
@@ -7345,7 +7304,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7370,7 +7328,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7392,7 +7349,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7420,7 +7376,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7445,7 +7400,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7492,7 +7446,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7517,7 +7470,6 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
-    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7539,7 +7491,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7567,7 +7518,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7592,7 +7542,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7614,7 +7563,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7642,7 +7590,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7667,7 +7614,6 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
-    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

@@ -52,8 +52,7 @@ interface Match {
   winnerShare?: number;
   loserShare?: number;
   // Vault information
-  vaultId: string;
-  vaultCapId: string;
+  vaultId?: string;
 }
 
 export default function MatchResultsPage() {
@@ -189,6 +188,62 @@ export default function MatchResultsPage() {
     } catch (error) {
       console.error('Error withdrawing share:', error);
       toast.error('Failed to withdraw share');
+    }
+  };
+
+  // Handle match completion
+  const handleCompleteMatch = async () => {
+    if (!match || !match.vaultId) {
+      console.error('Match or vault ID not found');
+      return;
+    }
+
+    try {
+      const tx = new Transaction();
+      
+      // Call the complete function from the vault contract
+      tx.moveCall({
+        arguments: [tx.object(match.vaultId)],
+        target: `${VAULT_PACKAGE_ID}::simple_vault::complete`,
+      });
+
+      signAndExecute(
+        {
+          transaction: tx,
+          chain: 'sui:devnet',
+        },
+        {
+          onSuccess: async () => {
+            // Update match status in the database
+            const response = await fetch(`/api/matches/${match.id}/complete`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                teamOneScore: teamAScore,
+                teamTwoScore: teamBScore,
+                result: isDraw ? 'DRAW' : teamAWins ? 'PLAYER_ONE_WIN' : 'PLAYER_TWO_WIN',
+                winnerId: isDraw ? null : teamAWins ? match.playerOneId : match.playerTwoId,
+                endTime: new Date().toISOString(),
+                teamOneGain: teamAGain,
+                teamTwoGain: teamBGain,
+              }),
+            });
+
+            if (response.ok) {
+              router.push('/matches');
+            } else {
+              console.error('Failed to update match status');
+            }
+          },
+          onError: (error) => {
+            console.error('Error completing match:', error);
+          },
+        },
+      );
+    } catch (error) {
+      console.error('Error creating transaction:', error);
     }
   };
 

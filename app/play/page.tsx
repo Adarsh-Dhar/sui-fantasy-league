@@ -38,7 +38,6 @@ export default function PlayPage() {
   const [matchPrice, setMatchPrice] = useState<string>("1");
   const [isLoading, setIsLoading] = useState(false);
   const [vaultId, setVaultId] = useState<string | null>(null);
-  const [vaultOwnerCap, setVaultOwnerCap] = useState<string | null>(null);
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
@@ -178,20 +177,14 @@ export default function PlayPage() {
         // Extract the object ID from the transaction result
         const newVaultId = (result as { effects?: { created?: { reference?: { objectId?: string } }[] } })?.effects?.created?.[0]?.reference?.objectId;
         console.log('Created vault ID:', newVaultId);
-        const VaultOwnerCap = (result as { effects?: { created?: { reference?: { objectId?: string } }[] } })?.effects?.created?.[1]?.reference?.objectId;
-        console.log('VaultOwnerCap', VaultOwnerCap)
         
         if (!newVaultId) {
           throw new Error('No vault ID returned from transaction');
         }
 
-        if (!VaultOwnerCap) {
-          throw new Error('No vault owner cap returned from transaction');
-        }
         
         // Set the vault ID in state
         setVaultId(newVaultId);
-        setVaultOwnerCap(VaultOwnerCap);
         currentVaultId = newVaultId;
         
         // Wait a moment for the blockchain transaction to settle
@@ -217,7 +210,6 @@ export default function PlayPage() {
           duration: matchDuration,
           price: matchPrice, 
           vaultId: currentVaultId,
-          vaultOwnerCap: vaultOwnerCap
         }),
       });
 
