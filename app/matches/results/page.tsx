@@ -141,31 +141,30 @@ export default function MatchResultsPage() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const handleWithdrawShare = async () => {
+  const handleWithdrawShare = async (amount: number) => {
+    console.log('handleWithdrawShare', account?.address, match)
     if (!account?.address || !match) return;
 
     try {
-      const tx = new Transaction();
-      
-      // Get the appropriate share amount based on whether the user is winner or loser
-      const isWinner = match.winnerId === account.address;
-      const shareAmount = isWinner ? match.winnerShare : match.loserShare;
-      
-      if (!shareAmount) {
+      if(!amount) {
         toast.error('No share available to withdraw');
         return;
       }
 
+      const tx = new Transaction();
+      const shareAmount = Math.floor(amount * 1000000000);
+
       // Call the withdraw function from the contract
-      tx.moveCall({
-        target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
-        typeArguments: ['0x2::sui::SUI'],
-        arguments: [
-          tx.object(match.vaultId),
-          tx.object(match.vaultCapId),
-          tx.pure.u64(shareAmount),
-        ],
-      });
+     const coin = tx.moveCall({
+      target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
+      typeArguments: ['0x2::sui::SUI'],
+      arguments: [
+        tx.object(match.vaultId || ''),
+        tx.pure.u64(shareAmount),
+      ],
+     })
+
+      tx.transferObjects([coin], account.address);
 
       signAndExecute(
         {
@@ -355,13 +354,6 @@ export default function MatchResultsPage() {
                     {winnerPlayer?.address === account.address ? match.winnerShare : match.loserShare} SUI
                   </p>
                 </div>
-                
-                <Button 
-                  onClick={handleWithdrawShare}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  Withdraw Share
-                </Button>
               </div>
             )}
             
@@ -454,9 +446,35 @@ export default function MatchResultsPage() {
                       </div>
                     </div>
                   </div>
+                  <div>
+                  <Button 
+                  onClick={async () => {
+                    let amount;
+                    console.log('winnerPlayer', winnerPlayer?.address, account?.address)
+                    if(winnerPlayer?.address === account?.address) {
+                      amount = winnerShare.toFixed(4);
+                      console.log('amount1', amount)
+                    } else {
+                      amount = loserShare.toFixed(4);
+                      console.log('amount2', amount)
+                    }
+                    if(!amount) {
+                      toast.error('No share available to withdraw');
+                      return;
+                    }
+                    console.log('amount', amount)
+                    await handleWithdrawShare(parseFloat(amount.toString()))
+                  }}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Withdraw Share
+                </Button>
+                    </div>
                 </div>
               );
+              
             })()}
+             
           </div>
           
           <div className="flex gap-4 justify-center mt-10">

@@ -12,13 +12,18 @@ interface WithdrawButtonProps {
   className?: string;
 }
 
-export function WithdrawButton({ vaultId, amount = 0.01, className }: WithdrawButtonProps) {
+export function WithdrawButton({ vaultId, amount , className }: WithdrawButtonProps) {
   const account = useCurrentAccount();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
   const handleWithdraw = async () => {
     if (!account?.address) {
       toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if(!amount) {
+      toast.error('No amount provided');
       return;
     }
 
