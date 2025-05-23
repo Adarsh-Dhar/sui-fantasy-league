@@ -24,10 +24,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Trophy, Users, Zap, Clock, Coins } from "lucide-react";
 import { Team } from "@/lib/types";
-import { CreateVault } from "@/lib/createVault";
 import { VAULT_PACKAGE_ID } from '@/lib/constants';
 import { Transaction } from '@mysten/sui/transactions';
-import { Deposit } from "@/lib/deposit";
 
 
 export default function PlayPage() {
@@ -127,7 +125,8 @@ export default function PlayPage() {
       const tx = new Transaction();
       
       // 1 SUI = 1,000,000,000 MIST
-      const amountToDeposit = 1000000000;
+      const amountToDeposit = parseFloat(matchPrice) * 10000000;
+      console.log("amount to deposit", amountToDeposit)
       
       // Split coins from the gas object
       const [coin] = tx.splitCoins(tx.gas, [
@@ -311,7 +310,7 @@ export default function PlayPage() {
             {teams.length === 0 ? (
               <div className="text-center py-6">
                 <p className="text-muted-foreground mb-4">
-                  You don't have any teams yet. Create a team to start playing.
+                  You dont have any teams yet. Create a team to start playing.
                 </p>
                 <Button
                   onClick={() => router.push("/teams/create")}

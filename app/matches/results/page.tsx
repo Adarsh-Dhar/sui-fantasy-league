@@ -7,6 +7,10 @@ import { Trophy, ArrowLeft, TrendingUp, TrendingDown, Coins } from "lucide-react
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BetDistributionResult } from "@/components/bet-distribution-result";
+import { useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
+import { Transaction } from '@mysten/sui/transactions';
+import { toast } from 'sonner';
+import { VAULT_PACKAGE_ID } from '@/lib/constants';
 
 // Define our own Match interface to match the database schema
 interface MatchPlayer {
@@ -47,6 +51,9 @@ interface Match {
   // Betting distribution results
   winnerShare?: number;
   loserShare?: number;
+  // Vault information
+  vaultId: string;
+  vaultCapId: string;
 }
 
 export default function MatchResultsPage() {
@@ -55,6 +62,8 @@ export default function MatchResultsPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const account = useCurrentAccount();
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   
   // Get scores from URL params
   const matchId = searchParams.get('id');
@@ -132,6 +141,56 @@ export default function MatchResultsPage() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  const handleWithdrawShare = async () => {
+    if (!account?.address || !match) return;
+
+    try {
+      const tx = new Transaction();
+      
+      // Get the appropriate share amount based on whether the user is winner or loser
+      const isWinner = match.winnerId === account.address;
+      const shareAmount = isWinner ? match.winnerShare : match.loserShare;
+      
+      if (!shareAmount) {
+        toast.error('No share available to withdraw');
+        return;
+      }
+
+      // Call the withdraw function from the contract
+      tx.moveCall({
+        target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [
+          tx.object(match.vaultId),
+          tx.object(match.vaultCapId),
+          tx.pure.u64(shareAmount),
+        ],
+      });
+
+      signAndExecute(
+        {
+          transaction: tx,
+        },
+        {
+          onSuccess: (result) => {
+            if (result.effects === 'success') {
+              toast.success(`Successfully withdrew ${shareAmount} SUI`);
+            } else {
+              toast.error('Failed to withdraw share');
+            }
+          },
+          onError: (error) => {
+            console.error('Error withdrawing share:', error);
+            toast.error('Failed to withdraw share');
+          },
+        },
+      );
+    } catch (error) {
+      console.error('Error withdrawing share:', error);
+      toast.error('Failed to withdraw share');
+    }
+  };
+
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <div className="relative">
@@ -151,7 +210,7 @@ export default function MatchResultsPage() {
           
           {isDraw ? (
             <div className="mb-8">
-              <div className="text-2xl font-bold mb-2">It's a Draw!</div>
+              <div className="text-2xl font-bold mb-2">Its a Draw!</div>
               <div className="text-xl mb-6">Both teams performed equally well</div>
               
               <div className="flex justify-center gap-8 mb-6">
@@ -225,6 +284,26 @@ export default function MatchResultsPage() {
               <Coins className="h-5 w-5 text-primary" />
               <h3 className="text-xl font-bold">Betting Results</h3>
             </div>
+            
+            {account?.address && match && (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center">
+                  <p className="text-lg font-medium mb-2">
+                    {match.winnerId === account.address ? 'Winner Share' : 'Loser Share'}
+                  </p>
+                  <p className="text-2xl font-bold text-primary">
+                    {match.winnerId === account.address ? match.winnerShare : match.loserShare} SUI
+                  </p>
+                </div>
+                
+                <Button 
+                  onClick={handleWithdrawShare}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Withdraw Share
+                </Button>
+              </div>
+            )}
             
             {/* Calculate bet distribution directly */}
             {(() => {
