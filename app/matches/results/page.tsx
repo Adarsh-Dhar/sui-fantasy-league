@@ -102,6 +102,7 @@ export default function MatchResultsPage() {
         
         if (response.ok) {
           const data = await response.json();
+          console.log('data', data)
           setMatch(data.match);
         } else {
           console.error("Failed to fetch match data");
@@ -321,15 +322,9 @@ export default function MatchResultsPage() {
               let finalTeamBPerformance = teamBPerformance;
               
               if (Math.abs(teamAPerformance - teamBPerformance) < 0.0001) {
-                console.log('Performance values are too similar, using sample values');
                 finalTeamAPerformance = 0.5;
                 finalTeamBPerformance = 0.1;
               }
-              
-              console.log('Performance Values:', { 
-                original: { teamAPerformance, teamBPerformance },
-                final: { finalTeamAPerformance, finalTeamBPerformance }
-              });
               
               // Parameters
               const k = match.duration && match.duration <= 1 ? 0.2 : 
@@ -366,11 +361,6 @@ export default function MatchResultsPage() {
               const winnerProfit = (winnerShare - individualBetAmount).toFixed(4);
               const loserLoss = (individualBetAmount - loserShare).toFixed(4);
               
-              // Log for debugging
-              console.log('Bet Distribution:', {
-                winnerGain, loserGain, k, adjustedWinnerGain, adjustedLoserGain,
-                winnerShare, loserShare, winnerProfit, loserLoss
-              });
               
               return (
                 <div className="bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-lg p-6 max-w-lg mx-auto shadow-xl">

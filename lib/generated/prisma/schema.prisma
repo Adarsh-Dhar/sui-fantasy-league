@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -19,67 +13,49 @@ model Player {
   address            String  @unique
   wins               Int     @default(0)
   losses             Int     @default(0)
-  teams              Team[]
   matchesAsPlayerOne Match[] @relation("PlayerOne")
   matchesAsPlayerTwo Match[] @relation("PlayerTwo")
+  teams              Team[]
 }
 
 model Team {
   id               String   @id @default(cuid())
   name             String
   tokens           String[]
-  player           Player   @relation(fields: [playerId], references: [id])
   playerId         String
   matchesAsTeamOne Match[]  @relation("TeamOne")
   matchesAsTeamTwo Match[]  @relation("TeamTwo")
+  player           Player   @relation(fields: [playerId], references: [id])
 }
 
 model Match {
-  id        String      @id @default(cuid())
-  status    MatchStatus @default(PENDING)
-  type      MatchType
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  playerOneId String
-  playerOne   Player @relation("PlayerOne", fields: [playerOneId], references: [id])
-
-  playerTwoId String?
-  playerTwo   Player? @relation("PlayerTwo", fields: [playerTwoId], references: [id])
-
-  teamOneId String
-  teamOne   Team   @relation("TeamOne", fields: [teamOneId], references: [id])
-
-  teamTwoId String?
-  teamTwo   Team?   @relation("TeamTwo", fields: [teamTwoId], references: [id])
-
-  // Store the final scores as percentage change
-  teamOneScore Float?
-  teamTwoScore Float?
-
-  // Store the performance gains as percentage
-  teamOneGain Float?
-  teamTwoGain Float?
-
-  // Store the betting distribution results
-  winnerShare Float?
-  loserShare  Float?
-
-  winnerId String?
-  result   MatchResult?
-
-  // Match duration in seconds (60 = 1min, 300 = 5min, 3600 = 1hr, 43200 = 12hrs)
-  duration Int @default(60)
-
-  // Match price in SUI tokens
-  price Int @default(1)
-
-  // Blockchain vault information
-  vaultId String?
-
-  // Match start and end times
-  startTime DateTime?
-  endTime   DateTime?
+  id            String       @id @default(cuid())
+  status        MatchStatus  @default(PENDING)
+  type          MatchType
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  playerOneId   String
+  playerTwoId   String?
+  teamOneId     String
+  teamTwoId     String?
+  teamOneScore  Float?
+  teamTwoScore  Float?
+  teamOneGain   Float?
+  teamTwoGain   Float?
+  winnerShare   Float?
+  loserShare    Float?
+  winnerId      String?
+  result        MatchResult?
+  duration      Int          @default(60)
+  price         Int          @default(1)
+  vaultId       String?      @db.Text
+  vaultOwnerCap String?      @db.Text
+  startTime     DateTime?
+  endTime       DateTime?
+  playerOne     Player       @relation("PlayerOne", fields: [playerOneId], references: [id])
+  playerTwo     Player?      @relation("PlayerTwo", fields: [playerTwoId], references: [id])
+  teamOne       Team         @relation("TeamOne", fields: [teamOneId], references: [id])
+  teamTwo       Team?        @relation("TeamTwo", fields: [teamTwoId], references: [id])
 }
 
 enum MatchStatus {

@@ -1095,15 +1095,15 @@ export namespace Prisma {
    */
 
   export type PlayerCountOutputType = {
-    teams: number
     matchesAsPlayerOne: number
     matchesAsPlayerTwo: number
+    teams: number
   }
 
   export type PlayerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    teams?: boolean | PlayerCountOutputTypeCountTeamsArgs
     matchesAsPlayerOne?: boolean | PlayerCountOutputTypeCountMatchesAsPlayerOneArgs
     matchesAsPlayerTwo?: boolean | PlayerCountOutputTypeCountMatchesAsPlayerTwoArgs
+    teams?: boolean | PlayerCountOutputTypeCountTeamsArgs
   }
 
   // Custom InputTypes
@@ -1120,13 +1120,6 @@ export namespace Prisma {
   /**
    * PlayerCountOutputType without action
    */
-  export type PlayerCountOutputTypeCountTeamsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TeamWhereInput
-  }
-
-  /**
-   * PlayerCountOutputType without action
-   */
   export type PlayerCountOutputTypeCountMatchesAsPlayerOneArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MatchWhereInput
   }
@@ -1136,6 +1129,13 @@ export namespace Prisma {
    */
   export type PlayerCountOutputTypeCountMatchesAsPlayerTwoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MatchWhereInput
+  }
+
+  /**
+   * PlayerCountOutputType without action
+   */
+  export type PlayerCountOutputTypeCountTeamsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeamWhereInput
   }
 
 
@@ -1377,9 +1377,9 @@ export namespace Prisma {
     address?: boolean
     wins?: boolean
     losses?: boolean
-    teams?: boolean | Player$teamsArgs<ExtArgs>
     matchesAsPlayerOne?: boolean | Player$matchesAsPlayerOneArgs<ExtArgs>
     matchesAsPlayerTwo?: boolean | Player$matchesAsPlayerTwoArgs<ExtArgs>
+    teams?: boolean | Player$teamsArgs<ExtArgs>
     _count?: boolean | PlayerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["player"]>
 
@@ -1406,9 +1406,9 @@ export namespace Prisma {
 
   export type PlayerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "address" | "wins" | "losses", ExtArgs["result"]["player"]>
   export type PlayerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    teams?: boolean | Player$teamsArgs<ExtArgs>
     matchesAsPlayerOne?: boolean | Player$matchesAsPlayerOneArgs<ExtArgs>
     matchesAsPlayerTwo?: boolean | Player$matchesAsPlayerTwoArgs<ExtArgs>
+    teams?: boolean | Player$teamsArgs<ExtArgs>
     _count?: boolean | PlayerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PlayerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1417,9 +1417,9 @@ export namespace Prisma {
   export type $PlayerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Player"
     objects: {
-      teams: Prisma.$TeamPayload<ExtArgs>[]
       matchesAsPlayerOne: Prisma.$MatchPayload<ExtArgs>[]
       matchesAsPlayerTwo: Prisma.$MatchPayload<ExtArgs>[]
+      teams: Prisma.$TeamPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1820,9 +1820,9 @@ export namespace Prisma {
    */
   export interface Prisma__PlayerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    teams<T extends Player$teamsArgs<ExtArgs> = {}>(args?: Subset<T, Player$teamsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     matchesAsPlayerOne<T extends Player$matchesAsPlayerOneArgs<ExtArgs> = {}>(args?: Subset<T, Player$matchesAsPlayerOneArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     matchesAsPlayerTwo<T extends Player$matchesAsPlayerTwoArgs<ExtArgs> = {}>(args?: Subset<T, Player$matchesAsPlayerTwoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    teams<T extends Player$teamsArgs<ExtArgs> = {}>(args?: Subset<T, Player$teamsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2244,30 +2244,6 @@ export namespace Prisma {
   }
 
   /**
-   * Player.teams
-   */
-  export type Player$teamsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Team
-     */
-    select?: TeamSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Team
-     */
-    omit?: TeamOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TeamInclude<ExtArgs> | null
-    where?: TeamWhereInput
-    orderBy?: TeamOrderByWithRelationInput | TeamOrderByWithRelationInput[]
-    cursor?: TeamWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TeamScalarFieldEnum | TeamScalarFieldEnum[]
-  }
-
-  /**
    * Player.matchesAsPlayerOne
    */
   export type Player$matchesAsPlayerOneArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2313,6 +2289,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MatchScalarFieldEnum | MatchScalarFieldEnum[]
+  }
+
+  /**
+   * Player.teams
+   */
+  export type Player$teamsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Team
+     */
+    select?: TeamSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Team
+     */
+    omit?: TeamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeamInclude<ExtArgs> | null
+    where?: TeamWhereInput
+    orderBy?: TeamOrderByWithRelationInput | TeamOrderByWithRelationInput[]
+    cursor?: TeamWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TeamScalarFieldEnum | TeamScalarFieldEnum[]
   }
 
   /**
@@ -2486,9 +2486,9 @@ export namespace Prisma {
     name?: boolean
     tokens?: boolean
     playerId?: boolean
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
     matchesAsTeamOne?: boolean | Team$matchesAsTeamOneArgs<ExtArgs>
     matchesAsTeamTwo?: boolean | Team$matchesAsTeamTwoArgs<ExtArgs>
+    player?: boolean | PlayerDefaultArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["team"]>
 
@@ -2517,9 +2517,9 @@ export namespace Prisma {
 
   export type TeamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "tokens" | "playerId", ExtArgs["result"]["team"]>
   export type TeamInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
     matchesAsTeamOne?: boolean | Team$matchesAsTeamOneArgs<ExtArgs>
     matchesAsTeamTwo?: boolean | Team$matchesAsTeamTwoArgs<ExtArgs>
+    player?: boolean | PlayerDefaultArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TeamIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2532,9 +2532,9 @@ export namespace Prisma {
   export type $TeamPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Team"
     objects: {
-      player: Prisma.$PlayerPayload<ExtArgs>
       matchesAsTeamOne: Prisma.$MatchPayload<ExtArgs>[]
       matchesAsTeamTwo: Prisma.$MatchPayload<ExtArgs>[]
+      player: Prisma.$PlayerPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2935,9 +2935,9 @@ export namespace Prisma {
    */
   export interface Prisma__TeamClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    player<T extends PlayerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PlayerDefaultArgs<ExtArgs>>): Prisma__PlayerClient<$Result.GetResult<Prisma.$PlayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     matchesAsTeamOne<T extends Team$matchesAsTeamOneArgs<ExtArgs> = {}>(args?: Subset<T, Team$matchesAsTeamOneArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     matchesAsTeamTwo<T extends Team$matchesAsTeamTwoArgs<ExtArgs> = {}>(args?: Subset<T, Team$matchesAsTeamTwoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    player<T extends PlayerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PlayerDefaultArgs<ExtArgs>>): Prisma__PlayerClient<$Result.GetResult<Prisma.$PlayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3488,6 +3488,7 @@ export namespace Prisma {
     duration: number | null
     price: number | null
     vaultId: string | null
+    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3513,6 +3514,7 @@ export namespace Prisma {
     duration: number | null
     price: number | null
     vaultId: string | null
+    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
   }
@@ -3538,6 +3540,7 @@ export namespace Prisma {
     duration: number
     price: number
     vaultId: number
+    vaultOwnerCap: number
     startTime: number
     endTime: number
     _all: number
@@ -3587,6 +3590,7 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
+    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
   }
@@ -3612,6 +3616,7 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
+    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
   }
@@ -3637,6 +3642,7 @@ export namespace Prisma {
     duration?: true
     price?: true
     vaultId?: true
+    vaultOwnerCap?: true
     startTime?: true
     endTime?: true
     _all?: true
@@ -3749,6 +3755,7 @@ export namespace Prisma {
     duration: number
     price: number
     vaultId: string | null
+    vaultOwnerCap: string | null
     startTime: Date | null
     endTime: Date | null
     _count: MatchCountAggregateOutputType | null
@@ -3793,6 +3800,7 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
+    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3822,6 +3830,7 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
+    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3851,6 +3860,7 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
+    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
@@ -3880,11 +3890,12 @@ export namespace Prisma {
     duration?: boolean
     price?: boolean
     vaultId?: boolean
+    vaultOwnerCap?: boolean
     startTime?: boolean
     endTime?: boolean
   }
 
-  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "startTime" | "endTime", ExtArgs["result"]["match"]>
+  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "vaultOwnerCap" | "startTime" | "endTime", ExtArgs["result"]["match"]>
   export type MatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
@@ -3933,6 +3944,7 @@ export namespace Prisma {
       duration: number
       price: number
       vaultId: string | null
+      vaultOwnerCap: string | null
       startTime: Date | null
       endTime: Date | null
     }, ExtArgs["result"]["match"]>
@@ -4382,6 +4394,7 @@ export namespace Prisma {
     readonly duration: FieldRef<"Match", 'Int'>
     readonly price: FieldRef<"Match", 'Int'>
     readonly vaultId: FieldRef<"Match", 'String'>
+    readonly vaultOwnerCap: FieldRef<"Match", 'String'>
     readonly startTime: FieldRef<"Match", 'DateTime'>
     readonly endTime: FieldRef<"Match", 'DateTime'>
   }
@@ -4891,6 +4904,7 @@ export namespace Prisma {
     duration: 'duration',
     price: 'price',
     vaultId: 'vaultId',
+    vaultOwnerCap: 'vaultOwnerCap',
     startTime: 'startTime',
     endTime: 'endTime'
   };
@@ -5036,9 +5050,9 @@ export namespace Prisma {
     address?: StringFilter<"Player"> | string
     wins?: IntFilter<"Player"> | number
     losses?: IntFilter<"Player"> | number
-    teams?: TeamListRelationFilter
     matchesAsPlayerOne?: MatchListRelationFilter
     matchesAsPlayerTwo?: MatchListRelationFilter
+    teams?: TeamListRelationFilter
   }
 
   export type PlayerOrderByWithRelationInput = {
@@ -5046,9 +5060,9 @@ export namespace Prisma {
     address?: SortOrder
     wins?: SortOrder
     losses?: SortOrder
-    teams?: TeamOrderByRelationAggregateInput
     matchesAsPlayerOne?: MatchOrderByRelationAggregateInput
     matchesAsPlayerTwo?: MatchOrderByRelationAggregateInput
+    teams?: TeamOrderByRelationAggregateInput
   }
 
   export type PlayerWhereUniqueInput = Prisma.AtLeast<{
@@ -5059,9 +5073,9 @@ export namespace Prisma {
     NOT?: PlayerWhereInput | PlayerWhereInput[]
     wins?: IntFilter<"Player"> | number
     losses?: IntFilter<"Player"> | number
-    teams?: TeamListRelationFilter
     matchesAsPlayerOne?: MatchListRelationFilter
     matchesAsPlayerTwo?: MatchListRelationFilter
+    teams?: TeamListRelationFilter
   }, "id" | "address">
 
   export type PlayerOrderByWithAggregationInput = {
@@ -5094,9 +5108,9 @@ export namespace Prisma {
     name?: StringFilter<"Team"> | string
     tokens?: StringNullableListFilter<"Team">
     playerId?: StringFilter<"Team"> | string
-    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
     matchesAsTeamOne?: MatchListRelationFilter
     matchesAsTeamTwo?: MatchListRelationFilter
+    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
   }
 
   export type TeamOrderByWithRelationInput = {
@@ -5104,9 +5118,9 @@ export namespace Prisma {
     name?: SortOrder
     tokens?: SortOrder
     playerId?: SortOrder
-    player?: PlayerOrderByWithRelationInput
     matchesAsTeamOne?: MatchOrderByRelationAggregateInput
     matchesAsTeamTwo?: MatchOrderByRelationAggregateInput
+    player?: PlayerOrderByWithRelationInput
   }
 
   export type TeamWhereUniqueInput = Prisma.AtLeast<{
@@ -5117,9 +5131,9 @@ export namespace Prisma {
     name?: StringFilter<"Team"> | string
     tokens?: StringNullableListFilter<"Team">
     playerId?: StringFilter<"Team"> | string
-    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
     matchesAsTeamOne?: MatchListRelationFilter
     matchesAsTeamTwo?: MatchListRelationFilter
+    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
   }, "id">
 
   export type TeamOrderByWithAggregationInput = {
@@ -5166,6 +5180,7 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
+    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5195,6 +5210,7 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrderInput | SortOrder
+    vaultOwnerCap?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     playerOne?: PlayerOrderByWithRelationInput
@@ -5227,6 +5243,7 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
+    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
@@ -5256,6 +5273,7 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrderInput | SortOrder
+    vaultOwnerCap?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
     _count?: MatchCountOrderByAggregateInput
@@ -5289,6 +5307,7 @@ export namespace Prisma {
     duration?: IntWithAggregatesFilter<"Match"> | number
     price?: IntWithAggregatesFilter<"Match"> | number
     vaultId?: StringNullableWithAggregatesFilter<"Match"> | string | null
+    vaultOwnerCap?: StringNullableWithAggregatesFilter<"Match"> | string | null
     startTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
   }
@@ -5298,9 +5317,9 @@ export namespace Prisma {
     address: string
     wins?: number
     losses?: number
-    teams?: TeamCreateNestedManyWithoutPlayerInput
     matchesAsPlayerOne?: MatchCreateNestedManyWithoutPlayerOneInput
     matchesAsPlayerTwo?: MatchCreateNestedManyWithoutPlayerTwoInput
+    teams?: TeamCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateInput = {
@@ -5308,9 +5327,9 @@ export namespace Prisma {
     address: string
     wins?: number
     losses?: number
-    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
     matchesAsPlayerOne?: MatchUncheckedCreateNestedManyWithoutPlayerOneInput
     matchesAsPlayerTwo?: MatchUncheckedCreateNestedManyWithoutPlayerTwoInput
+    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUpdateInput = {
@@ -5318,9 +5337,9 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerOne?: MatchUpdateManyWithoutPlayerOneNestedInput
     matchesAsPlayerTwo?: MatchUpdateManyWithoutPlayerTwoNestedInput
+    teams?: TeamUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateInput = {
@@ -5328,9 +5347,9 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerOne?: MatchUncheckedUpdateManyWithoutPlayerOneNestedInput
     matchesAsPlayerTwo?: MatchUncheckedUpdateManyWithoutPlayerTwoNestedInput
+    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerCreateManyInput = {
@@ -5358,9 +5377,9 @@ export namespace Prisma {
     id?: string
     name: string
     tokens?: TeamCreatetokensInput | string[]
-    player: PlayerCreateNestedOneWithoutTeamsInput
     matchesAsTeamOne?: MatchCreateNestedManyWithoutTeamOneInput
     matchesAsTeamTwo?: MatchCreateNestedManyWithoutTeamTwoInput
+    player: PlayerCreateNestedOneWithoutTeamsInput
   }
 
   export type TeamUncheckedCreateInput = {
@@ -5376,9 +5395,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokens?: TeamUpdatetokensInput | string[]
-    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
     matchesAsTeamOne?: MatchUpdateManyWithoutTeamOneNestedInput
     matchesAsTeamTwo?: MatchUpdateManyWithoutTeamTwoNestedInput
+    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
   }
 
   export type TeamUncheckedUpdateInput = {
@@ -5427,6 +5446,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -5456,6 +5476,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5477,6 +5498,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -5506,6 +5528,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5531,6 +5554,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -5552,6 +5576,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5577,6 +5602,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5607,23 +5633,23 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type TeamListRelationFilter = {
-    every?: TeamWhereInput
-    some?: TeamWhereInput
-    none?: TeamWhereInput
-  }
-
   export type MatchListRelationFilter = {
     every?: MatchWhereInput
     some?: MatchWhereInput
     none?: MatchWhereInput
   }
 
-  export type TeamOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type TeamListRelationFilter = {
+    every?: TeamWhereInput
+    some?: TeamWhereInput
+    none?: TeamWhereInput
   }
 
   export type MatchOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TeamOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -5834,6 +5860,7 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
+    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5870,6 +5897,7 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
+    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -5895,6 +5923,7 @@ export namespace Prisma {
     duration?: SortOrder
     price?: SortOrder
     vaultId?: SortOrder
+    vaultOwnerCap?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
   }
@@ -6002,13 +6031,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type TeamCreateNestedManyWithoutPlayerInput = {
-    create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
-    createMany?: TeamCreateManyPlayerInputEnvelope
-    connect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
-  }
-
   export type MatchCreateNestedManyWithoutPlayerOneInput = {
     create?: XOR<MatchCreateWithoutPlayerOneInput, MatchUncheckedCreateWithoutPlayerOneInput> | MatchCreateWithoutPlayerOneInput[] | MatchUncheckedCreateWithoutPlayerOneInput[]
     connectOrCreate?: MatchCreateOrConnectWithoutPlayerOneInput | MatchCreateOrConnectWithoutPlayerOneInput[]
@@ -6023,7 +6045,7 @@ export namespace Prisma {
     connect?: MatchWhereUniqueInput | MatchWhereUniqueInput[]
   }
 
-  export type TeamUncheckedCreateNestedManyWithoutPlayerInput = {
+  export type TeamCreateNestedManyWithoutPlayerInput = {
     create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
     connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
     createMany?: TeamCreateManyPlayerInputEnvelope
@@ -6044,6 +6066,13 @@ export namespace Prisma {
     connect?: MatchWhereUniqueInput | MatchWhereUniqueInput[]
   }
 
+  export type TeamUncheckedCreateNestedManyWithoutPlayerInput = {
+    create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
+    connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
+    createMany?: TeamCreateManyPlayerInputEnvelope
+    connect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -6054,20 +6083,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type TeamUpdateManyWithoutPlayerNestedInput = {
-    create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
-    upsert?: TeamUpsertWithWhereUniqueWithoutPlayerInput | TeamUpsertWithWhereUniqueWithoutPlayerInput[]
-    createMany?: TeamCreateManyPlayerInputEnvelope
-    set?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
-    disconnect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
-    delete?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
-    connect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
-    update?: TeamUpdateWithWhereUniqueWithoutPlayerInput | TeamUpdateWithWhereUniqueWithoutPlayerInput[]
-    updateMany?: TeamUpdateManyWithWhereWithoutPlayerInput | TeamUpdateManyWithWhereWithoutPlayerInput[]
-    deleteMany?: TeamScalarWhereInput | TeamScalarWhereInput[]
   }
 
   export type MatchUpdateManyWithoutPlayerOneNestedInput = {
@@ -6098,7 +6113,7 @@ export namespace Prisma {
     deleteMany?: MatchScalarWhereInput | MatchScalarWhereInput[]
   }
 
-  export type TeamUncheckedUpdateManyWithoutPlayerNestedInput = {
+  export type TeamUpdateManyWithoutPlayerNestedInput = {
     create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
     connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
     upsert?: TeamUpsertWithWhereUniqueWithoutPlayerInput | TeamUpsertWithWhereUniqueWithoutPlayerInput[]
@@ -6140,14 +6155,22 @@ export namespace Prisma {
     deleteMany?: MatchScalarWhereInput | MatchScalarWhereInput[]
   }
 
-  export type TeamCreatetokensInput = {
-    set: string[]
+  export type TeamUncheckedUpdateManyWithoutPlayerNestedInput = {
+    create?: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput> | TeamCreateWithoutPlayerInput[] | TeamUncheckedCreateWithoutPlayerInput[]
+    connectOrCreate?: TeamCreateOrConnectWithoutPlayerInput | TeamCreateOrConnectWithoutPlayerInput[]
+    upsert?: TeamUpsertWithWhereUniqueWithoutPlayerInput | TeamUpsertWithWhereUniqueWithoutPlayerInput[]
+    createMany?: TeamCreateManyPlayerInputEnvelope
+    set?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
+    disconnect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
+    delete?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
+    connect?: TeamWhereUniqueInput | TeamWhereUniqueInput[]
+    update?: TeamUpdateWithWhereUniqueWithoutPlayerInput | TeamUpdateWithWhereUniqueWithoutPlayerInput[]
+    updateMany?: TeamUpdateManyWithWhereWithoutPlayerInput | TeamUpdateManyWithWhereWithoutPlayerInput[]
+    deleteMany?: TeamScalarWhereInput | TeamScalarWhereInput[]
   }
 
-  export type PlayerCreateNestedOneWithoutTeamsInput = {
-    create?: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
-    connectOrCreate?: PlayerCreateOrConnectWithoutTeamsInput
-    connect?: PlayerWhereUniqueInput
+  export type TeamCreatetokensInput = {
+    set: string[]
   }
 
   export type MatchCreateNestedManyWithoutTeamOneInput = {
@@ -6162,6 +6185,12 @@ export namespace Prisma {
     connectOrCreate?: MatchCreateOrConnectWithoutTeamTwoInput | MatchCreateOrConnectWithoutTeamTwoInput[]
     createMany?: MatchCreateManyTeamTwoInputEnvelope
     connect?: MatchWhereUniqueInput | MatchWhereUniqueInput[]
+  }
+
+  export type PlayerCreateNestedOneWithoutTeamsInput = {
+    create?: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
+    connectOrCreate?: PlayerCreateOrConnectWithoutTeamsInput
+    connect?: PlayerWhereUniqueInput
   }
 
   export type MatchUncheckedCreateNestedManyWithoutTeamOneInput = {
@@ -6181,14 +6210,6 @@ export namespace Prisma {
   export type TeamUpdatetokensInput = {
     set?: string[]
     push?: string | string[]
-  }
-
-  export type PlayerUpdateOneRequiredWithoutTeamsNestedInput = {
-    create?: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
-    connectOrCreate?: PlayerCreateOrConnectWithoutTeamsInput
-    upsert?: PlayerUpsertWithoutTeamsInput
-    connect?: PlayerWhereUniqueInput
-    update?: XOR<XOR<PlayerUpdateToOneWithWhereWithoutTeamsInput, PlayerUpdateWithoutTeamsInput>, PlayerUncheckedUpdateWithoutTeamsInput>
   }
 
   export type MatchUpdateManyWithoutTeamOneNestedInput = {
@@ -6217,6 +6238,14 @@ export namespace Prisma {
     update?: MatchUpdateWithWhereUniqueWithoutTeamTwoInput | MatchUpdateWithWhereUniqueWithoutTeamTwoInput[]
     updateMany?: MatchUpdateManyWithWhereWithoutTeamTwoInput | MatchUpdateManyWithWhereWithoutTeamTwoInput[]
     deleteMany?: MatchScalarWhereInput | MatchScalarWhereInput[]
+  }
+
+  export type PlayerUpdateOneRequiredWithoutTeamsNestedInput = {
+    create?: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
+    connectOrCreate?: PlayerCreateOrConnectWithoutTeamsInput
+    upsert?: PlayerUpsertWithoutTeamsInput
+    connect?: PlayerWhereUniqueInput
+    update?: XOR<XOR<PlayerUpdateToOneWithWhereWithoutTeamsInput, PlayerUpdateWithoutTeamsInput>, PlayerUncheckedUpdateWithoutTeamsInput>
   }
 
   export type MatchUncheckedUpdateManyWithoutTeamOneNestedInput = {
@@ -6578,32 +6607,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type TeamCreateWithoutPlayerInput = {
-    id?: string
-    name: string
-    tokens?: TeamCreatetokensInput | string[]
-    matchesAsTeamOne?: MatchCreateNestedManyWithoutTeamOneInput
-    matchesAsTeamTwo?: MatchCreateNestedManyWithoutTeamTwoInput
-  }
-
-  export type TeamUncheckedCreateWithoutPlayerInput = {
-    id?: string
-    name: string
-    tokens?: TeamCreatetokensInput | string[]
-    matchesAsTeamOne?: MatchUncheckedCreateNestedManyWithoutTeamOneInput
-    matchesAsTeamTwo?: MatchUncheckedCreateNestedManyWithoutTeamTwoInput
-  }
-
-  export type TeamCreateOrConnectWithoutPlayerInput = {
-    where: TeamWhereUniqueInput
-    create: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput>
-  }
-
-  export type TeamCreateManyPlayerInputEnvelope = {
-    data: TeamCreateManyPlayerInput | TeamCreateManyPlayerInput[]
-    skipDuplicates?: boolean
-  }
-
   export type MatchCreateWithoutPlayerOneInput = {
     id?: string
     status?: $Enums.MatchStatus
@@ -6621,6 +6624,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
@@ -6648,6 +6652,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6679,6 +6684,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6706,6 +6712,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6720,30 +6727,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type TeamUpsertWithWhereUniqueWithoutPlayerInput = {
+  export type TeamCreateWithoutPlayerInput = {
+    id?: string
+    name: string
+    tokens?: TeamCreatetokensInput | string[]
+    matchesAsTeamOne?: MatchCreateNestedManyWithoutTeamOneInput
+    matchesAsTeamTwo?: MatchCreateNestedManyWithoutTeamTwoInput
+  }
+
+  export type TeamUncheckedCreateWithoutPlayerInput = {
+    id?: string
+    name: string
+    tokens?: TeamCreatetokensInput | string[]
+    matchesAsTeamOne?: MatchUncheckedCreateNestedManyWithoutTeamOneInput
+    matchesAsTeamTwo?: MatchUncheckedCreateNestedManyWithoutTeamTwoInput
+  }
+
+  export type TeamCreateOrConnectWithoutPlayerInput = {
     where: TeamWhereUniqueInput
-    update: XOR<TeamUpdateWithoutPlayerInput, TeamUncheckedUpdateWithoutPlayerInput>
     create: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput>
   }
 
-  export type TeamUpdateWithWhereUniqueWithoutPlayerInput = {
-    where: TeamWhereUniqueInput
-    data: XOR<TeamUpdateWithoutPlayerInput, TeamUncheckedUpdateWithoutPlayerInput>
-  }
-
-  export type TeamUpdateManyWithWhereWithoutPlayerInput = {
-    where: TeamScalarWhereInput
-    data: XOR<TeamUpdateManyMutationInput, TeamUncheckedUpdateManyWithoutPlayerInput>
-  }
-
-  export type TeamScalarWhereInput = {
-    AND?: TeamScalarWhereInput | TeamScalarWhereInput[]
-    OR?: TeamScalarWhereInput[]
-    NOT?: TeamScalarWhereInput | TeamScalarWhereInput[]
-    id?: StringFilter<"Team"> | string
-    name?: StringFilter<"Team"> | string
-    tokens?: StringNullableListFilter<"Team">
-    playerId?: StringFilter<"Team"> | string
+  export type TeamCreateManyPlayerInputEnvelope = {
+    data: TeamCreateManyPlayerInput | TeamCreateManyPlayerInput[]
+    skipDuplicates?: boolean
   }
 
   export type MatchUpsertWithWhereUniqueWithoutPlayerOneInput = {
@@ -6786,6 +6793,7 @@ export namespace Prisma {
     duration?: IntFilter<"Match"> | number
     price?: IntFilter<"Match"> | number
     vaultId?: StringNullableFilter<"Match"> | string | null
+    vaultOwnerCap?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
   }
@@ -6806,27 +6814,30 @@ export namespace Prisma {
     data: XOR<MatchUpdateManyMutationInput, MatchUncheckedUpdateManyWithoutPlayerTwoInput>
   }
 
-  export type PlayerCreateWithoutTeamsInput = {
-    id?: string
-    address: string
-    wins?: number
-    losses?: number
-    matchesAsPlayerOne?: MatchCreateNestedManyWithoutPlayerOneInput
-    matchesAsPlayerTwo?: MatchCreateNestedManyWithoutPlayerTwoInput
+  export type TeamUpsertWithWhereUniqueWithoutPlayerInput = {
+    where: TeamWhereUniqueInput
+    update: XOR<TeamUpdateWithoutPlayerInput, TeamUncheckedUpdateWithoutPlayerInput>
+    create: XOR<TeamCreateWithoutPlayerInput, TeamUncheckedCreateWithoutPlayerInput>
   }
 
-  export type PlayerUncheckedCreateWithoutTeamsInput = {
-    id?: string
-    address: string
-    wins?: number
-    losses?: number
-    matchesAsPlayerOne?: MatchUncheckedCreateNestedManyWithoutPlayerOneInput
-    matchesAsPlayerTwo?: MatchUncheckedCreateNestedManyWithoutPlayerTwoInput
+  export type TeamUpdateWithWhereUniqueWithoutPlayerInput = {
+    where: TeamWhereUniqueInput
+    data: XOR<TeamUpdateWithoutPlayerInput, TeamUncheckedUpdateWithoutPlayerInput>
   }
 
-  export type PlayerCreateOrConnectWithoutTeamsInput = {
-    where: PlayerWhereUniqueInput
-    create: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
+  export type TeamUpdateManyWithWhereWithoutPlayerInput = {
+    where: TeamScalarWhereInput
+    data: XOR<TeamUpdateManyMutationInput, TeamUncheckedUpdateManyWithoutPlayerInput>
+  }
+
+  export type TeamScalarWhereInput = {
+    AND?: TeamScalarWhereInput | TeamScalarWhereInput[]
+    OR?: TeamScalarWhereInput[]
+    NOT?: TeamScalarWhereInput | TeamScalarWhereInput[]
+    id?: StringFilter<"Team"> | string
+    name?: StringFilter<"Team"> | string
+    tokens?: StringNullableListFilter<"Team">
+    playerId?: StringFilter<"Team"> | string
   }
 
   export type MatchCreateWithoutTeamOneInput = {
@@ -6846,6 +6857,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6873,6 +6885,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6904,6 +6917,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
@@ -6931,6 +6945,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -6945,33 +6960,27 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PlayerUpsertWithoutTeamsInput = {
-    update: XOR<PlayerUpdateWithoutTeamsInput, PlayerUncheckedUpdateWithoutTeamsInput>
+  export type PlayerCreateWithoutTeamsInput = {
+    id?: string
+    address: string
+    wins?: number
+    losses?: number
+    matchesAsPlayerOne?: MatchCreateNestedManyWithoutPlayerOneInput
+    matchesAsPlayerTwo?: MatchCreateNestedManyWithoutPlayerTwoInput
+  }
+
+  export type PlayerUncheckedCreateWithoutTeamsInput = {
+    id?: string
+    address: string
+    wins?: number
+    losses?: number
+    matchesAsPlayerOne?: MatchUncheckedCreateNestedManyWithoutPlayerOneInput
+    matchesAsPlayerTwo?: MatchUncheckedCreateNestedManyWithoutPlayerTwoInput
+  }
+
+  export type PlayerCreateOrConnectWithoutTeamsInput = {
+    where: PlayerWhereUniqueInput
     create: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
-    where?: PlayerWhereInput
-  }
-
-  export type PlayerUpdateToOneWithWhereWithoutTeamsInput = {
-    where?: PlayerWhereInput
-    data: XOR<PlayerUpdateWithoutTeamsInput, PlayerUncheckedUpdateWithoutTeamsInput>
-  }
-
-  export type PlayerUpdateWithoutTeamsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    wins?: IntFieldUpdateOperationsInput | number
-    losses?: IntFieldUpdateOperationsInput | number
-    matchesAsPlayerOne?: MatchUpdateManyWithoutPlayerOneNestedInput
-    matchesAsPlayerTwo?: MatchUpdateManyWithoutPlayerTwoNestedInput
-  }
-
-  export type PlayerUncheckedUpdateWithoutTeamsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    wins?: IntFieldUpdateOperationsInput | number
-    losses?: IntFieldUpdateOperationsInput | number
-    matchesAsPlayerOne?: MatchUncheckedUpdateManyWithoutPlayerOneNestedInput
-    matchesAsPlayerTwo?: MatchUncheckedUpdateManyWithoutPlayerTwoNestedInput
   }
 
   export type MatchUpsertWithWhereUniqueWithoutTeamOneInput = {
@@ -7006,13 +7015,42 @@ export namespace Prisma {
     data: XOR<MatchUpdateManyMutationInput, MatchUncheckedUpdateManyWithoutTeamTwoInput>
   }
 
+  export type PlayerUpsertWithoutTeamsInput = {
+    update: XOR<PlayerUpdateWithoutTeamsInput, PlayerUncheckedUpdateWithoutTeamsInput>
+    create: XOR<PlayerCreateWithoutTeamsInput, PlayerUncheckedCreateWithoutTeamsInput>
+    where?: PlayerWhereInput
+  }
+
+  export type PlayerUpdateToOneWithWhereWithoutTeamsInput = {
+    where?: PlayerWhereInput
+    data: XOR<PlayerUpdateWithoutTeamsInput, PlayerUncheckedUpdateWithoutTeamsInput>
+  }
+
+  export type PlayerUpdateWithoutTeamsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    losses?: IntFieldUpdateOperationsInput | number
+    matchesAsPlayerOne?: MatchUpdateManyWithoutPlayerOneNestedInput
+    matchesAsPlayerTwo?: MatchUpdateManyWithoutPlayerTwoNestedInput
+  }
+
+  export type PlayerUncheckedUpdateWithoutTeamsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    losses?: IntFieldUpdateOperationsInput | number
+    matchesAsPlayerOne?: MatchUncheckedUpdateManyWithoutPlayerOneNestedInput
+    matchesAsPlayerTwo?: MatchUncheckedUpdateManyWithoutPlayerTwoNestedInput
+  }
+
   export type PlayerCreateWithoutMatchesAsPlayerOneInput = {
     id?: string
     address: string
     wins?: number
     losses?: number
-    teams?: TeamCreateNestedManyWithoutPlayerInput
     matchesAsPlayerTwo?: MatchCreateNestedManyWithoutPlayerTwoInput
+    teams?: TeamCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateWithoutMatchesAsPlayerOneInput = {
@@ -7020,8 +7058,8 @@ export namespace Prisma {
     address: string
     wins?: number
     losses?: number
-    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
     matchesAsPlayerTwo?: MatchUncheckedCreateNestedManyWithoutPlayerTwoInput
+    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerCreateOrConnectWithoutMatchesAsPlayerOneInput = {
@@ -7034,8 +7072,8 @@ export namespace Prisma {
     address: string
     wins?: number
     losses?: number
-    teams?: TeamCreateNestedManyWithoutPlayerInput
     matchesAsPlayerOne?: MatchCreateNestedManyWithoutPlayerOneInput
+    teams?: TeamCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateWithoutMatchesAsPlayerTwoInput = {
@@ -7043,8 +7081,8 @@ export namespace Prisma {
     address: string
     wins?: number
     losses?: number
-    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
     matchesAsPlayerOne?: MatchUncheckedCreateNestedManyWithoutPlayerOneInput
+    teams?: TeamUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerCreateOrConnectWithoutMatchesAsPlayerTwoInput = {
@@ -7056,8 +7094,8 @@ export namespace Prisma {
     id?: string
     name: string
     tokens?: TeamCreatetokensInput | string[]
-    player: PlayerCreateNestedOneWithoutTeamsInput
     matchesAsTeamTwo?: MatchCreateNestedManyWithoutTeamTwoInput
+    player: PlayerCreateNestedOneWithoutTeamsInput
   }
 
   export type TeamUncheckedCreateWithoutMatchesAsTeamOneInput = {
@@ -7077,8 +7115,8 @@ export namespace Prisma {
     id?: string
     name: string
     tokens?: TeamCreatetokensInput | string[]
-    player: PlayerCreateNestedOneWithoutTeamsInput
     matchesAsTeamOne?: MatchCreateNestedManyWithoutTeamOneInput
+    player: PlayerCreateNestedOneWithoutTeamsInput
   }
 
   export type TeamUncheckedCreateWithoutMatchesAsTeamTwoInput = {
@@ -7110,8 +7148,8 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerTwo?: MatchUpdateManyWithoutPlayerTwoNestedInput
+    teams?: TeamUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateWithoutMatchesAsPlayerOneInput = {
@@ -7119,8 +7157,8 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerTwo?: MatchUncheckedUpdateManyWithoutPlayerTwoNestedInput
+    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUpsertWithoutMatchesAsPlayerTwoInput = {
@@ -7139,8 +7177,8 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerOne?: MatchUpdateManyWithoutPlayerOneNestedInput
+    teams?: TeamUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateWithoutMatchesAsPlayerTwoInput = {
@@ -7148,8 +7186,8 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     wins?: IntFieldUpdateOperationsInput | number
     losses?: IntFieldUpdateOperationsInput | number
-    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
     matchesAsPlayerOne?: MatchUncheckedUpdateManyWithoutPlayerOneNestedInput
+    teams?: TeamUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type TeamUpsertWithoutMatchesAsTeamOneInput = {
@@ -7167,8 +7205,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokens?: TeamUpdatetokensInput | string[]
-    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
     matchesAsTeamTwo?: MatchUpdateManyWithoutTeamTwoNestedInput
+    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutMatchesAsTeamOneInput = {
@@ -7194,8 +7232,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokens?: TeamUpdatetokensInput | string[]
-    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
     matchesAsTeamOne?: MatchUpdateManyWithoutTeamOneNestedInput
+    player?: PlayerUpdateOneRequiredWithoutTeamsNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutMatchesAsTeamTwoInput = {
@@ -7204,12 +7242,6 @@ export namespace Prisma {
     tokens?: TeamUpdatetokensInput | string[]
     playerId?: StringFieldUpdateOperationsInput | string
     matchesAsTeamOne?: MatchUncheckedUpdateManyWithoutTeamOneNestedInput
-  }
-
-  export type TeamCreateManyPlayerInput = {
-    id?: string
-    name: string
-    tokens?: TeamCreatetokensInput | string[]
   }
 
   export type MatchCreateManyPlayerOneInput = {
@@ -7232,6 +7264,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7256,30 +7289,15 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
 
-  export type TeamUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    tokens?: TeamUpdatetokensInput | string[]
-    matchesAsTeamOne?: MatchUpdateManyWithoutTeamOneNestedInput
-    matchesAsTeamTwo?: MatchUpdateManyWithoutTeamTwoNestedInput
-  }
-
-  export type TeamUncheckedUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    tokens?: TeamUpdatetokensInput | string[]
-    matchesAsTeamOne?: MatchUncheckedUpdateManyWithoutTeamOneNestedInput
-    matchesAsTeamTwo?: MatchUncheckedUpdateManyWithoutTeamTwoNestedInput
-  }
-
-  export type TeamUncheckedUpdateManyWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    tokens?: TeamUpdatetokensInput | string[]
+  export type TeamCreateManyPlayerInput = {
+    id?: string
+    name: string
+    tokens?: TeamCreatetokensInput | string[]
   }
 
   export type MatchUpdateWithoutPlayerOneInput = {
@@ -7299,6 +7317,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
@@ -7326,6 +7345,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7350,6 +7370,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7371,6 +7392,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7398,6 +7420,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7422,8 +7445,31 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TeamUpdateWithoutPlayerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    tokens?: TeamUpdatetokensInput | string[]
+    matchesAsTeamOne?: MatchUpdateManyWithoutTeamOneNestedInput
+    matchesAsTeamTwo?: MatchUpdateManyWithoutTeamTwoNestedInput
+  }
+
+  export type TeamUncheckedUpdateWithoutPlayerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    tokens?: TeamUpdatetokensInput | string[]
+    matchesAsTeamOne?: MatchUncheckedUpdateManyWithoutTeamOneNestedInput
+    matchesAsTeamTwo?: MatchUncheckedUpdateManyWithoutTeamTwoNestedInput
+  }
+
+  export type TeamUncheckedUpdateManyWithoutPlayerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    tokens?: TeamUpdatetokensInput | string[]
   }
 
   export type MatchCreateManyTeamOneInput = {
@@ -7446,6 +7492,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7470,6 +7517,7 @@ export namespace Prisma {
     duration?: number
     price?: number
     vaultId?: string | null
+    vaultOwnerCap?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
   }
@@ -7491,6 +7539,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7518,6 +7567,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7542,6 +7592,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7563,6 +7614,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
@@ -7590,6 +7642,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -7614,6 +7667,7 @@ export namespace Prisma {
     duration?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
+    vaultOwnerCap?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

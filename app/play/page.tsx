@@ -38,6 +38,7 @@ export default function PlayPage() {
   const [matchPrice, setMatchPrice] = useState<string>("1");
   const [isLoading, setIsLoading] = useState(false);
   const [vaultId, setVaultId] = useState<string | null>(null);
+  const [vaultOwnerCap, setVaultOwnerCap] = useState<string | null>(null);
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
@@ -52,39 +53,6 @@ export default function PlayPage() {
       }),
   });
 
-  // This function is not used and can be removed
-  // Keeping it for reference
-  function create() {
-      const tx = new Transaction();
-  
-      tx.moveCall({
-        target: `${VAULT_PACKAGE_ID}::simple_vault::create`,
-        typeArguments: ['0x2::sui::SUI'],
-        arguments: []
-      });
-  
-      signAndExecute(
-        {
-          transaction: tx,
-          chain: 'sui:devnet',
-        },
-        {
-          onSuccess: (result) => {
-            const objectId = result.effects?.created?.[0]?.reference?.objectId;
-            console.log('Created object ID:', objectId);
-            if (objectId) {
-              console.log('Object created successfully:', objectId);
-              setVaultId(objectId);
-              return objectId;
-            }
-          },
-          onError: (error) => {
-            console.error('Error creating vault:', error);
-          },
-        },
-        
-      );
-    }
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -193,45 +161,41 @@ export default function PlayPage() {
           typeArguments: ['0x2::sui::SUI'],
           arguments: []
         });
+
+        const result = await new Promise((resolve, reject) => {
+          signAndExecute(
+            {
+              transaction: tx,
+              chain: 'sui:devnet',
+            },
+            {
+              onSuccess: (result) => resolve(result),
+              onError: (error) => reject(error),
+            }
+          );
+        });
         
-        try {
-          // Use a more direct approach with async/await
-          const txResult = await new Promise<any>((resolve, reject) => {
-            signAndExecute(
-              {
-                transaction: tx,
-                chain: 'sui:devnet',
-              },
-              {
-                onSuccess: (result) => resolve(result),
-                onError: (error) => reject(error),
-              }
-            );
-          }).catch(error => {
-            console.error("Promise rejection in vault creation:", error);
-            throw error;
-          });
-          
-          // Extract the object ID from the transaction result
-          const newVaultId = txResult.effects?.created?.[0]?.reference?.objectId;
-          console.log('Created vault ID:', newVaultId);
-          
-          if (!newVaultId) {
-            throw new Error('No vault ID returned from transaction');
-          }
-          
-          // Set the vault ID in state
-          setVaultId(newVaultId);
-          currentVaultId = newVaultId;
-          
-          // Wait a moment for the blockchain transaction to settle
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (error) {
-          console.error('Error creating vault:', error);
-          // Type assertion to handle the error message safely
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          throw new Error(`Failed to create vault: ${errorMessage}`);
+        // Extract the object ID from the transaction result
+        const newVaultId = (result as { effects?: { created?: { reference?: { objectId?: string } }[] } })?.effects?.created?.[0]?.reference?.objectId;
+        console.log('Created vault ID:', newVaultId);
+        const VaultOwnerCap = (result as { effects?: { created?: { reference?: { objectId?: string } }[] } })?.effects?.created?.[1]?.reference?.objectId;
+        console.log('VaultOwnerCap', VaultOwnerCap)
+        
+        if (!newVaultId) {
+          throw new Error('No vault ID returned from transaction');
         }
+
+        if (!VaultOwnerCap) {
+          throw new Error('No vault owner cap returned from transaction');
+        }
+        
+        // Set the vault ID in state
+        setVaultId(newVaultId);
+        setVaultOwnerCap(VaultOwnerCap);
+        currentVaultId = newVaultId;
+        
+        // Wait a moment for the blockchain transaction to settle
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       // Double-check that we have a vault ID before proceeding
@@ -253,6 +217,7 @@ export default function PlayPage() {
           duration: matchDuration,
           price: matchPrice, 
           vaultId: currentVaultId,
+          vaultOwnerCap: vaultOwnerCap
         }),
       });
 
