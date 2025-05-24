@@ -35,6 +35,7 @@ export const CreateTeamForm = () => {
         }
         
         const data = await response.json();
+        console.log('tokens data', data);
         
         // Ensure the data is in the correct format
         if (Array.isArray(data)) {
