@@ -52,6 +52,7 @@ class TokenService {
         return [];
       }
     }
+    console.log('tokenList', this.tokenList);
     return this.tokenList[category];
   }
 }
