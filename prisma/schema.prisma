@@ -55,6 +55,8 @@ model Match {
   playerTwo     Player?      @relation("PlayerTwo", fields: [playerTwoId], references: [id])
   teamOne       Team         @relation("TeamOne", fields: [teamOneId], references: [id])
   teamTwo       Team?        @relation("TeamTwo", fields: [teamTwoId], references: [id])
+  winnerShareClaimed Boolean    @default(false)
+  loserShareClaimed Boolean    @default(false)
 }
 
 enum MatchStatus {

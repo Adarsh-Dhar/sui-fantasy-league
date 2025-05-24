@@ -29,32 +29,34 @@ model Team {
 }
 
 model Match {
-  id           String       @id @default(cuid())
-  status       MatchStatus  @default(PENDING)
-  type         MatchType
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  playerOneId  String
-  playerTwoId  String?
-  teamOneId    String
-  teamTwoId    String?
-  teamOneScore Float?
-  teamTwoScore Float?
-  teamOneGain  Float?
-  teamTwoGain  Float?
-  winnerShare  Float?
-  loserShare   Float?
-  winnerId     String?
-  result       MatchResult?
-  duration     Int          @default(60)
-  price        Int          @default(1)
-  vaultId      String?      @db.Text
-  startTime    DateTime?
-  endTime      DateTime?
-  playerOne    Player       @relation("PlayerOne", fields: [playerOneId], references: [id])
-  playerTwo    Player?      @relation("PlayerTwo", fields: [playerTwoId], references: [id])
-  teamOne      Team         @relation("TeamOne", fields: [teamOneId], references: [id])
-  teamTwo      Team?        @relation("TeamTwo", fields: [teamTwoId], references: [id])
+  id                 String       @id @default(cuid())
+  status             MatchStatus  @default(PENDING)
+  type               MatchType
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  playerOneId        String
+  playerTwoId        String?
+  teamOneId          String
+  teamTwoId          String?
+  teamOneScore       Float?
+  teamTwoScore       Float?
+  teamOneGain        Float?
+  teamTwoGain        Float?
+  winnerShare        Float?
+  loserShare         Float?
+  winnerId           String?
+  result             MatchResult?
+  duration           Int          @default(60)
+  price              Int          @default(1)
+  vaultId            String?      @db.Text
+  startTime          DateTime?
+  endTime            DateTime?
+  playerOne          Player       @relation("PlayerOne", fields: [playerOneId], references: [id])
+  playerTwo          Player?      @relation("PlayerTwo", fields: [playerTwoId], references: [id])
+  teamOne            Team         @relation("TeamOne", fields: [teamOneId], references: [id])
+  teamTwo            Team?        @relation("TeamTwo", fields: [teamTwoId], references: [id])
+  winnerShareClaimed Boolean      @default(false)
+  loserShareClaimed  Boolean      @default(false)
 }
 
 enum MatchStatus {

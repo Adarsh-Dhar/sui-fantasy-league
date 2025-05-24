@@ -3490,6 +3490,8 @@ export namespace Prisma {
     vaultId: string | null
     startTime: Date | null
     endTime: Date | null
+    winnerShareClaimed: boolean | null
+    loserShareClaimed: boolean | null
   }
 
   export type MatchMaxAggregateOutputType = {
@@ -3515,6 +3517,8 @@ export namespace Prisma {
     vaultId: string | null
     startTime: Date | null
     endTime: Date | null
+    winnerShareClaimed: boolean | null
+    loserShareClaimed: boolean | null
   }
 
   export type MatchCountAggregateOutputType = {
@@ -3540,6 +3544,8 @@ export namespace Prisma {
     vaultId: number
     startTime: number
     endTime: number
+    winnerShareClaimed: number
+    loserShareClaimed: number
     _all: number
   }
 
@@ -3589,6 +3595,8 @@ export namespace Prisma {
     vaultId?: true
     startTime?: true
     endTime?: true
+    winnerShareClaimed?: true
+    loserShareClaimed?: true
   }
 
   export type MatchMaxAggregateInputType = {
@@ -3614,6 +3622,8 @@ export namespace Prisma {
     vaultId?: true
     startTime?: true
     endTime?: true
+    winnerShareClaimed?: true
+    loserShareClaimed?: true
   }
 
   export type MatchCountAggregateInputType = {
@@ -3639,6 +3649,8 @@ export namespace Prisma {
     vaultId?: true
     startTime?: true
     endTime?: true
+    winnerShareClaimed?: true
+    loserShareClaimed?: true
     _all?: true
   }
 
@@ -3751,6 +3763,8 @@ export namespace Prisma {
     vaultId: string | null
     startTime: Date | null
     endTime: Date | null
+    winnerShareClaimed: boolean
+    loserShareClaimed: boolean
     _count: MatchCountAggregateOutputType | null
     _avg: MatchAvgAggregateOutputType | null
     _sum: MatchSumAggregateOutputType | null
@@ -3795,6 +3809,8 @@ export namespace Prisma {
     vaultId?: boolean
     startTime?: boolean
     endTime?: boolean
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
     teamOne?: boolean | TeamDefaultArgs<ExtArgs>
@@ -3824,6 +3840,8 @@ export namespace Prisma {
     vaultId?: boolean
     startTime?: boolean
     endTime?: boolean
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
     teamOne?: boolean | TeamDefaultArgs<ExtArgs>
@@ -3853,6 +3871,8 @@ export namespace Prisma {
     vaultId?: boolean
     startTime?: boolean
     endTime?: boolean
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
     teamOne?: boolean | TeamDefaultArgs<ExtArgs>
@@ -3882,9 +3902,11 @@ export namespace Prisma {
     vaultId?: boolean
     startTime?: boolean
     endTime?: boolean
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
-  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "startTime" | "endTime", ExtArgs["result"]["match"]>
+  export type MatchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "type" | "createdAt" | "updatedAt" | "playerOneId" | "playerTwoId" | "teamOneId" | "teamTwoId" | "teamOneScore" | "teamTwoScore" | "teamOneGain" | "teamTwoGain" | "winnerShare" | "loserShare" | "winnerId" | "result" | "duration" | "price" | "vaultId" | "startTime" | "endTime" | "winnerShareClaimed" | "loserShareClaimed", ExtArgs["result"]["match"]>
   export type MatchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     playerOne?: boolean | PlayerDefaultArgs<ExtArgs>
     playerTwo?: boolean | Match$playerTwoArgs<ExtArgs>
@@ -3935,6 +3957,8 @@ export namespace Prisma {
       vaultId: string | null
       startTime: Date | null
       endTime: Date | null
+      winnerShareClaimed: boolean
+      loserShareClaimed: boolean
     }, ExtArgs["result"]["match"]>
     composites: {}
   }
@@ -4384,6 +4408,8 @@ export namespace Prisma {
     readonly vaultId: FieldRef<"Match", 'String'>
     readonly startTime: FieldRef<"Match", 'DateTime'>
     readonly endTime: FieldRef<"Match", 'DateTime'>
+    readonly winnerShareClaimed: FieldRef<"Match", 'Boolean'>
+    readonly loserShareClaimed: FieldRef<"Match", 'Boolean'>
   }
     
 
@@ -4892,7 +4918,9 @@ export namespace Prisma {
     price: 'price',
     vaultId: 'vaultId',
     startTime: 'startTime',
-    endTime: 'endTime'
+    endTime: 'endTime',
+    winnerShareClaimed: 'winnerShareClaimed',
+    loserShareClaimed: 'loserShareClaimed'
   };
 
   export type MatchScalarFieldEnum = (typeof MatchScalarFieldEnum)[keyof typeof MatchScalarFieldEnum]
@@ -5022,6 +5050,13 @@ export namespace Prisma {
    * Reference to a field of type 'MatchResult[]'
    */
   export type ListEnumMatchResultFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchResult[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
   /**
    * Deep Input Types
@@ -5168,6 +5203,8 @@ export namespace Prisma {
     vaultId?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
+    winnerShareClaimed?: BoolFilter<"Match"> | boolean
+    loserShareClaimed?: BoolFilter<"Match"> | boolean
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
     playerTwo?: XOR<PlayerNullableScalarRelationFilter, PlayerWhereInput> | null
     teamOne?: XOR<TeamScalarRelationFilter, TeamWhereInput>
@@ -5197,6 +5234,8 @@ export namespace Prisma {
     vaultId?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
+    winnerShareClaimed?: SortOrder
+    loserShareClaimed?: SortOrder
     playerOne?: PlayerOrderByWithRelationInput
     playerTwo?: PlayerOrderByWithRelationInput
     teamOne?: TeamOrderByWithRelationInput
@@ -5229,6 +5268,8 @@ export namespace Prisma {
     vaultId?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
+    winnerShareClaimed?: BoolFilter<"Match"> | boolean
+    loserShareClaimed?: BoolFilter<"Match"> | boolean
     playerOne?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
     playerTwo?: XOR<PlayerNullableScalarRelationFilter, PlayerWhereInput> | null
     teamOne?: XOR<TeamScalarRelationFilter, TeamWhereInput>
@@ -5258,6 +5299,8 @@ export namespace Prisma {
     vaultId?: SortOrderInput | SortOrder
     startTime?: SortOrderInput | SortOrder
     endTime?: SortOrderInput | SortOrder
+    winnerShareClaimed?: SortOrder
+    loserShareClaimed?: SortOrder
     _count?: MatchCountOrderByAggregateInput
     _avg?: MatchAvgOrderByAggregateInput
     _max?: MatchMaxOrderByAggregateInput
@@ -5291,6 +5334,8 @@ export namespace Prisma {
     vaultId?: StringNullableWithAggregatesFilter<"Match"> | string | null
     startTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
+    winnerShareClaimed?: BoolWithAggregatesFilter<"Match"> | boolean
+    loserShareClaimed?: BoolWithAggregatesFilter<"Match"> | boolean
   }
 
   export type PlayerCreateInput = {
@@ -5429,6 +5474,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
     teamOne: TeamCreateNestedOneWithoutMatchesAsTeamOneInput
@@ -5458,6 +5505,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchUpdateInput = {
@@ -5479,6 +5528,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
     teamOne?: TeamUpdateOneRequiredWithoutMatchesAsTeamOneNestedInput
@@ -5508,6 +5559,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchCreateManyInput = {
@@ -5533,6 +5586,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchUpdateManyMutationInput = {
@@ -5554,6 +5609,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUncheckedUpdateManyInput = {
@@ -5579,6 +5636,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -5793,6 +5852,11 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type PlayerNullableScalarRelationFilter = {
     is?: PlayerWhereInput | null
     isNot?: PlayerWhereInput | null
@@ -5836,6 +5900,8 @@ export namespace Prisma {
     vaultId?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    winnerShareClaimed?: SortOrder
+    loserShareClaimed?: SortOrder
   }
 
   export type MatchAvgOrderByAggregateInput = {
@@ -5872,6 +5938,8 @@ export namespace Prisma {
     vaultId?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    winnerShareClaimed?: SortOrder
+    loserShareClaimed?: SortOrder
   }
 
   export type MatchMinOrderByAggregateInput = {
@@ -5897,6 +5965,8 @@ export namespace Prisma {
     vaultId?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    winnerShareClaimed?: SortOrder
+    loserShareClaimed?: SortOrder
   }
 
   export type MatchSumOrderByAggregateInput = {
@@ -6000,6 +6070,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type MatchCreateNestedManyWithoutPlayerOneInput = {
@@ -6303,6 +6381,10 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput = {
     create?: XOR<PlayerCreateWithoutMatchesAsPlayerOneInput, PlayerUncheckedCreateWithoutMatchesAsPlayerOneInput>
     connectOrCreate?: PlayerCreateOrConnectWithoutMatchesAsPlayerOneInput
@@ -6476,6 +6558,11 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedEnumMatchStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.MatchStatus | EnumMatchStatusFieldRefInput<$PrismaModel>
     in?: $Enums.MatchStatus[] | ListEnumMatchStatusFieldRefInput<$PrismaModel>
@@ -6578,6 +6665,14 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type MatchCreateWithoutPlayerOneInput = {
     id?: string
     status?: $Enums.MatchStatus
@@ -6597,6 +6692,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
     teamOne: TeamCreateNestedOneWithoutMatchesAsTeamOneInput
     teamTwo?: TeamCreateNestedOneWithoutMatchesAsTeamTwoInput
@@ -6624,6 +6721,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateOrConnectWithoutPlayerOneInput = {
@@ -6655,6 +6754,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
     teamOne: TeamCreateNestedOneWithoutMatchesAsTeamOneInput
     teamTwo?: TeamCreateNestedOneWithoutMatchesAsTeamTwoInput
@@ -6682,6 +6783,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateOrConnectWithoutPlayerTwoInput = {
@@ -6762,6 +6865,8 @@ export namespace Prisma {
     vaultId?: StringNullableFilter<"Match"> | string | null
     startTime?: DateTimeNullableFilter<"Match"> | Date | string | null
     endTime?: DateTimeNullableFilter<"Match"> | Date | string | null
+    winnerShareClaimed?: BoolFilter<"Match"> | boolean
+    loserShareClaimed?: BoolFilter<"Match"> | boolean
   }
 
   export type MatchUpsertWithWhereUniqueWithoutPlayerTwoInput = {
@@ -6825,6 +6930,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
     teamTwo?: TeamCreateNestedOneWithoutMatchesAsTeamTwoInput
@@ -6852,6 +6959,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateOrConnectWithoutTeamOneInput = {
@@ -6883,6 +6992,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
     playerOne: PlayerCreateNestedOneWithoutMatchesAsPlayerOneInput
     playerTwo?: PlayerCreateNestedOneWithoutMatchesAsPlayerTwoInput
     teamOne: TeamCreateNestedOneWithoutMatchesAsTeamOneInput
@@ -6910,6 +7021,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateOrConnectWithoutTeamTwoInput = {
@@ -7228,6 +7341,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateManyPlayerTwoInput = {
@@ -7252,6 +7367,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type TeamCreateManyPlayerInput = {
@@ -7279,6 +7396,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
     teamOne?: TeamUpdateOneRequiredWithoutMatchesAsTeamOneNestedInput
     teamTwo?: TeamUpdateOneWithoutMatchesAsTeamTwoNestedInput
@@ -7306,6 +7425,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUncheckedUpdateManyWithoutPlayerOneInput = {
@@ -7330,6 +7451,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUpdateWithoutPlayerTwoInput = {
@@ -7351,6 +7474,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
     teamOne?: TeamUpdateOneRequiredWithoutMatchesAsTeamOneNestedInput
     teamTwo?: TeamUpdateOneWithoutMatchesAsTeamTwoNestedInput
@@ -7378,6 +7503,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUncheckedUpdateManyWithoutPlayerTwoInput = {
@@ -7402,6 +7529,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TeamUpdateWithoutPlayerInput = {
@@ -7448,6 +7577,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchCreateManyTeamTwoInput = {
@@ -7472,6 +7603,8 @@ export namespace Prisma {
     vaultId?: string | null
     startTime?: Date | string | null
     endTime?: Date | string | null
+    winnerShareClaimed?: boolean
+    loserShareClaimed?: boolean
   }
 
   export type MatchUpdateWithoutTeamOneInput = {
@@ -7493,6 +7626,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
     teamTwo?: TeamUpdateOneWithoutMatchesAsTeamTwoNestedInput
@@ -7520,6 +7655,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUncheckedUpdateManyWithoutTeamOneInput = {
@@ -7544,6 +7681,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUpdateWithoutTeamTwoInput = {
@@ -7565,6 +7704,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
     playerOne?: PlayerUpdateOneRequiredWithoutMatchesAsPlayerOneNestedInput
     playerTwo?: PlayerUpdateOneWithoutMatchesAsPlayerTwoNestedInput
     teamOne?: TeamUpdateOneRequiredWithoutMatchesAsTeamOneNestedInput
@@ -7592,6 +7733,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MatchUncheckedUpdateManyWithoutTeamTwoInput = {
@@ -7616,6 +7759,8 @@ export namespace Prisma {
     vaultId?: NullableStringFieldUpdateOperationsInput | string | null
     startTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    winnerShareClaimed?: BoolFieldUpdateOperationsInput | boolean
+    loserShareClaimed?: BoolFieldUpdateOperationsInput | boolean
   }
 
 

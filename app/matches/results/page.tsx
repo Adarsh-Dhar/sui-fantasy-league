@@ -155,14 +155,14 @@ export default function MatchResultsPage() {
       const shareAmount = Math.floor(amount * 1000000000);
 
       // Call the withdraw function from the contract
-     const coin = tx.moveCall({
-      target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
-      typeArguments: ['0x2::sui::SUI'],
-      arguments: [
-        tx.object(match.vaultId || ''),
-        tx.pure.u64(shareAmount),
-      ],
-     })
+      const coin = tx.moveCall({
+        target: `${VAULT_PACKAGE_ID}::simple_vault::withdraw`,
+        typeArguments: ['0x2::sui::SUI'],
+        arguments: [
+          tx.object(match.vaultId || ''),
+          tx.pure.u64(shareAmount),
+        ],
+      })
 
       tx.transferObjects([coin], account.address);
 
@@ -171,9 +171,29 @@ export default function MatchResultsPage() {
           transaction: tx,
         },
         {
-          onSuccess: (result) => {
-            if (result.effects === 'success') {
-              toast.success(`Successfully withdrew ${shareAmount} SUI`);
+          onSuccess: async (result) => {
+            // @ts-ignore
+            if (result.effects?.status?.status === 'success') {
+              // Update match status in database to reflect withdrawal
+              const response = await fetch(`/api/matches/${match.id}/claim`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  amount: shareAmount,
+                  playerAddress: account.address
+                })
+              });
+
+              if (response.ok) {
+                toast.success(`Successfully withdrew ${amount} SUI`);
+                // Refresh match data
+                const updatedMatch = await fetch(`/api/game/match?id=${matchId}`).then(res => res.json());
+                setMatch(updatedMatch.match);
+              } else {
+                toast.error('Failed to update claim status');
+              }
             } else {
               toast.error('Failed to withdraw share');
             }
