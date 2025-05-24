@@ -3,57 +3,30 @@ import { TokenData } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-class Logger {
-  log(message: string) {
-    console.log(message);
-  }
-
-  error(message: string) {
-    console.error(message);
-  }
-}
-
 class TokenService {
-  private tokenList: Record<string, TokenData[]> = {};
-  private logger = new Logger();
+  private tokenList: Record<string, TokenData[]> = {
+    spot: [
+      {
+        id: 'BTC', name: 'BTC', symbol: 'BTC',
+        price: 0
+      },
+      {
+        id: 'ETH', name: 'ETH', symbol: 'ETH',
+        price: 0
+      },
+      {
+        id: 'SOL', name: 'SOL', symbol: 'SOL',
+        price: 0
+      },
+      {
+        id: 'BNB', name: 'BNB', symbol: 'BNB',
+        price: 0
+      }
+    ]
+  };
 
   async getTokenList(category: string = 'spot'): Promise<TokenData[]> {
-    if (!this.tokenList[category]) {
-      let url = 'https://api.binance.com/api/v3/exchangeInfo';
-      if (category === 'futures') {
-        url = 'https://fapi.binance.com/fapi/v1/exchangeInfo';
-      }
-      const response = await fetch(url);
-      try {
-        const data = await response.json();
-        if (!data.symbols || !Array.isArray(data.symbols)) {
-          this.logger.error('Invalid API response format');
-          return [];
-        }
-        
-        const tokens: TokenData[] = data.symbols.map((item: any) => ({
-          id: item.baseAsset,
-          name: item.baseAsset,
-          symbol: item.baseAsset
-        }));
-        
-        // Remove duplicates based on id
-        const uniqueTokens: TokenData[] = Array.from(
-          new Map(tokens.map(token => [token.id, token])).values()
-        );
-        
-        this.logger.log(
-          `Found ${uniqueTokens.length} ${category} tokens on Binance`,
-        );
-        this.tokenList[category] = uniqueTokens;
-        return uniqueTokens;
-      } catch (error) {
-        this.logger.error(`Error fetching data: ${error}`);
-        return [];
-      }
-    }
-    console.log('tokenList', this.tokenList);
-    return this.tokenList[category];
+    return this.tokenList[category] || [];
   }
 }
 
